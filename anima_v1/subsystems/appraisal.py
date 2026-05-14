@@ -11,13 +11,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from anima.config.schema import AnimaConfig
-from anima.llm.base import LLMAdapter
-from anima.state.drives import DriveState
-from anima.state.mood import MoodVector
-from anima.state.self_model import SelfModel
-from anima.subsystems._common import extract_json
-from anima.subsystems.perception import Perception
+from anima_v1.config.schema import AnimaConfig
+from anima_v1.llm.base import LLMAdapter
+from anima_v1.state.drives import DriveState
+from anima_v1.state.mood import MoodVector
+from anima_v1.state.self_model import SelfModel
+from anima_v1.subsystems._common import extract_json
+from anima_v1.subsystems.perception import Perception
 
 
 @dataclass

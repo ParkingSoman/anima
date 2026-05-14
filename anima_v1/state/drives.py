@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from anima.config.schema import PankseppDrives
+from anima_v1.config.schema import PankseppDrives
 
 
 def _clip01(x: float) -> float:

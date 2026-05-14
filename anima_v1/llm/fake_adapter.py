@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import re
 
-from anima.llm.base import LLMResponse, Tier
+from anima_v1.llm.base import LLMResponse, Tier
 
 
 _PERCEPTION_JSON = (

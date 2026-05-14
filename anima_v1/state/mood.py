@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from anima.config.schema import Big5
+from anima_v1.config.schema import Big5
 
 
 def _clip(x: float, lo: float = -1.0, hi: float = 1.0) -> float:

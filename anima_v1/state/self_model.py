@@ -20,7 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from anima.config.schema import AnimaConfig
+from anima_v1.config.schema import AnimaConfig
 
 
 @dataclass

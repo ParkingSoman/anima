@@ -5,7 +5,7 @@ from typing import Literal
 
 from anthropic import Anthropic
 
-from anima.llm.base import LLMResponse, Tier
+from anima_v1.llm.base import LLMResponse, Tier
 
 
 class AnthropicAdapter:

@@ -11,8 +11,8 @@ from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
 
-from anima.core import Anima
-from anima.llm import make_adapter
+from anima_v1.core import Anima
+from anima_v1.llm import make_adapter
 from verification.baseline import BaselineAnima
 
 

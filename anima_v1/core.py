@@ -10,16 +10,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from anima.config import AnimaConfig, load_config
-from anima.llm.base import LLMAdapter
-from anima.llm import make_adapter
-from anima.state.drives import DriveState
-from anima.state.mood import MoodVector
-from anima.state.self_model import SelfModel
-from anima.subsystems.appraisal import AppraisalSubsystem
-from anima.subsystems.inner_monologue import InnerMonologueSubsystem
-from anima.subsystems.perception import PerceptionSubsystem
-from anima.subsystems.response_generator import ResponseGeneratorSubsystem
+from anima_v1.config import AnimaConfig, load_config
+from anima_v1.llm.base import LLMAdapter
+from anima_v1.llm import make_adapter
+from anima_v1.state.drives import DriveState
+from anima_v1.state.mood import MoodVector
+from anima_v1.state.self_model import SelfModel
+from anima_v1.subsystems.appraisal import AppraisalSubsystem
+from anima_v1.subsystems.inner_monologue import InnerMonologueSubsystem
+from anima_v1.subsystems.perception import PerceptionSubsystem
+from anima_v1.subsystems.response_generator import ResponseGeneratorSubsystem
 
 
 @dataclass

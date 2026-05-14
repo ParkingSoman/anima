@@ -1,8 +1,8 @@
-from anima.llm.base import LLMAdapter, LLMResponse, Tier
-from anima.llm.anthropic_adapter import AnthropicAdapter
-from anima.llm.openai_adapter import OpenAIAdapter
-from anima.llm.openrouter_adapter import OpenRouterAdapter
-from anima.llm.fake_adapter import FakeAdapter
+from anima_v1.llm.base import LLMAdapter, LLMResponse, Tier
+from anima_v1.llm.anthropic_adapter import AnthropicAdapter
+from anima_v1.llm.openai_adapter import OpenAIAdapter
+from anima_v1.llm.openrouter_adapter import OpenRouterAdapter
+from anima_v1.llm.fake_adapter import FakeAdapter
 
 __all__ = [
     "LLMAdapter",

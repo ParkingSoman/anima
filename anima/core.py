@@ -6,6 +6,7 @@ Phase 1 MVP turn loop:
 
 from __future__ import annotations
 
+import datetime as _dt
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -15,7 +16,7 @@ from anima.llm.base import LLMAdapter
 from anima.llm import make_adapter
 from anima.persistence.store import AnimaStore, AnimaStoreSnapshot
 from anima.state.drives import DriveState
-from anima.state.episodic import EpisodicStore
+from anima.state.episodic import AffectTag, EpisodicEvent, EpisodicStore
 from anima.state.mood import MoodVector
 from anima.state.relations import PredictedIntent, RelationsStore
 from anima.state.self_model import SelfModel
@@ -279,6 +280,42 @@ class Anima:
             prediction=prediction.to_jsonable(),
         )
         self.traces.append(trace)
+
+        # 10. self_monitor (E6). Encode this turn as an EpisodicEvent so the
+        # retrieval subsystem has something to surface next turn. The Phase-2
+        # importance score is a transparent linear blend of:
+        #   (a) how much this turn mattered to the Anima (appraisal-derived),
+        #   (b) how strong the felt experience was (mood-derived),
+        #   (c) how much internal language it produced (monologue-length).
+        # All operands clamped to [0,1]; weights sum to 1.0. ML-scored
+        # importance is a later-phase upgrade — the heuristic is enough to
+        # make cross-session memory functional today.
+        importance = max(0.05, min(1.0,
+            0.3 * abs(appraisal.ego_relevance)
+            + 0.3 * abs(self.mood.valence)
+            + 0.2 * min(1.0, len(monologue.text) / 600.0)
+            + 0.2 * abs(appraisal.coping_potential)
+        ))
+        # Event ID: ISO-second timestamp + turn ordinal. Turn ordinal makes
+        # IDs unique even when two events land in the same wall-clock second.
+        now_utc = _dt.datetime.now(_dt.timezone.utc)
+        turn_num = len(self.episodic_store.events) + 1
+        event_id = f"ev-{now_utc.strftime('%Y%m%dT%H%M%SZ')}-{turn_num}"
+        # full_content is the verbatim user+self pair. content_summary is a
+        # short, retrieval-keyword-friendly one-liner (the retrieval ranker
+        # substring-matches on summary OR full_content).
+        ev = EpisodicEvent(
+            id=event_id,
+            ts=now_utc.isoformat(timespec="seconds"),
+            content_summary=f"user: {user_msg[:80]}",
+            full_content=f"user: {user_msg}\nself: {response.text}",
+            participants=[self.cfg.biography.name.lower(), "user"],
+            affect_tag=AffectTag.from_mood(self.mood),  # post-appraisal mood
+            importance=importance,
+            retrieval_count=0,
+            links=[],
+        )
+        self.episodic_store.append(ev)
 
         # E5: autosave countdown. We tick AFTER the trace is appended so a
         # crash mid-turn doesn't leave a half-recorded turn on disk.

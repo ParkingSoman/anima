@@ -1,4 +1,4 @@
-from anima.config.schema import (
+from anima_v1.config.schema import (
     AnimaConfig,
     Big5,
     Attachment,

@@ -18,9 +18,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from anima.config.schema import AnimaConfig
-from anima.llm.base import LLMAdapter
-from anima.state.self_model import SelfModel
+from anima_v1.config.schema import AnimaConfig
+from anima_v1.llm.base import LLMAdapter
+from anima_v1.state.self_model import SelfModel
 
 
 @dataclass
@@ -153,7 +153,7 @@ class InnerMonologueSubsystem:
         parameter-aware monologue length. When False (default), behavior is
         unchanged.
         """
-        from anima.subsystems.appraisal import _config_appraisal_block
+        from anima_v1.subsystems.appraisal import _config_appraisal_block
 
         if ablate:
             min_s, max_s = 2, 6

@@ -4,7 +4,7 @@ import os
 
 from openai import OpenAI
 
-from anima.llm.base import LLMResponse, Tier
+from anima_v1.llm.base import LLMResponse, Tier
 
 
 class OpenAIAdapter:
