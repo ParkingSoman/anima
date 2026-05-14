@@ -106,6 +106,7 @@ class ResponseGeneratorSubsystem:
         monologue_view: str,
         user_msg: str,
         conversation_history: list[dict],
+        retrieval_view: str = "",
     ) -> GeneratedResponse:
         from anima.subsystems.appraisal import _config_appraisal_block
 
@@ -124,7 +125,9 @@ class ResponseGeneratorSubsystem:
             + self_model.render() + "\n\n"
             + register_hint + "\n\n"
             + mood_view + "\n\n"
-            + perception_view + "\n\n"
+            + perception_view
+            + ("\n\n" + retrieval_view if retrieval_view else "")
+            + "\n\n"
             + appraisal_view + "\n\n"
             + monologue_view + "\n\n"
             + "Given all of the above — what does this person ACTUALLY SAY in reply?"

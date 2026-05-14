@@ -143,6 +143,7 @@ class InnerMonologueSubsystem:
         recent_monologue_summary: str,
         user_msg: str,
         ablate: bool = False,
+        retrieval_view: str = "",
     ) -> Monologue:
         """Run the inner monologue.
 
@@ -173,7 +174,9 @@ class InnerMonologueSubsystem:
             + self_model.render() + "\n\n"
             + mood_view + "\n\n"
             + drive_view + "\n\n"
-            + perception_view + "\n\n"
+            + perception_view
+            + ("\n\n" + retrieval_view if retrieval_view else "")
+            + "\n\n"
             + appraisal_view + "\n\n"
             + "--- the relational sense I have of this partner ---\n"
             + (relational_summary or "no prior interactions yet")

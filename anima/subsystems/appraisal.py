@@ -112,7 +112,7 @@ class AppraisalSubsystem:
 
     def run(self, *, cfg: AnimaConfig, self_model: SelfModel,
             mood_view: str, drive_view: str, perception: Perception,
-            perception_view: str) -> Appraisal:
+            perception_view: str, retrieval_view: str = "") -> Appraisal:
         system = (
             _INSTR + "\n\n"
             + _config_appraisal_block(cfg) + "\n\n"
@@ -120,6 +120,7 @@ class AppraisalSubsystem:
             + mood_view + "\n\n"
             + drive_view + "\n\n"
             + perception_view
+            + ("\n\n" + retrieval_view if retrieval_view else "")
         )
         msgs = [{"role": "user",
                  "content": "Appraise the situation. Return only the JSON object."}]

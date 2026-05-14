@@ -14,10 +14,12 @@ from anima.config import AnimaConfig, load_config
 from anima.llm.base import LLMAdapter
 from anima.llm import make_adapter
 from anima.state.drives import DriveState
+from anima.state.episodic import EpisodicStore
 from anima.state.mood import MoodVector
 from anima.state.self_model import SelfModel
 from anima.subsystems.appraisal import AppraisalSubsystem
 from anima.subsystems.inner_monologue import InnerMonologueSubsystem
+from anima.subsystems.memory_retrieval import MemoryRetrieval
 from anima.subsystems.perception import PerceptionSubsystem
 from anima.subsystems.response_generator import ResponseGeneratorSubsystem
 
@@ -33,6 +35,7 @@ class TurnTrace:
     drives_before: dict
     drives_after: dict
     response: str
+    retrieved: list[dict] = field(default_factory=list)
     usage: dict = field(default_factory=dict)
 
 
@@ -71,6 +74,11 @@ class Anima:
         self._appraisal = AppraisalSubsystem(self.llm)
         self._monologue = InnerMonologueSubsystem(self.llm)
         self._response = ResponseGeneratorSubsystem(self.llm)
+        self._memory = MemoryRetrieval(self.llm)
+
+        # Phase-2 episodic store. Empty at construction; E6 self-monitor will
+        # populate it from each turn's encoding pass.
+        self.episodic_store = EpisodicStore()
 
         self.traces: list[TurnTrace] = []
 
@@ -97,10 +105,24 @@ class Anima:
         )
         perception_view = self._perception.render(perception)
 
-        # 3. appraisal (memory triggering deferred to phase 2)
+        # 2. memory retrieval (Phase 2). Reconstructive recall — see
+        # anima/subsystems/memory_retrieval.py. retrieval_view is appended to
+        # every downstream subsystem prompt so appraisal/monologue/response
+        # all read against the same surfaced memories.
+        retrieved = self._memory.run(
+            perception=perception, perception_view=perception_view,
+            self_model=self.self_model, mood=self.mood,
+            active_schemas=[s.value for s in self.cfg.schemas],
+            episodic_store=self.episodic_store,
+            k=3,
+        )
+        retrieval_view = self._memory.render(retrieved)
+
+        # 3. appraisal
         appraisal = self._appraisal.run(
             cfg=self.cfg, self_model=self.self_model, mood_view=mood_view,
             drive_view=drive_view, perception=perception, perception_view=perception_view,
+            retrieval_view=retrieval_view,
         )
         self._appraisal.apply(appraisal=appraisal, mood=self.mood, drives=self.drives)
         appraisal_view = self._appraisal.render(appraisal)
@@ -116,6 +138,7 @@ class Anima:
             recent_monologue_summary=self.recent_monologue_summary,
             user_msg=user_msg,
             ablate=self.ablate_monologue_length,
+            retrieval_view=retrieval_view,
         )
         monologue_view = self._monologue.render(monologue)
 
@@ -125,6 +148,7 @@ class Anima:
             perception_view=perception_view, appraisal_view=appraisal_view,
             monologue_view=monologue_view, user_msg=user_msg,
             conversation_history=self.conversation_history,
+            retrieval_view=retrieval_view,
         )
 
         # Bookkeeping
@@ -147,6 +171,12 @@ class Anima:
             drives_before=drives_before,
             drives_after=dict(self.drives.activations),
             response=response.text,
+            retrieved=[
+                {"id": rm.event.id, "score": rm.score,
+                 "retrieval_reason": rm.retrieval_reason,
+                 "reconstructed_framing": rm.reconstructed_framing}
+                for rm in retrieved
+            ],
             usage=response.metadata.get("usage", {}),
         )
         self.traces.append(trace)
