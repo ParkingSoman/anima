@@ -15,6 +15,7 @@ from anima.config.schema import AnimaConfig
 from anima.llm.base import LLMAdapter
 from anima.state.drives import DriveState
 from anima.state.mood import MoodVector
+from anima.state.relations import SurpriseRecord
 from anima.state.self_model import SelfModel
 from anima.subsystems._common import extract_json
 from anima.subsystems.perception import Perception
@@ -112,7 +113,23 @@ class AppraisalSubsystem:
 
     def run(self, *, cfg: AnimaConfig, self_model: SelfModel,
             mood_view: str, drive_view: str, perception: Perception,
-            perception_view: str, retrieval_view: str = "") -> Appraisal:
+            perception_view: str, retrieval_view: str = "",
+            surprise: SurpriseRecord | None = None) -> Appraisal:
+        # Master plan §10 step 3a: the prior turn's prediction error perturbs
+        # appraisal. When ``surprise`` is None (turn 1, or no prior prediction)
+        # the prompt is byte-identical to the pre-E3 form.
+        surprise_block = ""
+        if surprise is not None:
+            pi = surprise.predicted_intent
+            surprise_block = (
+                "\n\n--- prediction-violation signal from prior turn ---\n"
+                f"You predicted the partner would do: "
+                f"'{pi.next_intent_label}' / '{pi.content_hint}'. "
+                f"They actually said something whose perceived intent reads as different. "
+                f"Surprise level: {surprise.surprise_score:.2f}. Take this into account "
+                f"when appraising relevance/congruence/ego-relevance/coping potential.\n"
+                "--- end signal ---"
+            )
         system = (
             _INSTR + "\n\n"
             + _config_appraisal_block(cfg) + "\n\n"
@@ -121,6 +138,7 @@ class AppraisalSubsystem:
             + drive_view + "\n\n"
             + perception_view
             + ("\n\n" + retrieval_view if retrieval_view else "")
+            + surprise_block
         )
         msgs = [{"role": "user",
                  "content": "Appraise the situation. Return only the JSON object."}]

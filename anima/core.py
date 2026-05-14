@@ -16,12 +16,14 @@ from anima.llm import make_adapter
 from anima.state.drives import DriveState
 from anima.state.episodic import EpisodicStore
 from anima.state.mood import MoodVector
+from anima.state.relations import PredictedIntent, RelationsStore
 from anima.state.self_model import SelfModel
 from anima.subsystems.appraisal import AppraisalSubsystem
 from anima.subsystems.inner_monologue import InnerMonologueSubsystem
 from anima.subsystems.memory_retrieval import MemoryRetrieval
 from anima.subsystems.perception import PerceptionSubsystem
 from anima.subsystems.response_generator import ResponseGeneratorSubsystem
+from anima.subsystems.user_prediction import UserPredictionSubsystem, _now_ts
 
 
 @dataclass
@@ -37,6 +39,9 @@ class TurnTrace:
     response: str
     retrieved: list[dict] = field(default_factory=list)
     usage: dict = field(default_factory=dict)
+    # E3: theory-of-mind trace fields.
+    surprise_from_last_turn: dict = field(default_factory=dict)  # serialized SurpriseRecord or {}
+    prediction: dict = field(default_factory=dict)               # serialized PredictionResult
 
 
 class Anima:
@@ -75,10 +80,17 @@ class Anima:
         self._monologue = InnerMonologueSubsystem(self.llm)
         self._response = ResponseGeneratorSubsystem(self.llm)
         self._memory = MemoryRetrieval(self.llm)
+        self._user_prediction = UserPredictionSubsystem(self.llm)
 
         # Phase-2 episodic store. Empty at construction; E6 self-monitor will
         # populate it from each turn's encoding pass.
         self.episodic_store = EpisodicStore()
+
+        # Phase-2 relational schemas (§5.2 / §6). Theory-of-mind state lives
+        # here: predictions made about the user, surprise history, beliefs.
+        # Cross-session persistence is E5; this is in-memory for now.
+        self.relations = RelationsStore()
+        self._user_relation = self.relations.get_or_create("user")
 
         self.traces: list[TurnTrace] = []
 
@@ -118,14 +130,42 @@ class Anima:
         )
         retrieval_view = self._memory.render(retrieved)
 
-        # 3. appraisal
+        # 3a. surprise from last turn's prediction (master plan §10 / §11.10).
+        # On turn 1 this is None (no prior prediction exists). After turn 1, we
+        # compare what we predicted the user would do against what they
+        # actually did — feed the prediction-error into appraisal.
+        last_prediction = self._user_relation.last_prediction()
+        surprise = self._user_prediction.compute_surprise(
+            last_prediction=last_prediction, perception=perception,
+        )
+        if surprise is not None:
+            self._user_relation.record_surprise(surprise)
+
+        # 3. appraisal (now reads the surprise signal when present)
         appraisal = self._appraisal.run(
             cfg=self.cfg, self_model=self.self_model, mood_view=mood_view,
             drive_view=drive_view, perception=perception, perception_view=perception_view,
-            retrieval_view=retrieval_view,
+            retrieval_view=retrieval_view, surprise=surprise,
         )
         self._appraisal.apply(appraisal=appraisal, mood=self.mood, drives=self.drives)
         appraisal_view = self._appraisal.render(appraisal)
+
+        # 4. user prediction (this turn's guess at next turn's user move).
+        # Recorded on the relational schema so the NEXT turn's surprise
+        # computation has something to compare against.
+        prediction = self._user_prediction.predict(
+            perception=perception, perception_view=perception_view,
+            self_model=self.self_model, appraisal_view=appraisal_view,
+            relational_schema=self._user_relation,
+        )
+        self._user_relation.record_prediction(PredictedIntent(
+            ts=_now_ts(),
+            perceived_input_summary=perception.literal_content[:200],
+            next_intent_label=prediction.next_intent_label,
+            content_hint=prediction.content_hint,
+            confidence=prediction.confidence,
+        ))
+        prediction_view = self._user_prediction.render(prediction, surprise)
 
         # 5. inner monologue (re-render mood/drives so they reflect appraisal updates)
         post_mood_view = self.mood.render()
@@ -139,6 +179,7 @@ class Anima:
             user_msg=user_msg,
             ablate=self.ablate_monologue_length,
             retrieval_view=retrieval_view,
+            prediction_view=prediction_view,
         )
         monologue_view = self._monologue.render(monologue)
 
@@ -149,6 +190,7 @@ class Anima:
             monologue_view=monologue_view, user_msg=user_msg,
             conversation_history=self.conversation_history,
             retrieval_view=retrieval_view,
+            prediction_view=prediction_view,
         )
 
         # Bookkeeping
@@ -178,6 +220,8 @@ class Anima:
                 for rm in retrieved
             ],
             usage=response.metadata.get("usage", {}),
+            surprise_from_last_turn=(surprise.to_jsonable() if surprise else {}),
+            prediction=prediction.to_jsonable(),
         )
         self.traces.append(trace)
         return response.text, trace

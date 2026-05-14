@@ -107,6 +107,7 @@ class ResponseGeneratorSubsystem:
         user_msg: str,
         conversation_history: list[dict],
         retrieval_view: str = "",
+        prediction_view: str = "",
     ) -> GeneratedResponse:
         from anima.subsystems.appraisal import _config_appraisal_block
 
@@ -127,6 +128,7 @@ class ResponseGeneratorSubsystem:
             + mood_view + "\n\n"
             + perception_view
             + ("\n\n" + retrieval_view if retrieval_view else "")
+            + ("\n\n" + prediction_view if prediction_view else "")
             + "\n\n"
             + appraisal_view + "\n\n"
             + monologue_view + "\n\n"

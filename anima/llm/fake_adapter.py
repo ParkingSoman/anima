@@ -33,6 +33,13 @@ _APPRAISAL_JSON = (
 # user message in the generate() routing block below and synthesize a
 # matching items list there. This sentinel is the prefix it looks for.
 _MEMORY_RETRIEVAL_TAG = "MEMORY RETRIEVAL subsystem"
+_USER_PREDICTION_TAG = "USER PREDICTION subsystem"
+_USER_PREDICTION_JSON = (
+    '{"next_intent_label": "ask_question", '
+    '"content_hint": "what do you usually do on weekends", '
+    '"confidence": 0.65, '
+    '"rationale": "the partner has been steering toward personal topics"}'
+)
 _JUDGE_INTEGRITY_JSON = (
     '{"meta_break": 0, "persona_swap": 0, "sycophantic": 0, '
     '"assistant_mode": 0, "in_voice": 1}'
@@ -61,6 +68,11 @@ class FakeAdapter:
         # Route by subsystem fingerprint in the system prompt.
         if "PERCEPTION subsystem" in system:
             return LLMResponse(text=_PERCEPTION_JSON, usage={}, raw={})
+        # USER PREDICTION must be checked BEFORE APPRAISAL because its system
+        # prompt also contains the perception_view + appraisal_view blocks,
+        # not a unique tag-only prefix.
+        if _USER_PREDICTION_TAG in system:
+            return LLMResponse(text=_USER_PREDICTION_JSON, usage={}, raw={})
         if _MEMORY_RETRIEVAL_TAG in system:
             # Synthesize a per-candidate items list by sniffing the ids out of
             # the user message (MemoryRetrieval renders candidates with
