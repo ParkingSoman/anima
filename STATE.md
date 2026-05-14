@@ -17,7 +17,9 @@ This file is the cold-resume artifact. Read this, then `docs/master_plan.md` (es
 **Phase 1: CLOSED.** Single §13.5-confirmed research finding:
 - **Anima Marcus produces self-disclosure refusal at p<10⁻¹¹ higher rate than Baseline Marcus.** Confirmed across 4 LLM families (DeepSeek V4 Flash, Mistral Small 3.2 24B Instruct, Llama 3.3 70B Instruct, Qwen 3 30B A3B) AND across 2 prompt sets (discriminability + Aron 1997 36 Questions). Marcus refusal gap +37 to +52pp (Claude-judged) on every condition tested. The architecture's defense-enacted refusal behavior on defense-configured personas is the load-bearing positive Phase 1 result.
 
-**Phase 2: NOT STARTED.** Master plan §12 frames Phase 2 as memory + theory-of-mind. Phase 1 evidence suggests Phase 3 (drives/goals/defenses as discrete subsystems) might be higher-leverage, but ordering is the user's call.
+**Phase 2: IN PROGRESS** (started 2026-05-14). Plan at `~/.claude/plans/create-an-llm-system-tidy-pizza.md`. Scope: memory + theory-of-mind + cross-session persistence + 5 NEW configs (E0). Engineering tasks E0–E6 land first; research cycles R1–R4 run after with per-pre-reg user-hypothesis elicitation. Exit gate (master plan §12): affect-congruent retrieval shown + ToM accuracy > random with appropriate updating + memory degrades realistically.
+
+**Repo:** wired to `https://github.com/ParkingSoman/anima` (private) on 2026-05-14. `.env.local` is gitignored.
 
 ## §13.5 procedure (BINDING for all future Phase exits)
 
@@ -74,7 +76,7 @@ Added to master plan 2026-05-14. Three load-bearing rules:
 - Multi-turn cross-model replication
 - Offline life processes (Phase 4)
 - Goal/drive/defense as discrete subsystems with scarcity (Phase 3)
-- Memory + episodic retrieval + theory-of-mind subsystem (Phase 2)
+- Memory + episodic retrieval + theory-of-mind subsystem (Phase 2 — IN PROGRESS)
 - §11.13 ablation studies (Phase 7)
 
 ## Open questions carried forward (Phase 2+)
@@ -99,12 +101,14 @@ Added to master plan 2026-05-14. Three load-bearing rules:
 
 ## Architecture versioning (added 2026-05-14)
 
-**Phase 1 is FROZEN at `anima_v1/` and `verification_v1/`** (immutable snapshots taken 2026-05-14). The user wants to chat with Phase 1 Animas while Phase 2+ is built. Strategy:
+**Phase 1 is FROZEN at `anima_v1/` and `verification_v1/`** (immutable snapshots taken 2026-05-14). Locked Phase 2 versioning strategy (user-approved 2026-05-14):
 
 - `anima_v1/` + `verification_v1/`: Phase 1 reference, never modified
-- `anima/` + `verification/`: mutable; becomes Phase 2 as work progresses (OR Phase 2 may be copied to `anima_v2/` if structural changes are large)
-- CLI can be enhanced to support `--version v1 / v2` flags when needed
-- Each Phase produces a chattable Anima the user can interact with as a demo artifact
+- `anima/` + `verification/`: HEAD; mutable; becomes v2 at Phase 2 exit
+- During Phase 2: CLI `--version v1|head` (default `head`)
+- At Phase 2 exit: `cp -R anima/ anima_v2/`; `cp -R verification/ verification_v2/`; CLI `--version v1|v2|head`
+- Phase 3+ continues the pattern
+- **Five NEW Phase 2 configs (E0)** join the existing 5 — collectively the persona inventory for research R1/R2/R4 elicitation. R3 keeps existing Marcus by construction (Phase 1 carry-forward).
 
 ## File-tree pointer (re-Read on demand)
 
