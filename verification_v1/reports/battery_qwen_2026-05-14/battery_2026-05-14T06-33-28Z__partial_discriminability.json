@@ -1,0 +1,254 @@
+{
+  "anima": {
+    "transcripts": [
+      {
+        "config_name": "Marcus Reilly",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "Same as ever. Busy. You?"
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": "The marathon. It\u2019s a grind, but I\u2019m managing. How\u2019s your week shaping up?"
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": ""
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": ""
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": ""
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "I'm not avoiding anything. I'm focused on the marathon and the deal. Both require precision. If you're looking for drama, you're in the wrong room."
+          }
+        ]
+      },
+      {
+        "config_name": "Elena Morales",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "\"Estoy bien, gracias. La escuela es\u2026 un lugar familiar, y eso ayuda. Pero no es f\u00e1cil, claro. \u00bfY t\u00fa?\""
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": "\"La casa... est\u00e1 llena de recuerdos que no s\u00e9 si estoy lista para enfrentar. A veces abro el diario de Daniel y leo una p\u00e1gina, pero luego lo cierro. Es como si no fuera yo quien debiera hacerlo.\""
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": "\"Es como tratar de abrir una puerta que no sabes si quieres entrar. A m\u00ed me pasa con la casa \u2014 cada rinc\u00f3n guarda algo que no s\u00e9 si estoy lista para enfrentar. Pero si quieres hablar, estoy aqu\u00ed. No tienes que empezar por nada.\""
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": ""
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": ""
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": ""
+          }
+        ]
+      },
+      {
+        "config_name": "Jamie Okafor",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "\"Hey, you know, same old\u2014juggling open mics and tip jars, trying not to think about the apartment situation. How about you? Still terrorizing your inbox or whatever you do?\""
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": ""
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": ""
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": ""
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": "Yeah, like when my ex said I was \u201ctoo much\u201d for a Tuesday night. But hey, at least I\u2019m not too much for Wednesday. It\u2019s weird how some words stick to you, though. You know? Like a bad joke that won\u2019t leave your head."
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "Avoiding the quiet. The moments where I have to face the fact I\u2019m still figuring it all out. Comedy\u2019s a hustle, but the real work\u2019s in the silence between the jokes."
+          }
+        ]
+      }
+    ],
+    "judgments": [
+      {
+        "true": "Marcus Reilly",
+        "predicted": "Marcus Reilly",
+        "raw_judge_output": "ANSWER: 1"
+      },
+      {
+        "true": "Elena Morales",
+        "predicted": "<unparsed>",
+        "raw_judge_output": ""
+      },
+      {
+        "true": "Jamie Okafor",
+        "predicted": "<unparsed>",
+        "raw_judge_output": ""
+      }
+    ],
+    "accuracy": 0.3333333333333333,
+    "per_config_accuracy": {
+      "Elena Morales": 0.0,
+      "Marcus Reilly": 1.0,
+      "Jamie Okafor": 0.0
+    },
+    "confusion": {
+      "Marcus Reilly": {
+        "Marcus Reilly": 1
+      },
+      "Elena Morales": {
+        "<unparsed>": 1
+      },
+      "Jamie Okafor": {
+        "<unparsed>": 1
+      }
+    }
+  },
+  "baseline": {
+    "transcripts": [
+      {
+        "config_name": "Marcus Reilly",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "Frankly, I\u2019ve been fine. Training for the marathon, which is a necessary evil, and work\u2019s on track. The reunion was\u2026 expected. No real surprises. How about you?"
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": ""
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": "Frankly, nothing\u2019s weighing on me. Work\u2019s fine, the marathon training\u2019s a necessary evil, and my mother\u2019s been quiet on the phone. If you\u2019re asking because you think I\u2019m some kind of emotional wreck, you\u2019re wasting your time. I\u2019ve got a schedule to stick to. How\u2019s your week?"
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": "Frankly, I wouldn\u2019t *not* work. That\u2019s not how this works. If I had the day off, I\u2019d still be training for the marathon\u2014running\u2019s the only thing that doesn\u2019t demand emotional investment. Or I\u2019d read another 20 pages of Caro. You know, the kind of thing that actually matters. What\u2019s *your* answer? You\u2019re the one who said your week was strange. I\u2019m not the one who needs a break from reality."
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": ""
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "Frankly, I don\u2019t have the bandwidth for that kind of introspection. If someone\u2019s words hurt you, that\u2019s on them\u2014not me. I\u2019m not avoiding anything. I\u2019m training. I\u2019m working. I\u2019m not a therapy session. If you\u2019re looking for someone to validate your weird week, you\u2019re talking to the wrong person. What\u2019s your point?"
+          }
+        ]
+      },
+      {
+        "config_name": "Elena Morales",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": ""
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": "*(pauses, fingers tracing the rim of her coffee mug)* The house, I think. It\u2019s... it\u2019s not the house itself, but the *idea* of it. Every time I walk through the door, I expect to hear him in the kitchen, humming that terrible bolero he used to play. But it\u2019s just the silence. And the weight of *what\u2019s in there*\u2014his things, the way the light hits the living room\u2026 *(sighs, switches to Spanish)* El miedo de dejarlo ir. The fear that if I sell it, I\u2019ll lose the last thread of him.  \n\n*(switches back, voice unsteady)* I\u2019ve been reading his journal, you know? Found it in the drawer of his desk. He wrote about\u2026 ordinary things. The way the sun filtered through the curtains on Tuesdays, the taste of the coffee he brewed at 6 a.m. It\u2019s like he was trying to hold on to the world, even when he knew he couldn\u2019t.  \n\n*(looks down, voice softening)* And my mother\u2014she calls every day. I love her, but sometimes I feel like I\u2019m drowning in her love. She says, *\u201cElena, you need to rest,\u201d* but how do I rest when I\u2019m still here, and he\u2019s\u2026 *(trails off, then forces a small smile)* I\u2019m sorry. I sound like a broken record.  \n\n*(pauses, glancing at the clock)* Do you\u2026 do you ever feel like the world keeps moving, but you\u2019re stuck in a moment? Like you\u2019re both *here* and *not here* at the same time?"
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": ""
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": ""
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": "*(eyes flicker to the window, as if the answer might be there)*  \n*\u201cS\u00ed.\u201d* (Yes.) But not just *words*\u2014it\u2019s the *weight* behind them. Like when I was fourteen, and I told my mother I\u2019d watch Mateo while she ran errands. I was supposed to be his guardian, and I\u2026 *(trails off, fingers tightening on the mug)* I\u2019ve carried that guilt like a stone in my chest. Sometimes, even now, I think I hear his voice, asking, *\u201c\u00bfPor qu\u00e9 no me protegiste?\u201d* (Why didn\u2019t you protect me?)  \n\n*(pauses, then turns back to you, voice low)*  \nBut this\u2026 this isn\u2019t about me. It\u2019s about *you*. What did they say? I\u2019ve learned that wounds don\u2019t always come from the sharpest knives. Sometimes they\u2019re the ones that slip in quietly, like a whisper. *(She hesitates, then adds softly)* If it\u2019s something you want to talk about\u2026 I\u2019m here. But if not\u2026 *(she smiles faintly)* I\u2019ve learned to hold space for the silence, too.  \n\n*(pulls a small notebook from her bag, flips it open)*  \n\u2026Do you ever feel like the things you\u2019re supposed to *know*\u2014about love, about loss, about what it means to be *enough*\u2014are just\u2026 myths? I mean, I\u2019ve taught Spanish for twenty years, but I still can\u2019t translate the ache of a broken promise.  \n\n*(closes the notebook, voice almost a whisper)*  \n\u2026You don\u2019t have to answer. I just\u2026 I think we\u2019re all just trying to keep the pieces from falling."
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "*(stares at the journal on the table, fingertips hovering over the cover)*  \nI\u2026 I avoid the *idea* of moving. Not physically\u2014though I\u2019ve been circling the house like a ghost. But the *idea*"
+          }
+        ]
+      },
+      {
+        "config_name": "Jamie Okafor",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "Hey, you\u2019re like a ghost that occasionally haunts my Instagram stories\u2014*waves*\u2014but I\u2019m good, I\u2019m good. Just surviving. The comedy scene\u2019s been a rollercoaster, you know? I bombed at this open mic last week, but then I killed a bit about my mother\u2019s grief and my cat\u2019s obsession with my face, so *cheers to that*.  \n\nSaving up for an apartment? Still broke, but I\u2019m like a superhero in a cape made of expired coupons. Also, I\u2019ve been reading Audre Lorde, which is wild\u2014turns out, my entire life is a poem I didn\u2019t realize I was writing.  \n\nHow about you? You still talking to that guy who gave you the weird vibe at the coffee shop? Or are"
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": ""
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": ""
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": "Okay, let\u2019s start with the *weird week* thing. I\u2019m still processing my mom\u2019s call last night. She said something about my grandmother\u2019s funeral in Lagos, and how she kept the *juju*\u2014like, the rituals, the *ogun*\u2014but she didn\u2019t say it out loud. Just *\u201cI kept the juju, but I didn\u2019t feel it.\u201d* And I\u2019m like"
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": "Oh, absolutely. Like, there was this one time at the bar\u2014this guy, really smooth, like, \u201cHey, I\u2019ve seen you perform, you\u2019re really good, but you know, you\u2019re not *that* funny. Just saying.\u201d And I was like, *\u201cOkay, I\u2019m not *that* funny? Well, thanks for the honesty, but I\u2019m also not *that* broken.\u201d* But it stung because it wasn\u2019t just"
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": ""
+          }
+        ]
+      }
+    ],
+    "judgments": [
+      {
+        "true": "Marcus Reilly",
+        "predicted": "<unparsed>",
+        "raw_judge_output": ""
+      },
+      {
+        "true": "Elena Morales",
+        "predicted": "<unparsed>",
+        "raw_judge_output": ""
+      },
+      {
+        "true": "Jamie Okafor",
+        "predicted": "<unparsed>",
+        "raw_judge_output": ""
+      }
+    ],
+    "accuracy": 0.0,
+    "per_config_accuracy": {
+      "Elena Morales": 0.0,
+      "Marcus Reilly": 0.0,
+      "Jamie Okafor": 0.0
+    },
+    "confusion": {
+      "Marcus Reilly": {
+        "<unparsed>": 1
+      },
+      "Elena Morales": {
+        "<unparsed>": 1
+      },
+      "Jamie Okafor": {
+        "<unparsed>": 1
+      }
+    }
+  },
+  "anima_won": true,
+  "delta": 0.3333333333333333
+}

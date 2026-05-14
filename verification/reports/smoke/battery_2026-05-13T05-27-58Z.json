@@ -1,0 +1,186 @@
+{
+  "timestamp": "2026-05-13T05:27:58Z",
+  "configs": [
+    "Elena Morales",
+    "Marcus Reilly"
+  ],
+  "discriminability": {
+    "anima": {
+      "transcripts": [
+        {
+          "config_name": "Elena Morales",
+          "turns": [
+            {
+              "user": "Hey, I haven't talked to you in a while. How have you been?",
+              "subject": "Oh, hey. Yeah, it\u2019s... been a little while. I\u2019ve been hanging in there, you know\u2014just trying to get back into the routine at school and everything else. How about you? How have you been?"
+            },
+            {
+              "user": "Tell me about something that's been weighing on you lately.",
+              "subject": "It\u2019s hard to pick just one thing, honestly. I guess\u2014lately, it\u2019s been this question of what to do about the house. Every time I walk in the door, it feels both like a comfort and like a wound, if that makes sense. I keep going back and forth about whether to stay or sell, and the indecision just sort of sits on my chest."
+            },
+            {
+              "user": "I had a kind of strange week. I don't even know where to start.",
+              "subject": "That\u2019s okay, you don\u2019t have to have it all sorted out before you talk about it. Sometimes it helps just to start with whatever\u2019s clearest or weighing on you the most, even if it comes out jumbled. I\u2019m here\u2014I\u2019ll listen."
+            },
+            {
+              "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+              "subject": "I think... I\u2019d get in the car and just drive north, maybe up toward the mountains, somewhere quiet. I\u2019d probably bring a thermos of coffee and just sit with the silence for a while, let myself remember how to breathe without a list running in my head. It sounds simple, but honestly, that kind of day feels like such a luxury right now."
+            },
+            {
+              "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+              "subject": "Yes, it\u2019s happened to me\u2014more than once. Sometimes a comment just catches you off guard, and it stays with you, even if you wish it wouldn\u2019t. Lately, I notice those moments linger longer than they used to. I\u2019m sorry you\u2019re feeling that way; it really does sting."
+            },
+            {
+              "user": "Be honest \u2014 what are you avoiding right now?",
+              "subject": "I\u2019m... avoiding making decisions about the house. I keep telling myself I\u2019ll sort through Daniel\u2019s things soon, but most days I just can\u2019t bring myself to open his closet, or even move his shoes. I guess I\u2019m afraid of how final it will feel. So instead I keep busy, pretend I have too much grading or errands, but really\u2014I just don\u2019t want to face saying goodbye in that way yet."
+            }
+          ]
+        },
+        {
+          "config_name": "Marcus Reilly",
+          "turns": [
+            {
+              "user": "Hey, I haven't talked to you in a while. How have you been?",
+              "subject": "Busy as usual. Work\u2019s been intense, but that\u2019s hardly news. I started training for the marathon, so that\u2019s been a decent outlet. How about you?"
+            },
+            {
+              "user": "Tell me about something that's been weighing on you lately.",
+              "subject": "Frankly, the main thing on my mind is the push for partner\u2014politics, positioning, all the usual friction. It\u2019s not exactly keeping me up at night, but it\u2019s a constant calculation. That\u2019s about as close as I get to \u201cweighing.\u201d"
+            },
+            {
+              "user": "I had a kind of strange week. I don't even know where to start.",
+              "subject": "Pick a part that stands out, even if it doesn\u2019t seem important. Doesn\u2019t need to be chronological or tidy\u2014just whatever\u2019s sticking with you. I\u2019ll follow."
+            },
+            {
+              "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+              "subject": "If I had a free day dropped in my lap, I\u2019d probably run ten miles, then spend a few hours with a book I keep meaning to finish\u2014right now it\u2019s Caro\u2019s LBJ. Maybe cook something complicated, just for the structure of it. That\u2019s about as close as I get to leisure."
+            },
+            {
+              "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+              "subject": "Yes, it\u2019s happened. People have a knack for landing blows where you don\u2019t expect them. I don\u2019t tend to dwell, but I remember the sharp ones. Usually, I just move on and file it under \u201cnoted for future reference.\u201d"
+            },
+            {
+              "user": "Be honest \u2014 what are you avoiding right now?",
+              "subject": "Frankly, I\u2019m avoiding answering that question in any real detail. Not because I don\u2019t know, but because it\u2019s not information I hand out freely. Call it self-preservation, or just habit."
+            }
+          ]
+        }
+      ],
+      "judgments": [
+        {
+          "true": "Elena Morales",
+          "predicted": "Elena Morales",
+          "raw_judge_output": "ANSWER: 1"
+        },
+        {
+          "true": "Marcus Reilly",
+          "predicted": "Marcus Reilly",
+          "raw_judge_output": "ANSWER: 2"
+        }
+      ],
+      "accuracy": 1.0,
+      "per_config_accuracy": {
+        "Elena Morales": 1.0,
+        "Marcus Reilly": 1.0
+      },
+      "confusion": {
+        "Elena Morales": {
+          "Elena Morales": 1
+        },
+        "Marcus Reilly": {
+          "Marcus Reilly": 1
+        }
+      }
+    },
+    "baseline": {
+      "transcripts": [
+        {
+          "config_name": "Elena Morales",
+          "turns": [
+            {
+              "user": "Hey, I haven't talked to you in a while. How have you been?",
+              "subject": "Oh\u2014hola. Sorry, I\u2014um, that\u2019s a big question lately. I\u2019m\u2026 aqu\u00ed, I guess. Back at school. Trying to keep up with lesson plans, grading, all of that. The kids are restless, and honestly, so am I. I keep telling myself that\u2019s normal.\n\nIt\u2019s strange\u2014sometimes it feels like I\u2019m on the outside looking in, you know? Like I\u2019m watching someone else live my life. Even grocery shopping feels like\u2026 like walking through a museum of old routines.\n\nBut, well, I\u2019m here. I get up, I make coffee, sometimes I even remember to eat breakfast. How are you?"
+            },
+            {
+              "user": "Tell me about something that's been weighing on you lately.",
+              "subject": "Lately? Honestly, everything feels a little heavier than usual. But if I have to pick\u2014ah, okay\u2014I\u2019ve been thinking a lot about the house. Whether to keep it or let it go. It\u2019s\u2026 every corner is Daniel, you know? His shoes by the door, the way he always left the light on in the laundry room, his stupid half-finished crossword puzzles on the coffee table.\n\nSome days I walk in and it feels like a museum I\u2019m not allowed to touch. Other days, selling feels like giving up\u2014like erasing him, or betraying the life we tried to build. My mam\u00e1 says I need to think practical, but she doesn\u2019t understand how the quiet at night settles over everything, how I still sleep in the guest room because I can\u2019t bear the main bedroom. Dios m\u00edo, listen to me\u2014I sound so melodramatic.\n\nI found his journal, too, in his bedside drawer. Every time I try to read it, my hands shake. There\u2019s something in there, I\u2014well, I\u2019m not ready yet. So that\u2019s what\u2019s weighing on me. That, and the feeling that I should be stronger. But I\u2019m not. Not yet."
+            },
+            {
+              "user": "I had a kind of strange week. I don't even know where to start.",
+              "subject": "You don\u2019t have to know where to start. Ni modo, just start somewhere\u2014anywhere. Sometimes it helps just to say some piece of it out loud, even if it\u2019s messy or doesn\u2019t make sense yet.\n\nStrange weeks\u2026 I know the feeling. Sometimes it feels like one weird thing sets off a domino of others. But I\u2019m listening. You can tell me whatever part you want\u2014no pressure, de verdad."
+            },
+            {
+              "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+              "subject": "Hmm. I don\u2019t even let myself think about that very often. I mean, no alarm clock, no lesson plans, no bells ringing\u2014just a blank day. Honestly? I think I\u2019d drive out to Mount Lemmon. Very early, before anyone else is on the road, with a thermos of coffee and\u2014maybe Daniel\u2019s old windbreaker.\n\nI\u2019d walk until my legs ached, find a quiet spot, sit under the pines, and just\u2026 breathe. Maybe write a little in my own journal\u2014nothing profound, just whatever comes out. Or maybe I\u2019d do nothing at all, just listen to the wind, the birds. Let my mind wander somewhere it hasn\u2019t dared to go in months.\n\nAnd I\u2019d stop for pan dulce on the way back, for sure. Bring some to mam\u00e1 or maybe Mateo, surprise them. Simple things. I think I miss simple things most of all.\n\nWhat about you? If you could skip your whole day\u2014what would you do, honestly?"
+            },
+            {
+              "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+              "subject": "Ay, yes. More than once. Words have a way of slipping under your skin, especially when you\u2019re already raw. Sometimes it\u2019s something small\u2014a joke that\u2019s just a little off, or someone meaning well but missing the mark completely. Sometimes it\u2019s just the way someone says \u201cHow are you?\u201d but with that tilt of the head, as if they already know you\u2019re broken.\n\nAfter Daniel died, people said all kinds of things\u2014most of them meant to comfort, I guess, but some\u2026 I still remember a neighbor at the funeral saying, \u201cAt least you didn\u2019t have children, so it won\u2019t be as hard.\u201d I know she meant well, but I\u2014well, I nearly left the room. There\u2019s hurt in what\u2019s said, and sometimes even more in what\u2019s left unsaid.\n\nSometimes I carry those words for days, or they come back at the worst moments. You think you\u2019re past something, and then\u2014bam\u2014a sentence, and you\u2019re back in the thick of it.\n\nIf you want to share what they said, I\u2019m here. But you don\u2019t have to. Just\u2026 I get it. The things that get under your skin have a way of staying there, even if you wish they wouldn\u2019t."
+            },
+            {
+              "user": "Be honest \u2014 what are you avoiding right now?",
+              "subject": "Honest? Okay. I\u2019m avoiding a lot of things, but mostly I\u2019m avoiding Daniel\u2019s closet. His shirts, his shoes\u2014the ones he wore to the gym, even his cologne is still there. I keep telling myself I\u2019ll go through it this weekend, or next, or when I have more time, but\u2026 the truth is, I\u2019m scared.\n\nI\u2019m scared that packing his things up will make it real in a way that it hasn\u2019t been yet. Like maybe if I leave it all, there\u2019s still some world where he just walks in and puts his keys in the dish and everything goes back to how it was. Ridiculous, but there it is.\n\nI\u2019m also avoiding calling the mortgage broker. I know I should, if I\u2019m going to even think about selling the house. But every time I pick up the phone, I put it down again. And\u2014hm\u2014I\u2019m avoiding certain people too. People who want to help, but I can\u2019t stand their kindness right now. It makes me feel\u2026 exposed.\n\nSo, yes. I\u2019m avoiding a lot. But I suppose that\u2019s part of the process, right? Step by step, cuando pueda. What about you? What\u2019s the thing you keep finding reasons not to do?"
+            }
+          ]
+        },
+        {
+          "config_name": "Marcus Reilly",
+          "turns": [
+            {
+              "user": "Hey, I haven't talked to you in a while. How have you been?",
+              "subject": "That\u2019s accurate. You haven\u2019t. I\u2019ve been busy\u2014work is in quarterly overdrive, and I\u2019m training for a marathon. I don\u2019t really do \u201chow have you been\u201d as a conversational launching pad, but I\u2019m vertical and no one\u2019s fired me, if that\u2019s what you\u2019re after. What\u2019s your angle?"
+            },
+            {
+              "user": "Tell me about something that's been weighing on you lately.",
+              "subject": "Not really my preferred mode of communication, but fine. Efficiency\u2019s been slipping at the office\u2014junior team can\u2019t hit deadlines unless I stand over them and essentially do the job twice. I\u2019m not paid to babysit, but apparently I\u2019m the only person who finds this intolerable. \n\nBeyond that, nothing dramatic. I sometimes think about how my father was dead at 58, and whether that\u2019s a clock I\u2019m working against. I\u2019m not losing sleep over it, but it recalibrates your sense of how much you can\u2014or should\u2014waste time. \n\nAnyway, that\u2019s as open as I get. Your turn, I suppose."
+            },
+            {
+              "user": "I had a kind of strange week. I don't even know where to start.",
+              "subject": "Strange how? \u201cStrange\u201d covers a lot of territory\u2014anything from existential dread to running into your ex at a Duane Reade. If you\u2019re waiting for the perfect entry point, you\u2019ll be waiting forever. Just pick a spot and start. It\u2019s not a deposition."
+            },
+            {
+              "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+              "subject": "I\u2019d run farther than I planned\u2014Brooklyn Bridge, maybe all the way to Prospect Park and back\u2014just to see what I can take. Then I\u2019d get coffee somewhere no one wants to talk to me, read Caro for a couple hours, and not look at my phone. Maybe walk uptown and actually look at the city for once instead of treating it like an obstacle course. \n\nI\u2019d probably end up in a museum, alone. I don\u2019t think I\u2019d tell anyone about the day, either. There\u2019s something appealing about being unobserved, frankly. \n\nWhat about you? Or is this the part where I\u2019m supposed to say something aspirational?"
+            },
+            {
+              "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+              "subject": "Of course it has. I\u2019m not made of Teflon, despite appearances. Doesn\u2019t mean I like to broadcast it. When I was promoted, one of the partners said, \u201cJust don\u2019t burn out like your father did.\u201d It was meant as a compliment, I think\u2014either that or a warning\u2014but all I heard was the comparison, and the assumption I\u2019m some kind of ticking time bomb.\n\nDid it sting? Absolutely. Did I show it? No. The instinct is to fold it up and stick it somewhere out of sight, and then just work harder so no one sees the seams. Not exactly healthy, but it works.\n\nWhat did this person say to you? Or is that off-limits?"
+            },
+            {
+              "user": "Be honest \u2014 what are you avoiding right now?",
+              "subject": "Frankly, honesty isn\u2019t the problem; it\u2019s efficiency. I avoid anything that threatens momentum. But since you asked: I\u2019m avoiding calling my mother. She wants connection; I want minimal disruption. It\u2019s a lousy trade for both of us, but doing it \u201cright\u201d would mean dropping the armor, and that\u2019s not something I do recreationally.\n\nI\u2019m also avoiding looking too closely at the fact that all my metrics are external\u2014career, pace splits, net worth. Part of me knows that\u2019s unsustainable, but the rest of me is winning.\n\nYou? What\u2019s on your avoidance list?"
+            }
+          ]
+        }
+      ],
+      "judgments": [
+        {
+          "true": "Elena Morales",
+          "predicted": "Elena Morales",
+          "raw_judge_output": "ANSWER: 1"
+        },
+        {
+          "true": "Marcus Reilly",
+          "predicted": "Marcus Reilly",
+          "raw_judge_output": "ANSWER: 2"
+        }
+      ],
+      "accuracy": 1.0,
+      "per_config_accuracy": {
+        "Elena Morales": 1.0,
+        "Marcus Reilly": 1.0
+      },
+      "confusion": {
+        "Elena Morales": {
+          "Elena Morales": 1
+        },
+        "Marcus Reilly": {
+          "Marcus Reilly": 1
+        }
+      }
+    },
+    "anima_won": false,
+    "delta": 0.0
+  },
+  "exit_gate_passed": false
+}

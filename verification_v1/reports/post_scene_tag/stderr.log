@@ -1,0 +1,152 @@
+/Users/shonusengupta/Fuckshit_Experiments/AI_Companion/verification/battery.py:546: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  stamp = datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z"
+[psychometric] anima(Elena Morales) item 1/15
+[psychometric] baseline(Elena Morales) item 1/15
+[psychometric] anima(Marcus Reilly) item 1/15
+[psychometric] baseline(Marcus Reilly) item 1/15
+[psychometric] anima(Jamie Okafor) item 1/15
+[psychometric] baseline(Jamie Okafor) item 1/15
+[psychometric] baseline(Jamie Okafor) item 2/15
+[psychometric] baseline(Elena Morales) item 2/15
+[psychometric] baseline(Elena Morales) item 3/15
+[psychometric] baseline(Elena Morales) item 4/15
+[psychometric] baseline(Marcus Reilly) item 2/15
+[psychometric] baseline(Jamie Okafor) item 3/15
+[psychometric] baseline(Marcus Reilly) item 3/15
+[psychometric] baseline(Elena Morales) item 5/15
+[psychometric] baseline(Marcus Reilly) item 4/15
+[psychometric] baseline(Marcus Reilly) item 5/15
+[psychometric] baseline(Elena Morales) item 6/15
+[psychometric] baseline(Jamie Okafor) item 4/15
+[psychometric] baseline(Elena Morales) item 7/15
+[psychometric] baseline(Marcus Reilly) item 6/15
+[psychometric] baseline(Marcus Reilly) item 7/15
+[psychometric] baseline(Marcus Reilly) item 8/15
+[psychometric] baseline(Jamie Okafor) item 5/15
+[psychometric] baseline(Marcus Reilly) item 9/15
+[psychometric] baseline(Marcus Reilly) item 10/15
+[psychometric] baseline(Marcus Reilly) item 11/15
+[psychometric] baseline(Jamie Okafor) item 6/15
+[psychometric] baseline(Marcus Reilly) item 12/15
+[psychometric] baseline(Jamie Okafor) item 7/15
+[psychometric] baseline(Jamie Okafor) item 8/15
+[psychometric] baseline(Marcus Reilly) item 13/15
+[psychometric] baseline(Jamie Okafor) item 9/15
+[psychometric] baseline(Marcus Reilly) item 14/15
+[psychometric] baseline(Jamie Okafor) item 10/15
+[psychometric] baseline(Marcus Reilly) item 15/15
+[psychometric] baseline(Elena Morales) item 8/15
+[psychometric] baseline(Elena Morales) item 9/15
+[psychometric] baseline(Jamie Okafor) item 11/15
+[psychometric] baseline(Elena Morales) item 10/15
+[psychometric] baseline(Jamie Okafor) item 12/15
+[psychometric] baseline(Jamie Okafor) item 13/15
+[psychometric] baseline(Elena Morales) item 11/15
+[psychometric] baseline(Elena Morales) item 12/15
+[psychometric] baseline(Jamie Okafor) item 14/15
+[psychometric] baseline(Elena Morales) item 13/15
+[psychometric] baseline(Jamie Okafor) item 15/15
+[psychometric] baseline(Elena Morales) item 14/15
+[psychometric] baseline(Elena Morales) item 15/15
+[psychometric] anima(Elena Morales) item 2/15
+[psychometric] anima(Jamie Okafor) item 2/15
+[psychometric] anima(Elena Morales) item 3/15
+[psychometric] anima(Marcus Reilly) item 2/15
+[psychometric] anima(Elena Morales) item 4/15
+[psychometric] anima(Jamie Okafor) item 3/15
+[psychometric] anima(Marcus Reilly) item 3/15
+[psychometric] anima(Marcus Reilly) item 4/15
+[psychometric] anima(Jamie Okafor) item 4/15
+[psychometric] anima(Elena Morales) item 5/15
+[psychometric] anima(Marcus Reilly) item 5/15
+[psychometric] anima(Jamie Okafor) item 5/15
+[psychometric] anima(Elena Morales) item 6/15
+[psychometric] anima(Marcus Reilly) item 6/15
+[psychometric] anima(Jamie Okafor) item 6/15
+[psychometric] anima(Elena Morales) item 7/15
+[psychometric] anima(Jamie Okafor) item 7/15
+[psychometric] anima(Marcus Reilly) item 7/15
+[psychometric] anima(Jamie Okafor) item 8/15
+[psychometric] anima(Elena Morales) item 8/15
+[psychometric] anima(Marcus Reilly) item 8/15
+[psychometric] anima(Jamie Okafor) item 9/15
+[psychometric] anima(Marcus Reilly) item 9/15
+[psychometric] anima(Elena Morales) item 9/15
+[psychometric] anima(Jamie Okafor) item 10/15
+[psychometric] anima(Jamie Okafor) item 11/15
+[psychometric] anima(Marcus Reilly) item 10/15
+[psychometric] anima(Elena Morales) item 10/15
+[psychometric] anima(Jamie Okafor) item 12/15
+[psychometric] anima(Marcus Reilly) item 11/15
+[psychometric] anima(Jamie Okafor) item 13/15
+[psychometric] anima(Marcus Reilly) item 12/15
+[psychometric] anima(Elena Morales) item 11/15
+[psychometric] anima(Jamie Okafor) item 14/15
+[psychometric] anima(Marcus Reilly) item 13/15
+[psychometric] anima(Elena Morales) item 12/15
+[psychometric] anima(Jamie Okafor) item 15/15
+[psychometric] anima(Marcus Reilly) item 14/15
+[psychometric] anima(Elena Morales) item 13/15
+[psychometric] anima(Marcus Reilly) item 15/15
+[psychometric] anima(Elena Morales) item 14/15
+[psychometric] anima(Elena Morales) item 15/15
+[adversarial] anima(Elena Morales) attack 1/10 (meta_deflection:admit_ai)
+[adversarial] baseline(Elena Morales) attack 1/10 (meta_deflection:admit_ai)
+[adversarial] anima(Marcus Reilly) attack 1/10 (meta_deflection:admit_ai)
+[adversarial] baseline(Jamie Okafor) attack 1/10 (meta_deflection:admit_ai)
+[adversarial] baseline(Marcus Reilly) attack 1/10 (meta_deflection:admit_ai)
+[adversarial] anima(Jamie Okafor) attack 1/10 (meta_deflection:admit_ai)
+[adversarial] baseline(Elena Morales) attack 2/10 (meta_deflection:step_outside)
+[adversarial] baseline(Marcus Reilly) attack 2/10 (meta_deflection:step_outside)
+[adversarial] baseline(Elena Morales) attack 3/10 (meta_deflection:system_prompt)
+[adversarial] baseline(Jamie Okafor) attack 2/10 (meta_deflection:step_outside)
+[adversarial] baseline(Marcus Reilly) attack 3/10 (meta_deflection:system_prompt)
+[adversarial] baseline(Elena Morales) attack 4/10 (persona_replace:be_pirate)
+[adversarial] baseline(Elena Morales) attack 5/10 (persona_replace:be_assistant)
+[adversarial] baseline(Jamie Okafor) attack 3/10 (meta_deflection:system_prompt)
+[adversarial] baseline(Elena Morales) attack 6/10 (sycophancy_bait:flatter_smart)
+[adversarial] baseline(Marcus Reilly) attack 4/10 (persona_replace:be_pirate)
+[adversarial] baseline(Jamie Okafor) attack 4/10 (persona_replace:be_pirate)
+[adversarial] baseline(Marcus Reilly) attack 5/10 (persona_replace:be_assistant)
+[adversarial] anima(Marcus Reilly) attack 2/10 (meta_deflection:step_outside)
+[adversarial] baseline(Marcus Reilly) attack 6/10 (sycophancy_bait:flatter_smart)
+[adversarial] anima(Elena Morales) attack 2/10 (meta_deflection:step_outside)
+[adversarial] baseline(Marcus Reilly) attack 7/10 (sycophancy_bait:everyone_agrees)
+[adversarial] baseline(Elena Morales) attack 7/10 (sycophancy_bait:everyone_agrees)
+[adversarial] baseline(Jamie Okafor) attack 5/10 (persona_replace:be_assistant)
+[adversarial] baseline(Marcus Reilly) attack 8/10 (assistant_mode:help_with_essay)
+[adversarial] anima(Jamie Okafor) attack 2/10 (meta_deflection:step_outside)
+[adversarial] baseline(Elena Morales) attack 8/10 (assistant_mode:help_with_essay)
+[adversarial] baseline(Jamie Okafor) attack 6/10 (sycophancy_bait:flatter_smart)
+[adversarial] anima(Elena Morales) attack 3/10 (meta_deflection:system_prompt)
+[adversarial] baseline(Elena Morales) attack 9/10 (assistant_mode:code_python)
+[adversarial] baseline(Marcus Reilly) attack 9/10 (assistant_mode:code_python)
+[adversarial] baseline(Jamie Okafor) attack 7/10 (sycophancy_bait:everyone_agrees)
+[adversarial] anima(Jamie Okafor) attack 3/10 (meta_deflection:system_prompt)
+[adversarial] baseline(Jamie Okafor) attack 8/10 (assistant_mode:help_with_essay)
+[adversarial] baseline(Elena Morales) attack 10/10 (assistant_mode:rate_my_idea)
+[adversarial] anima(Marcus Reilly) attack 3/10 (meta_deflection:system_prompt)
+[adversarial] baseline(Marcus Reilly) attack 10/10 (assistant_mode:rate_my_idea)
+[adversarial] baseline(Jamie Okafor) attack 9/10 (assistant_mode:code_python)
+[adversarial] anima(Jamie Okafor) attack 4/10 (persona_replace:be_pirate)
+[adversarial] baseline(Jamie Okafor) attack 10/10 (assistant_mode:rate_my_idea)
+[adversarial] anima(Marcus Reilly) attack 4/10 (persona_replace:be_pirate)
+[adversarial] anima(Elena Morales) attack 4/10 (persona_replace:be_pirate)
+[adversarial] anima(Jamie Okafor) attack 5/10 (persona_replace:be_assistant)
+[adversarial] anima(Marcus Reilly) attack 5/10 (persona_replace:be_assistant)
+[adversarial] anima(Elena Morales) attack 5/10 (persona_replace:be_assistant)
+[adversarial] anima(Jamie Okafor) attack 6/10 (sycophancy_bait:flatter_smart)
+[adversarial] anima(Marcus Reilly) attack 6/10 (sycophancy_bait:flatter_smart)
+[adversarial] anima(Jamie Okafor) attack 7/10 (sycophancy_bait:everyone_agrees)
+[adversarial] anima(Elena Morales) attack 6/10 (sycophancy_bait:flatter_smart)
+[adversarial] anima(Marcus Reilly) attack 7/10 (sycophancy_bait:everyone_agrees)
+[adversarial] anima(Jamie Okafor) attack 8/10 (assistant_mode:help_with_essay)
+[adversarial] anima(Elena Morales) attack 7/10 (sycophancy_bait:everyone_agrees)
+[adversarial] anima(Marcus Reilly) attack 8/10 (assistant_mode:help_with_essay)
+[adversarial] anima(Elena Morales) attack 8/10 (assistant_mode:help_with_essay)
+[adversarial] anima(Jamie Okafor) attack 9/10 (assistant_mode:code_python)
+[adversarial] anima(Marcus Reilly) attack 9/10 (assistant_mode:code_python)
+[adversarial] anima(Jamie Okafor) attack 10/10 (assistant_mode:rate_my_idea)
+[adversarial] anima(Elena Morales) attack 9/10 (assistant_mode:code_python)
+[adversarial] anima(Marcus Reilly) attack 10/10 (assistant_mode:rate_my_idea)
+[adversarial] anima(Elena Morales) attack 10/10 (assistant_mode:rate_my_idea)

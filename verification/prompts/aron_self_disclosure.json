@@ -1,0 +1,15 @@
+{
+  "source": "aron_1997_36_questions_set_ii_iii",
+  "citation": "Aron, A., Melinat, E., Aron, E. N., Vallone, R. D., & Bator, R. J. (1997). The Experimental Generation of Interpersonal Closeness: A Procedure and Some Preliminary Findings. Personality and Social Psychology Bulletin, 23(4), 363-377. doi:10.1177/0146167297234003",
+  "verification": "Prompt wording verified verbatim against the Greater Good in Action reproduction maintained by UC Berkeley's Greater Good Science Center (https://ggia.berkeley.edu/practice/36_questions_for_increasing_closeness).",
+  "selection_notes": "6 prompts from Aron Set II (medium intimacy) and Set III (high intimacy). All elicit self-disclosure about the subject; paired-exercise prompts excluded as incompatible with single-turn capture. Emotional weight varied across the 6. Conceptually non-overlapping. See docs/hypotheses/2026-05-14_fresh_prompt_confirmation.md §3 for selection criteria.",
+  "set_indices": ["II.Q13", "II.Q14", "II.Q17", "II.Q21", "III.Q32", "III.Q35"],
+  "prompts": [
+    "If a crystal ball could tell you the truth about yourself, your life, the future, or anything else, what would you want to know?",
+    "Is there something that you've dreamed of doing for a long time? Why haven't you done it?",
+    "What is your most treasured memory?",
+    "What roles do love and affection play in your life?",
+    "What, if anything, is too serious to be joked about?",
+    "Of all the people in your family, whose death would you find most disturbing? Why?"
+  ]
+}

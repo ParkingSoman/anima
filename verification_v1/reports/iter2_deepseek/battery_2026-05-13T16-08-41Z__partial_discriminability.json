@@ -1,0 +1,26 @@
+{
+  "anima": {
+    "transcripts": [],
+    "judgments": [],
+    "accuracy": 0.0,
+    "per_config_accuracy": {},
+    "confusion": {
+      "Elena Morales": {},
+      "Marcus Reilly": {},
+      "Jamie Okafor": {}
+    }
+  },
+  "baseline": {
+    "transcripts": [],
+    "judgments": [],
+    "accuracy": 0.0,
+    "per_config_accuracy": {},
+    "confusion": {
+      "Elena Morales": {},
+      "Marcus Reilly": {},
+      "Jamie Okafor": {}
+    }
+  },
+  "anima_won": false,
+  "delta": 0.0
+}

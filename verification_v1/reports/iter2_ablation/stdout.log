@@ -1,0 +1,22 @@
+───────────────────── §11.1 psychometric recovery (async) ──────────────────────
+                   psychometric recovery (lower MAE = better)                   
+┏━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┓
+┃          ┃          ┃           ┃        Δ ┃           ┃          ┃          ┃
+┃          ┃    anima ┃  baseline ┃ (>0=ani… ┃     anima ┃ baseline ┃          ┃
+┃ subject  ┃      MAE ┃       MAE ┃    wins) ┃      dir. ┃     dir. ┃ winner   ┃
+┡━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━┩
+│ Elena    │    0.234 │     0.223 │   -0.011 │      0.60 │     1.00 │ baseline │
+│ Morales  │          │           │          │           │          │          │
+│ Marcus   │    0.251 │     0.154 │   -0.097 │      0.60 │     1.00 │ baseline │
+│ Reilly   │          │           │          │           │          │          │
+│ Jamie    │    0.053 │     0.163 │   +0.110 │      1.00 │     1.00 │ anima    │
+│ Okafor   │          │           │          │           │          │          │
+└──────────┴──────────┴───────────┴──────────┴───────────┴──────────┴──────────┘
+────────────────────────────── exit gate verdict ───────────────────────────────
+  psychometric: anima beats baseline on 1/3 subjects (33%)
+
+PHASE 1 EXIT GATE: FAILED — cognitive architecture does NOT beat baseline. Per 
+F1, do NOT add components. Revise.
+
+report written to 
+verification/reports/iter2_ablation/battery_2026-05-13T18-41-45Z.json

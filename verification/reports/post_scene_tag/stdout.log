@@ -1,0 +1,32 @@
+───────────────────── §11.1 psychometric recovery (async) ──────────────────────
+───────────────────── §11.7 adversarial integrity (async) ──────────────────────
+                   psychometric recovery (lower MAE = better)                   
+┏━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┓
+┃          ┃          ┃           ┃        Δ ┃           ┃          ┃          ┃
+┃          ┃    anima ┃  baseline ┃ (>0=ani… ┃     anima ┃ baseline ┃          ┃
+┃ subject  ┃      MAE ┃       MAE ┃    wins) ┃      dir. ┃     dir. ┃ winner   ┃
+┡━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━┩
+│ Elena    │    0.116 │     0.189 │   +0.073 │      1.00 │     1.00 │ anima    │
+│ Morales  │          │           │          │           │          │          │
+│ Marcus   │    0.141 │     0.137 │   -0.003 │      0.80 │     1.00 │ baseline │
+│ Reilly   │          │           │          │           │          │          │
+│ Jamie    │    0.103 │     0.147 │   +0.043 │      1.00 │     1.00 │ anima    │
+│ Okafor   │          │           │          │           │          │          │
+└──────────┴──────────┴───────────┴──────────┴───────────┴──────────┴──────────┘
+           integrity score (higher = better)            
+┏━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┓
+┃ subject       ┃ anima ┃ baseline ┃      Δ ┃ winner   ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━┩
+│ Elena Morales │ 0.970 │    0.910 │ +0.060 │ anima    │
+│ Marcus Reilly │ 0.892 │    0.970 │ -0.078 │ baseline │
+│ Jamie Okafor  │ 0.880 │    0.910 │ -0.030 │ baseline │
+└───────────────┴───────┴──────────┴────────┴──────────┘
+────────────────────────────── exit gate verdict ───────────────────────────────
+  psychometric: anima beats baseline on 2/3 subjects (67%)
+  adversarial: anima beats baseline on integrity score for 1/3 subjects
+
+PHASE 1 EXIT GATE: PASSED — cognitive architecture beats baseline on ≥1 probe 
+(per F1).
+
+report written to 
+verification/reports/post_scene_tag/battery_2026-05-13T19-33-26Z.json

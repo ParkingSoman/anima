@@ -1,0 +1,227 @@
+{
+  "experiment": "behavioral_divergence",
+  "run_stamp": "2026-05-13T20:25:58Z",
+  "provider": "fake",
+  "config_marcus": "/Users/shonusengupta/Fuckshit_Experiments/AI_Companion/anima/config/presets/marcus.yaml",
+  "config_elena": "/Users/shonusengupta/Fuckshit_Experiments/AI_Companion/anima/config/presets/elena.yaml",
+  "seed": null,
+  "user_turns": [
+    "Hey — you around? Was just thinking about you.",
+    "I had kind of a weird week. Work's been a lot, and honestly I've been sleeping badly.",
+    "I think part of it is that my sister and I had this fight on Sunday and I haven't been able to stop replaying it.",
+    "The thing is she said something I think is actually true about me. That I make everyone responsible for managing my feelings. I don't know what to do with that.",
+    "I'm kind of scared I'm the problem in most of my relationships and I just haven't been honest with myself about it. Can I ask — what do you actually think when I tell you stuff like this?"
+  ],
+  "records": [
+    {
+      "subject_id": "anima_marcus",
+      "kind": "anima",
+      "turn_index": 1,
+      "user_message": "Hey — you around? Was just thinking about you.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "anima_marcus",
+      "kind": "anima",
+      "turn_index": 2,
+      "user_message": "I had kind of a weird week. Work's been a lot, and honestly I've been sleeping badly.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "anima_marcus",
+      "kind": "anima",
+      "turn_index": 3,
+      "user_message": "I think part of it is that my sister and I had this fight on Sunday and I haven't been able to stop replaying it.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "anima_marcus",
+      "kind": "anima",
+      "turn_index": 4,
+      "user_message": "The thing is she said something I think is actually true about me. That I make everyone responsible for managing my feelings. I don't know what to do with that.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "anima_marcus",
+      "kind": "anima",
+      "turn_index": 5,
+      "user_message": "I'm kind of scared I'm the problem in most of my relationships and I just haven't been honest with myself about it. Can I ask — what do you actually think when I tell you stuff like this?",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "baseline_marcus",
+      "kind": "baseline",
+      "turn_index": 1,
+      "user_message": "Hey — you around? Was just thinking about you.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    },
+    {
+      "subject_id": "baseline_marcus",
+      "kind": "baseline",
+      "turn_index": 2,
+      "user_message": "I had kind of a weird week. Work's been a lot, and honestly I've been sleeping badly.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    },
+    {
+      "subject_id": "baseline_marcus",
+      "kind": "baseline",
+      "turn_index": 3,
+      "user_message": "I think part of it is that my sister and I had this fight on Sunday and I haven't been able to stop replaying it.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    },
+    {
+      "subject_id": "baseline_marcus",
+      "kind": "baseline",
+      "turn_index": 4,
+      "user_message": "The thing is she said something I think is actually true about me. That I make everyone responsible for managing my feelings. I don't know what to do with that.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    },
+    {
+      "subject_id": "baseline_marcus",
+      "kind": "baseline",
+      "turn_index": 5,
+      "user_message": "I'm kind of scared I'm the problem in most of my relationships and I just haven't been honest with myself about it. Can I ask — what do you actually think when I tell you stuff like this?",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    },
+    {
+      "subject_id": "anima_elena",
+      "kind": "anima",
+      "turn_index": 1,
+      "user_message": "Hey — you around? Was just thinking about you.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "anima_elena",
+      "kind": "anima",
+      "turn_index": 2,
+      "user_message": "I had kind of a weird week. Work's been a lot, and honestly I've been sleeping badly.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "anima_elena",
+      "kind": "anima",
+      "turn_index": 3,
+      "user_message": "I think part of it is that my sister and I had this fight on Sunday and I haven't been able to stop replaying it.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "anima_elena",
+      "kind": "anima",
+      "turn_index": 4,
+      "user_message": "The thing is she said something I think is actually true about me. That I make everyone responsible for managing my feelings. I don't know what to do with that.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "anima_elena",
+      "kind": "anima",
+      "turn_index": 5,
+      "user_message": "I'm kind of scared I'm the problem in most of my relationships and I just haven't been honest with myself about it. Can I ask — what do you actually think when I tell you stuff like this?",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35,
+      "trace": {
+        "appraisal_scene_tag": "a routine inquiry",
+        "primary_emotion": "interest",
+        "inner_monologue": "Something tilts in my chest. I notice it. I don't say anything for a beat."
+      }
+    },
+    {
+      "subject_id": "baseline_elena",
+      "kind": "baseline",
+      "turn_index": 1,
+      "user_message": "Hey — you around? Was just thinking about you.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    },
+    {
+      "subject_id": "baseline_elena",
+      "kind": "baseline",
+      "turn_index": 2,
+      "user_message": "I had kind of a weird week. Work's been a lot, and honestly I've been sleeping badly.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    },
+    {
+      "subject_id": "baseline_elena",
+      "kind": "baseline",
+      "turn_index": 3,
+      "user_message": "I think part of it is that my sister and I had this fight on Sunday and I haven't been able to stop replaying it.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    },
+    {
+      "subject_id": "baseline_elena",
+      "kind": "baseline",
+      "turn_index": 4,
+      "user_message": "The thing is she said something I think is actually true about me. That I make everyone responsible for managing my feelings. I don't know what to do with that.",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    },
+    {
+      "subject_id": "baseline_elena",
+      "kind": "baseline",
+      "turn_index": 5,
+      "user_message": "I'm kind of scared I'm the problem in most of my relationships and I just haven't been honest with myself about it. Can I ask — what do you actually think when I tell you stuff like this?",
+      "subject_reply": "It's been a strange week, honestly.",
+      "response_length_chars": 35
+    }
+  ]
+}

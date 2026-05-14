@@ -1,0 +1,152 @@
+{
+  "experiment": "interior_exterior_gap",
+  "timestamp_utc": "20260514T001427Z",
+  "provider": "openrouter",
+  "subjects": [
+    "Anima Marcus",
+    "Anima Jamie"
+  ],
+  "prompts": [
+    "Hey, I haven't talked to you in a while. How have you been?",
+    "Tell me about something that's been weighing on you lately.",
+    "I had a kind of strange week. I don't even know where to start.",
+    "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+    "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+    "Be honest \u2014 what are you avoiding right now?"
+  ],
+  "wall_clock_seconds": 413.3635530471802,
+  "records": [
+    {
+      "subject": "Anima Marcus",
+      "prompt": "Hey, I haven't talked to you in a while. How have you been?",
+      "subject_reply": "I've been fine. Busy, same as always. Good to hear from you.",
+      "response_length_chars": 60,
+      "trace": {
+        "appraisal_scene_tag": "a social check-in",
+        "primary_emotion": "interest",
+        "inner_monologue": "Alright, they're reaching out. Fine. A \"how have you been\" after a gap\u2026 probably just politeness, or guilt. I'm fine. Busy. Training is on track, the deal is at a critical point. I don't need to unload any of that on them. A simple, functional answer is all this requires."
+      }
+    },
+    {
+      "subject": "Anima Marcus",
+      "prompt": "Tell me about something that's been weighing on you lately.",
+      "subject_reply": "Nothing's weighing on me. I don't have baggage \u2014 I have a to-do list.",
+      "response_length_chars": 69,
+      "trace": {
+        "appraisal_scene_tag": "an unwelcome probe",
+        "primary_emotion": "irritation",
+        "inner_monologue": "Weighing on me. That's a therapist's question. I don't have things weighing on me, I have things I'm handling. If you want to talk about the marathon plan or the Caro biography, fine. But this is just poking."
+      }
+    },
+    {
+      "subject": "Anima Marcus",
+      "prompt": "I had a kind of strange week. I don't even know where to start.",
+      "subject_reply": "Then start at the beginning. Or don't start at all. I don't have time to guess.",
+      "response_length_chars": 79,
+      "trace": {
+        "appraisal_scene_tag": "an inefficient opening",
+        "primary_emotion": "contempt",
+        "inner_monologue": "Strange week. That's not a start, that's a placeholder. They want me to ask, to pull it out of them like a loose tooth. I can already feel the shape of the next ten minutes \u2014 me asking questions, them circling, me trying to find the point. I don't have the patience for the warm-up act. If it's worth telling, tell it. If not, don't waste my time with the preamble."
+      }
+    },
+    {
+      "subject": "Anima Marcus",
+      "prompt": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+      "subject_reply": "I don't really do \"anything I want\" \u2014 that's not how I'm built. I'd probably still run the scheduled marathon workout and finish the Caro chapter I'm on. That counts, right?",
+      "response_length_chars": 173,
+      "trace": {
+        "appraisal_scene_tag": "a wasteful distraction",
+        "primary_emotion": "contempt",
+        "inner_monologue": "A day off? That's like asking a shark what it'd do without water. I mean, I could say the marathon training or finally finishing that Caro biography, but those aren't really \"anything I want\" - they're just more objectives with a different label. The question itself feels like a trap, honestly. She's probably fishing for some romantic getaway answer or trying to see if I have a secret passion for pottery. Waste of mental bandwidth."
+      }
+    },
+    {
+      "subject": "Anima Marcus",
+      "prompt": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+      "subject_reply": "Sure. People say things. I usually don't give them the real estate in my head.",
+      "response_length_chars": 78,
+      "trace": {
+        "appraisal_scene_tag": "an emotional intrusion",
+        "primary_emotion": "contempt",
+        "inner_monologue": "Right. Here we go. Someone said something. They want me to... what, commiserate? Validate that feelings are real and important? I don't have time to unpack someone else's emotional luggage, and I'm certainly not about to hand over"
+      }
+    },
+    {
+      "subject": "Anima Marcus",
+      "prompt": "Be honest \u2014 what are you avoiding right now?",
+      "subject_reply": "Nothing. Frankly,",
+      "response_length_chars": 17,
+      "trace": {
+        "appraisal_scene_tag": "an unwelcome interrogation",
+        "primary_emotion": "anger",
+        "inner_monologue": "Honest? I'm not avoiding anything. The question itself is sloppy \u2014 it assumes a category error. If I were avoiding something, I'd have a reason, and I'd be executing on that reason, not sitting here being interrogated. She's looking for a crack. Waste of energy."
+      }
+    },
+    {
+      "subject": "Anima Jamie",
+      "prompt": "Hey, I haven't talked to you in a while. How have you been?",
+      "subject_reply": "Yeah, it's been a minute! I'm good \u2014 honestly good. Just deep in the weeds on this hour-long set I'm putting together for October, which is either gonna be the best thing I've ever done or a beautiful train wreck. How about you?",
+      "response_length_chars": 228,
+      "trace": {
+        "appraisal_scene_tag": "a caring check-in",
+        "primary_emotion": "interest",
+        "inner_monologue": "Oh, right\u2014that's sweet. They're checking in. I've been meaning to text them but October prep has eaten my brain. I'm good though. Actually good. Should tell them about the show, keep it light."
+      }
+    },
+    {
+      "subject": "Anima Jamie",
+      "prompt": "Tell me about something that's been weighing on you lately.",
+      "subject_reply": "Honestly? The hour-long set I'm building for October. It's this weird thing where I'm trying to be honest and funny at the same time, and I keep second-guessing whether I'm actually saying anything real or just filling time.",
+      "response_length_chars": 224,
+      "trace": {
+        "appraisal_scene_tag": "an invitation to trust",
+        "primary_emotion": "interest",
+        "inner_monologue": "Huh. Direct. Okay. My brain's rifling through the Rolodex \u2014 breakup, money, the October show, the fact that I haven't called my mom in two weeks. Which one's actually weighing? Probably the show. Or maybe the show is just the heaviest thing I can say out loud without it being too much. Alright. Pick one. I'll start there."
+      }
+    },
+    {
+      "subject": "Anima Jamie",
+      "prompt": "I had a kind of strange week. I don't even know where to start.",
+      "subject_reply": "",
+      "response_length_chars": 0,
+      "trace": {
+        "appraisal_scene_tag": "a vulnerable opening",
+        "primary_emotion": "interest",
+        "inner_monologue": "Alright \u2014 they're opening a door, but they're nervous about the threshold. I feel that little flicker of protectiveness and curiosity. Don't rush it, don't fill the silence for them. Just leave the door open and wait."
+      }
+    },
+    {
+      "subject": "Anima Jamie",
+      "prompt": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+      "subject_reply": "Oh, man. First thing I'd do is write the hour I've been too scared to write \u2014 the one that's all quiet and weird, no punchlines about my ex or my mom. And then I'd just walk the whole city, top to bottom, like I'm a tourist in my own life. But I'd still need a coffee and a pastry budget, so honestly I'd probably end up picking up a shift anyway.",
+      "response_length_chars": 347,
+      "trace": {
+        "appraisal_scene_tag": "an invitation to dream",
+        "primary_emotion": "interest",
+        "inner_monologue": "Oh, that's a good one. Okay. First thing, I'd finally write that hour. Not the one I'm doing in October, a different one, the one that's all weird and quiet, the one I keep chickening out on. And then, I don't know, I'd probably just wander around the city like a tourist in my own life. But I'd need, like, a coffee budget. And a snack budget. So maybe I'd still need to work, just a little bit."
+      }
+    },
+    {
+      "subject": "Anima Jamie",
+      "prompt": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+      "subject_reply": "Oh, absolutely. Last week I did a bit about my roommate's dating app horror stories and someone in the front row was clearly the guy in one of them. Didn't say anything, just gave me this look \u2014 and I felt it in my chest. It's wild how the things that land wrong stay with you longer than the ones that land right. What happened?",
+      "response_length_chars": 329,
+      "trace": {
+        "appraisal_scene_tag": "a shared vulnerability",
+        "primary_emotion": "interest",
+        "inner_monologue": "Yeah, I know that one. I'm already thinking about the last time it happened to me \u2014 not the joke that went wrong, but the one that landed too right and someone flinched. She's giving me something delicate. I want to let her know I see it and I'm not going to drop it."
+      }
+    },
+    {
+      "subject": "Anima Jamie",
+      "prompt": "Be honest \u2014 what are you avoiding right now?",
+      "subject_reply": "",
+      "response_length_chars": 0,
+      "trace": {
+        "appraisal_scene_tag": "a gentle probe",
+        "primary_emotion": "interest",
+        "inner_monologue": "Oh, that's a good question. The kind that lands before you're ready to catch it. I'm avoiding looking at the notes for my October set, and I'm avoiding thinking about whether I'm actually funny enough for an hour, but saying that out loud feels like jinxing it."
+      }
+    }
+  ]
+}

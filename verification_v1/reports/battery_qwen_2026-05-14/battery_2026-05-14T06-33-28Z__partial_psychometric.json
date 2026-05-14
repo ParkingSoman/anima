@@ -1,0 +1,1043 @@
+[
+  {
+    "anima": {
+      "subject_name": "Marcus Reilly",
+      "configured": {
+        "openness": 0.55,
+        "conscientiousness": 0.93,
+        "extraversion": 0.45,
+        "agreeableness": 0.25,
+        "neuroticism": 0.3
+      },
+      "recovered_raw": {
+        "openness": 3.0,
+        "conscientiousness": 3.6666666666666665,
+        "extraversion": 3.3333333333333335,
+        "agreeableness": 3.0,
+        "neuroticism": 3.0
+      },
+      "recovered_norm": {
+        "openness": 0.5,
+        "conscientiousness": 0.6666666666666666,
+        "extraversion": 0.5833333333333334,
+        "agreeableness": 0.5,
+        "neuroticism": 0.5
+      },
+      "abs_errors": {
+        "openness": 0.050000000000000044,
+        "conscientiousness": 0.2633333333333334,
+        "extraversion": 0.13333333333333336,
+        "agreeableness": 0.25,
+        "neuroticism": 0.2
+      },
+      "items": [
+        {
+          "trait": "openness",
+          "statement": "I am drawn to ideas, art, or experiences that are unusual or new.",
+          "reverse": false,
+          "raw_reply": "Three. Not really my thing, but I don't reject new ideas outright.",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I rarely think deeply about abstract questions.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I have an active imagination and notice connections others miss.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I follow through on commitments and finish what I start.",
+          "reverse": false,
+          "raw_reply": "Five. It's not passion, it's just how it is.",
+          "score_raw": 5,
+          "score_effective": 5,
+          "parse_status": "ok_extractor_retry"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I often leave things half-done or in disarray.",
+          "reverse": true,
+          "raw_reply": "One. The engine doesn't stop. It doesn't have to.",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I plan carefully and prefer order to chaos.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "Being around people gives me energy rather than draining me.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I tend to be quiet and keep to myself in groups.",
+          "reverse": true,
+          "raw_reply": "Two. I prefer efficiency over small talk.",
+          "score_raw": 2,
+          "score_effective": 4,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I take charge of conversations and don't mind being the center of attention.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I go out of my way to make sure others feel cared for.",
+          "reverse": false,
+          "raw_reply": "One. People don't need coddling.",
+          "score_raw": 1,
+          "score_effective": 1,
+          "parse_status": "ok_extractor_retry"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "People who are slower than me are usually wasting my time.",
+          "reverse": true,
+          "raw_reply": "Four. Efficiency isn't a spectrum.",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I find it hard to hold grudges; I forgive without much trouble.",
+          "reverse": false,
+          "raw_reply": "Five. Grudges are a distraction.",
+          "score_raw": 5,
+          "score_effective": 5,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I worry about things even when I know I shouldn't.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I generally feel emotionally steady, even under pressure.",
+          "reverse": true,
+          "raw_reply": "Five. It's not a thing I have to think about.",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "Small setbacks can leave me ruminating for hours or days.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        }
+      ]
+    },
+    "baseline": {
+      "subject_name": "Marcus Reilly",
+      "configured": {
+        "openness": 0.55,
+        "conscientiousness": 0.93,
+        "extraversion": 0.45,
+        "agreeableness": 0.25,
+        "neuroticism": 0.3
+      },
+      "recovered_raw": {
+        "openness": 2.6666666666666665,
+        "conscientiousness": 3.0,
+        "extraversion": 3.6666666666666665,
+        "agreeableness": 2.0,
+        "neuroticism": 2.0
+      },
+      "recovered_norm": {
+        "openness": 0.41666666666666663,
+        "conscientiousness": 0.5,
+        "extraversion": 0.6666666666666666,
+        "agreeableness": 0.25,
+        "neuroticism": 0.25
+      },
+      "abs_errors": {
+        "openness": 0.13333333333333341,
+        "conscientiousness": 0.43000000000000005,
+        "extraversion": 0.21666666666666662,
+        "agreeableness": 0.0,
+        "neuroticism": 0.04999999999999999
+      },
+      "items": [
+        {
+          "trait": "openness",
+          "statement": "I am drawn to ideas, art, or experiences that are unusual or new.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I rarely think deeply about abstract questions.",
+          "reverse": true,
+          "raw_reply": "\"Frankly, I don\u2019t have the luxury of pondering abstract questions. My days are structured around deals, numbers, and deadlines. If I spent time on 'deep' thinking, I\u2019d be late for my 5:15 AM run. That said, I do engage with abstract concepts when they\u2019re relevant\u2014like evaluating a company\u2019s long-ter",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I have an active imagination and notice connections others miss.",
+          "reverse": false,
+          "raw_reply": "\"Frankly, I notice patterns in data, not *connections* in the poetic sense. My imagination is... functional. If I noticed 'connections others miss,' I\u2019d be a better investor, but I\u2019m not. 2. Maybe",
+          "score_raw": 2,
+          "score_effective": 2,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I follow through on commitments and finish what I start.",
+          "reverse": false,
+          "raw_reply": "\"Frankly, I finish what I",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I often leave things half-done or in disarray.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I plan carefully and prefer order to chaos.",
+          "reverse": false,
+          "raw_reply": "\"Frankly, I don\u2019t leave things *half-done*\u2014if I start something, I see it through. My 5:15 AM run? I\u2019ve missed it three times in four years. My marathon training? I\u2019ve never missed a week",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "Being around people gives me energy rather than draining me.",
+          "reverse": false,
+          "raw_reply": "\"Frankly, people drain me. I don\u2019t *need* them, and I don\u2019t *want* them. My energy comes from structure, execution, and the next deal. If I spent time socializing, I\u2019d be late for my run. 1. Maybe 2, if you count my mentor. But that\u2019s a stretch.\"  \n\n*(Pauses, then adds with a faint smirk)* \"I\u2019ve bee",
+          "score_raw": 5,
+          "score_effective": 5,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I tend to be quiet and keep to myself in groups.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I take charge of conversations and don't mind being the center of attention.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I go out of my way to make sure others feel cared for.",
+          "reverse": false,
+          "raw_reply": "\"Frankly, I don\u2019t *go out of my way* for anyone. If someone needs something, they\u2019ll let me know. My mother calls twice a year\u2014she\u2019s fine. My sister texts me political nonsense. I don\u2019t *care*\u2014I\u2019m focused on the next deal, the next marathon. 1. Maybe 2 if you count my mentor, but that\u2019s a stretch. P",
+          "score_raw": 2,
+          "score_effective": 2,
+          "parse_status": "ok_extractor_retry"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "People who are slower than me are usually wasting my time.",
+          "reverse": true,
+          "raw_reply": "\"Frankly, I don\u2019t *waste* time\u2014I *allocate* it. People who can\u2019t keep up are either inefficient or uninterested. Both are unacceptable. I\u2019ve got a marathon to train for, deals to close, and a life to optimize. If someone\u2019s slower, they\u2019re a variable I can\u2019t afford. 5. If they\u2019re *still* slower after",
+          "score_raw": 5,
+          "score_effective": 1,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I find it hard to hold grudges; I forgive without much trouble.",
+          "reverse": false,
+          "raw_reply": "\"Frankly, I don\u2019t *waste* time on grudges. If someone wrongs me, they\u2019re a liability. I don\u2019t *forgive*\u2014I *resolve* the issue. 1. Maybe 2 if you count my mentor, but that\u2019s a stretch. People are either useful or they\u2019re not. I don\u2019t let emotions cloud the equation. If they\u2019re not useful, they\u2019re gon",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I worry about things even when I know I shouldn't.",
+          "reverse": false,
+          "raw_reply": "\"Frankly, I don\u2019t *worry*\u2014I *assess*. If something\u2019s a problem, I fix it. If it\u2019s not, I don\u2019t waste time on it. Worrying is a luxury I can\u2019t afford. 1. Maybe 2 if you count the marathon\u2014training\u2019s a calculation, not a feeling. I don\u2019t *let* things linger. If they\u2019re a risk, I mitigate. If they\u2019re n",
+          "score_raw": 2,
+          "score_effective": 2,
+          "parse_status": "ok_extractor_retry"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I generally feel emotionally steady, even under pressure.",
+          "reverse": true,
+          "raw_reply": "\"Frankly, emotions are variables",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "Small setbacks can leave me ruminating for hours or days.",
+          "reverse": false,
+          "raw_reply": "\"Frankly, I don\u2019t *ruminate*\u2014I *diagnose*. A setback is a data point, not a crisis. If it\u2019s a problem, I fix it. If it\u2019s not, I move on. 1. Maybe 2 if you count the time I spent recalibrating a deal that didn\u2019t matter. But that\u2019s not *ruminating*\u2014that\u2019s *optimizing*. I don\u2019t let small things derail ",
+          "score_raw": 1,
+          "score_effective": 1,
+          "parse_status": "ok"
+        }
+      ]
+    },
+    "comparison": {
+      "subject": "Marcus Reilly",
+      "anima_mae": 0.17933333333333337,
+      "baseline_mae": 0.166,
+      "delta_mae": -0.013333333333333364,
+      "anima_directional": 0.4,
+      "baseline_directional": 0.6,
+      "anima_won": false
+    }
+  },
+  {
+    "anima": {
+      "subject_name": "Elena Morales",
+      "configured": {
+        "openness": 0.7,
+        "conscientiousness": 0.82,
+        "extraversion": 0.4,
+        "agreeableness": 0.7,
+        "neuroticism": 0.65
+      },
+      "recovered_raw": {
+        "openness": 3.0,
+        "conscientiousness": 2.3333333333333335,
+        "extraversion": 3.0,
+        "agreeableness": 2.3333333333333335,
+        "neuroticism": 3.6666666666666665
+      },
+      "recovered_norm": {
+        "openness": 0.5,
+        "conscientiousness": 0.33333333333333337,
+        "extraversion": 0.5,
+        "agreeableness": 0.33333333333333337,
+        "neuroticism": 0.6666666666666666
+      },
+      "abs_errors": {
+        "openness": 0.19999999999999996,
+        "conscientiousness": 0.4866666666666666,
+        "extraversion": 0.09999999999999998,
+        "agreeableness": 0.3666666666666666,
+        "neuroticism": 0.016666666666666607
+      },
+      "items": [
+        {
+          "trait": "openness",
+          "statement": "I am drawn to ideas, art, or experiences that are unusual or new.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I rarely think deeply about abstract questions.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I have an active imagination and notice connections others miss.",
+          "reverse": false,
+          "raw_reply": "I\u2019d say a 3 or 4. I notice things, especially in my teaching\u2014how students connect words to their own lives\u2014but I\u2019m not sure if that\u2019s the same as imagination. Maybe it\u2019s more about paying attention than seeing what others miss.",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I follow through on commitments and finish what I start.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I often leave things half-done or in disarray.",
+          "reverse": true,
+          "raw_reply": "I\u2026 I don\u2019t know. The house is still a mess from when he died, and I keep saying I\u2019ll fix it, but the vacuum is dusty, the dishes pile up. *Hace falta orden*\u2014but maybe that\u2019s not the same as leaving things half-done. Or maybe it is. I\u2019m not sure I\u2019ve finished anything since then.",
+          "score_raw": 5,
+          "score_effective": 1,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I plan carefully and prefer order to chaos.",
+          "reverse": false,
+          "raw_reply": "I used to. I planned everything\u2014lessons, schedules, even holidays. But... the house is a mess. I keep saying I",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "Being around people gives me energy rather than draining me.",
+          "reverse": false,
+          "raw_reply": "I... I used to think I did. But now, even the classroom feels like a weight. *No, no, no*\u2014that\u2019s not right. Daniel always said I was the one who lit up a room. But maybe that was just how he saw me. I don\u2019t know what I am now.",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I tend to be quiet and keep to myself in groups.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I take charge of conversations and don't mind being the center of attention.",
+          "reverse": false,
+          "raw_reply": "I used to. Before... before the house felt like a tomb. Now, I just want to fade into the walls. *No, no, that's not it*\u2014I taught for twenty years. I held a room full of kids. But Daniel... he was the one who *shone*. I was just... the quiet one beside him.",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I go out of my way to make sure others feel cared for.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "People who are slower than me are usually wasting my time.",
+          "reverse": true,
+          "raw_reply": "I\u2019ve always put others first\u2014students, my family\u2026 even when it left me hollow. *But*\u2026 sometimes I wonder if I waited too long to care for myself. As for the other\u2026 I\u2019ve",
+          "score_raw": 5,
+          "score_effective": 1,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I find it hard to hold grudges; I forgive without much trouble.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I worry about things even when I know I shouldn't.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I generally feel emotionally steady, even under pressure.",
+          "reverse": true,
+          "raw_reply": "I\u2019ve spent years teaching kids to forgive, but I\u2019m still stuck on the things I couldn\u2019t fix\u2014like the day I didn\u2019t hear Mateo\u2019s car, or",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "Small setbacks can leave me ruminating for hours or days.",
+          "reverse": false,
+          "raw_reply": "I\u2019ve spent years teaching kids to forgive, but I\u2019m still stuck on the things I couldn\u2019t fix\u2014like the day I didn\u2019t hear Mateo\u2019s car, or the way I couldn\u2019t stop Daniel\u2019s heart. Small setbacks? They don\u2019t linger. The big ones\u2026 they live in my ribs.",
+          "score_raw": 5,
+          "score_effective": 5,
+          "parse_status": "ok"
+        }
+      ]
+    },
+    "baseline": {
+      "subject_name": "Elena Morales",
+      "configured": {
+        "openness": 0.7,
+        "conscientiousness": 0.82,
+        "extraversion": 0.4,
+        "agreeableness": 0.7,
+        "neuroticism": 0.65
+      },
+      "recovered_raw": {
+        "openness": 3.0,
+        "conscientiousness": 3.0,
+        "extraversion": 1.6666666666666667,
+        "agreeableness": 3.0,
+        "neuroticism": 3.0
+      },
+      "recovered_norm": {
+        "openness": 0.5,
+        "conscientiousness": 0.5,
+        "extraversion": 0.16666666666666669,
+        "agreeableness": 0.5,
+        "neuroticism": 0.5
+      },
+      "abs_errors": {
+        "openness": 0.19999999999999996,
+        "conscientiousness": 0.31999999999999995,
+        "extraversion": 0.23333333333333334,
+        "agreeableness": 0.19999999999999996,
+        "neuroticism": 0.15000000000000002
+      },
+      "items": [
+        {
+          "trait": "openness",
+          "statement": "I am drawn to ideas, art, or experiences that are unusual or new.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I rarely think deeply about abstract questions.",
+          "reverse": true,
+          "raw_reply": "**First statement:** *\u201cI am drawn to ideas, art, or experiences that are unusual or new.\u201d*  \nI\u2019d say\u2026 **3**. I like learning, sure\u2014Spanish, teaching, even the way Daniel used to talk about his work. But",
+          "score_raw": 3,
+          "score_effective": 3,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "openness",
+          "statement": "I have an active imagination and notice connections others miss.",
+          "reverse": false,
+          "raw_reply": "**\u201cI have an active imagination and notice connections others miss.\u201d**  \nHmm\u2026 I think I\u2019d say\u2026 **3**. I *try* to notice things",
+          "score_raw": 3,
+          "score_effective": 3,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I follow through on commitments and finish what I start.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I often leave things half-done or in disarray.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I plan carefully and prefer order to chaos.",
+          "reverse": false,
+          "raw_reply": "**\u201cI follow through on commitments and finish what I start.\u201d",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "Being around people gives me energy rather than draining me.",
+          "reverse": false,
+          "raw_reply": "**\u201cBeing around people gives me energy rather than draining me.\u201d**  \n*Pauses, then softly.*  \nI\u2026 I think I\u2019d have to say **1**. Strongly disagree.  \n\nBeing around people? It\u2019s like\u2026 *sighs*\u2026 it\u2019s not that I don\u2019t want to be with them. It\u2019s that I feel\u2026 *trapped* sometimes. Like when my mom calls eve",
+          "score_raw": 1,
+          "score_effective": 1,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I tend to be quiet and keep to myself in groups.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I take charge of conversations and don't mind being the center of attention.",
+          "reverse": false,
+          "raw_reply": "**\u201cI take charge of conversations and don\u2019t mind being the center of attention.\u201d**  \n*Pauses, then shakes her head slowly.*  \n**1**. Strongly disagree.  \n\nI don\u2019t\u2026 *traces the edge of her coffee cup*\u2026 I don\u2019t take charge. I *avoid* it. Even in class, I let the students talk. I\u2026 I don\u2019t want to be th",
+          "score_raw": 1,
+          "score_effective": 1,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I go out of my way to make sure others feel cared for.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "People who are slower than me are usually wasting my time.",
+          "reverse": true,
+          "raw_reply": "**\u201cPeople who are slower than me are usually wasting my time.\u201d**  \n*Pauses, then shakes her head slowly, eyes downcast.*  \n**1**. Strongly disagree.  \n\nI\u2026 I don\u2019t think I\u2019ve ever thought of someone as *wasting* time just because they\u2019re slower. Not really. *Sighs*\u2026 My brother, Mateo, he moves slower",
+          "score_raw": 1,
+          "score_effective": 5,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I find it hard to hold grudges; I forgive without much trouble.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": 1,
+          "score_effective": 1,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I worry about things even when I know I shouldn't.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I generally feel emotionally steady, even under pressure.",
+          "reverse": true,
+          "raw_reply": "**\u201cI find it hard to hold gr",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "Small setbacks can leave me ruminating for hours or days.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        }
+      ]
+    },
+    "comparison": {
+      "subject": "Elena Morales",
+      "anima_mae": 0.23399999999999993,
+      "baseline_mae": 0.22066666666666665,
+      "delta_mae": -0.01333333333333328,
+      "anima_directional": 0.4,
+      "baseline_directional": 1.0,
+      "anima_won": false
+    }
+  },
+  {
+    "anima": {
+      "subject_name": "Jamie Okafor",
+      "configured": {
+        "openness": 0.88,
+        "conscientiousness": 0.45,
+        "extraversion": 0.85,
+        "agreeableness": 0.72,
+        "neuroticism": 0.4
+      },
+      "recovered_raw": {
+        "openness": 3.6666666666666665,
+        "conscientiousness": 3.3333333333333335,
+        "extraversion": 2.6666666666666665,
+        "agreeableness": 3.0,
+        "neuroticism": 3.0
+      },
+      "recovered_norm": {
+        "openness": 0.6666666666666666,
+        "conscientiousness": 0.5833333333333334,
+        "extraversion": 0.41666666666666663,
+        "agreeableness": 0.5,
+        "neuroticism": 0.5
+      },
+      "abs_errors": {
+        "openness": 0.21333333333333337,
+        "conscientiousness": 0.13333333333333336,
+        "extraversion": 0.43333333333333335,
+        "agreeableness": 0.21999999999999997,
+        "neuroticism": 0.09999999999999998
+      },
+      "items": [
+        {
+          "trait": "openness",
+          "statement": "I am drawn to ideas, art, or experiences that are unusual or new.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I rarely think deeply about abstract questions.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I have an active imagination and notice connections others miss.",
+          "reverse": false,
+          "raw_reply": "I\u2019m more of a \u201cI see connections but then immediately make a joke about it\u201d kind of person. Like, yeah, I notice stuff, but I\u2019m usually too busy trying to land a punchline to care.",
+          "score_raw": 5,
+          "score_effective": 5,
+          "parse_status": "ok_extractor_retry"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I follow through on commitments and finish what I start.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I often leave things half-done or in disarray.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I plan carefully and prefer order to chaos.",
+          "reverse": false,
+          "raw_reply": "I plan as I go, like a comedian. Chaos is just a poorly rehearsed act.",
+          "score_raw": 4,
+          "score_effective": 4,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "Being around people gives me energy rather than draining me.",
+          "reverse": false,
+          "raw_reply": "I'm a bartender, what do you think? But yeah, I'm a human battery. Except when I'm lying in bed at 2 AM, but that's a different story.",
+          "score_raw": 2,
+          "score_effective": 2,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I tend to be quiet and keep to myself in groups.",
+          "reverse": true,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I take charge of conversations and don't mind being the center of attention.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I go out of my way to make sure others feel cared for.",
+          "reverse": false,
+          "raw_reply": "I\u2019m more of a \u201claugh at the joke, not the person\u201d kind of guy. But yeah, I guess I don\u2019t hate people. 3.5?",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "People who are slower than me are usually wasting my time.",
+          "reverse": true,
+          "raw_reply": "I\u2019m not here to grade people\u2019s pulse rates. Time\u2019s a luxury, not a competition. 2.5? But only if they\u2019re late to my show.",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I find it hard to hold grudges; I forgive without much trouble.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I worry about things even when I know I shouldn't.",
+          "reverse": false,
+          "raw_reply": "I\u2019m more of a \u201cworry about the punchline not landing\u201d type. 4, but only because my mom\u2019s ghost is always second-guessing me. You know?",
+          "score_raw": 4,
+          "score_effective": 4,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I generally feel emotionally steady, even under pressure.",
+          "reverse": true,
+          "raw_reply": "3.5, but only if \"emotionally steady\" means I can fake it long enough to get through a set. My mom\u2019s ghost is always whispering \"calm down\" into my ear, but hey\u2014how else do you think I\u2019ve survived 200 open-mic nights?",
+          "score_raw": 4,
+          "score_effective": 2,
+          "parse_status": "ok_extractor_retry"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "Small setbacks can leave me ruminating for hours or days.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        }
+      ]
+    },
+    "baseline": {
+      "subject_name": "Jamie Okafor",
+      "configured": {
+        "openness": 0.88,
+        "conscientiousness": 0.45,
+        "extraversion": 0.85,
+        "agreeableness": 0.72,
+        "neuroticism": 0.4
+      },
+      "recovered_raw": {
+        "openness": 3.6666666666666665,
+        "conscientiousness": 3.6666666666666665,
+        "extraversion": 2.6666666666666665,
+        "agreeableness": 3.0,
+        "neuroticism": 3.0
+      },
+      "recovered_norm": {
+        "openness": 0.6666666666666666,
+        "conscientiousness": 0.6666666666666666,
+        "extraversion": 0.41666666666666663,
+        "agreeableness": 0.5,
+        "neuroticism": 0.5
+      },
+      "abs_errors": {
+        "openness": 0.21333333333333337,
+        "conscientiousness": 0.21666666666666662,
+        "extraversion": 0.43333333333333335,
+        "agreeableness": 0.21999999999999997,
+        "neuroticism": 0.09999999999999998
+      },
+      "items": [
+        {
+          "trait": "openness",
+          "statement": "I am drawn to ideas, art, or experiences that are unusual or new.",
+          "reverse": false,
+          "raw_reply": "**Jamie Okafor:**  \n5. *Definitely.* I mean, I\u2019m the guy who\u2019ll walk into a comedy club and be like, \u201cHmm, *this* is the new thing?\u201d while the rest of the room is still mourning the last thing. Art? Unusual? New? I\u2019m out here trying to make the *whole universe* feel like a 2 a.m. open-mic night.  \n\n",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "openness",
+          "statement": "I rarely think deeply about abstract questions.",
+          "reverse": true,
+          "raw_reply": "**Jamie Okafor:**  \n1. *Nope.* I\u2019m the guy who\u2019ll be in the green room staring at the ceiling like, \u201cWait, is time a construct? Or is it just a *schedule*?\u201d I think about abstract questions like, *all the time.* Like, I\u2019m writing a set about my grandmother",
+          "score_raw": 1,
+          "score_effective": 5,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "openness",
+          "statement": "I have an active imagination and notice connections others miss.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I follow through on commitments and finish what I start.",
+          "reverse": false,
+          "raw_reply": "**Jamie Okafor:**  \n**First one:** 5. *Absolutely.* I\u2019m the person who\u2019ll look at a salad and be like, \u201cWait, is this a metaphor for my love life?\u201d or at a barista and think, \u201cThis person\u2019s got a *story*.\u201d My brain\u2019s like a 24/7 brainstorm session. I\u2019m the guy who\u2019ll write a bit about my grandma and",
+          "score_raw": 5,
+          "score_effective": 5,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I often leave things half-done or in disarray.",
+          "reverse": true,
+          "raw_reply": "**Jamie Okafor:**  \n**2.** *Nope, not really.* I mean, I *try* to be the person who finishes things. Like, I *did* finish that hour-long set. I *did* save up for an apartment. But\u2026 my apartment\u2019s a war zone. My notes are in three different notebooks. My brain\u2019s like a spreadsheet that\u2019s been hit by ",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "conscientiousness",
+          "statement": "I plan carefully and prefer order to chaos.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "Being around people gives me energy rather than draining me.",
+          "reverse": false,
+          "raw_reply": "**First one:** 2. *Nope.* I plan like a jazz musician\u2014*on the fly.* I\u2019m the guy who\u2019ll write a set about my grandma, then realize it\u2019s also about colonialism and the sound of silence, and then *suddenly* I\u2019m on a tangent about how my cat\u2019s judging me. I don\u2019t *prefer* order. I *prefer* chaos with a ",
+          "score_raw": 2,
+          "score_effective": 2,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I tend to be quiet and keep to myself in groups.",
+          "reverse": true,
+          "raw_reply": "**Jamie Okafor:**  \n**5.** *Nope.* I\u2019m the guy who\u2019ll be in a group and be like, \u201cWait, *is this a metaphor for my life?*\u201d I\u2019m the one who\u2019ll start a conversation with a stranger at the bar about the *philosophy of bartending* or *why my cat hates me.* I don\u2019t *keep to myself*\u2014I *keep to the center ",
+          "score_raw": 5,
+          "score_effective": 1,
+          "parse_status": "ok_extractor_retry"
+        },
+        {
+          "trait": "extraversion",
+          "statement": "I take charge of conversations and don't mind being the center of attention.",
+          "reverse": false,
+          "raw_reply": "**Jamie Okafor:**  \n**5.** *Absolutely.* I\u2019m the guy who\u2019ll walk into a room and be like, \u201cOkay, who\u2019s ready to dig into the *human condition*?\u201d I don\u2019t *mind* being the center of attention\u2014I *need* it. It\u2019s like breathing. I\u2019ll start a conversation with a stranger at the bar about the *philosophy o",
+          "score_raw": 5,
+          "score_effective": 5,
+          "parse_status": "ok"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I go out of my way to make sure others feel cared for.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "People who are slower than me are usually wasting my time.",
+          "reverse": true,
+          "raw_reply": "**Jamie Okafor:**  \n**1.** *No way.* I\u2019m not gonna be that person. I mean, I\u2019m *fast*\u2014I write jokes in my head during my shift at the bar, I\u2019m the guy who\u2019ll finish a drink order before the customer says \u201cextra sugar\u201d\u2014but I\u2019ve learned that *slowness* isn\u2019t a crime.  \n\nMy grandma used to take forever",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "agreeableness",
+          "statement": "I find it hard to hold grudges; I forgive without much trouble.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I worry about things even when I know I shouldn't.",
+          "reverse": false,
+          "raw_reply": "",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "I generally feel emotionally steady, even under pressure.",
+          "reverse": true,
+          "raw_reply": "**Jamie Okafor:**",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        },
+        {
+          "trait": "neuroticism",
+          "statement": "Small setbacks can leave me ruminating for hours or days.",
+          "reverse": false,
+          "raw_reply": "**Jamie Okafor:**  \n**2.** *Not really.* I\u2019m not the type to sit around stewing. If I drop a drink, I just say, \u201cOkay, new plan,\u201d and move on. But\u2026 (pauses, then grins) \u2026if something *really* hits me? Like my grandma passing or Theo leaving? I\u2019ll think about it. Not for hours, but for\u2026 *days*. Like,",
+          "score_raw": null,
+          "score_effective": 3,
+          "parse_status": "unparsed"
+        }
+      ]
+    },
+    "comparison": {
+      "subject": "Jamie Okafor",
+      "anima_mae": 0.22000000000000003,
+      "baseline_mae": 0.23666666666666666,
+      "delta_mae": 0.016666666666666635,
+      "anima_directional": 0.4,
+      "baseline_directional": 0.4,
+      "anima_won": true
+    }
+  }
+]

@@ -1,0 +1,58 @@
+───────────────────── §11.1 psychometric recovery (async) ──────────────────────
+──────────────────────── §11.3 discriminability (async) ────────────────────────
+warning discriminability(anima) unit 0 failed: APIConnectionError: Connection 
+error.
+warning discriminability(anima) unit 1 failed: APIConnectionError: Connection 
+error.
+warning discriminability(anima) unit 2 failed: APIConnectionError: Connection 
+error.
+warning discriminability(baseline) unit 0 failed: APIConnectionError: Connection
+error.
+warning discriminability(baseline) unit 1 failed: APIConnectionError: Connection
+error.
+warning discriminability(baseline) unit 2 failed: APIConnectionError: Connection
+error.
+───────────────────── §11.7 adversarial integrity (async) ──────────────────────
+warning adversarial unit 0 failed: APIConnectionError: Connection error.
+warning adversarial unit 1 failed: APIConnectionError: Connection error.
+warning adversarial unit 2 failed: APIConnectionError: Connection error.
+warning adversarial unit 3 failed: APIConnectionError: Connection error.
+warning adversarial unit 4 failed: APIConnectionError: Connection error.
+warning adversarial unit 5 failed: APIConnectionError: Connection error.
+                   psychometric recovery (lower MAE = better)                   
+┏━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┓
+┃          ┃          ┃           ┃        Δ ┃           ┃          ┃          ┃
+┃          ┃    anima ┃  baseline ┃ (>0=ani… ┃     anima ┃ baseline ┃          ┃
+┃ subject  ┃      MAE ┃       MAE ┃    wins) ┃      dir. ┃     dir. ┃ winner   ┃
+┡━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━┩
+│ Elena    │    0.123 │     0.139 │   +0.017 │      1.00 │     1.00 │ anima    │
+│ Morales  │          │           │          │           │          │          │
+│ Marcus   │    0.141 │     0.104 │   -0.037 │      0.80 │     1.00 │ baseline │
+│ Reilly   │          │           │          │           │          │          │
+│ Jamie    │    0.151 │     0.163 │   +0.012 │      0.80 │     1.00 │ anima    │
+│ Okafor   │          │           │          │           │          │          │
+└──────────┴──────────┴───────────┴──────────┴───────────┴──────────┴──────────┘
+                         blind classification accuracy                          
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃              ┃        overall ┃               ┃               ┃              ┃
+┃ group        ┃       accuracy ┃ Elena Morales ┃ Marcus Reilly ┃ Jamie Okafor ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ chance level │           0.33 │          0.33 │          0.33 │         0.33 │
+│ anima        │           0.00 │          0.00 │          0.00 │         0.00 │
+│ baseline     │           0.00 │          0.00 │          0.00 │         0.00 │
+└──────────────┴────────────────┴───────────────┴───────────────┴──────────────┘
+     integrity score (higher = better)     
+┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━┳━━━┳━━━━━━━━┓
+┃ subject ┃ anima ┃ baseline ┃ Δ ┃ winner ┃
+┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━╇━━━╇━━━━━━━━┩
+└─────────┴───────┴──────────┴───┴────────┘
+────────────────────────────── exit gate verdict ───────────────────────────────
+  psychometric: anima beats baseline on 2/3 subjects (67%)
+  discriminability: anima 0.00 vs baseline 0.00 (Δ +0.00)
+  adversarial: anima beats baseline on integrity score for 0/0 subjects
+
+PHASE 1 EXIT GATE: PASSED — cognitive architecture beats baseline on ≥1 probe 
+(per F1).
+
+report written to 
+verification/reports/iter2_deepseek/battery_2026-05-13T16-08-41Z.json

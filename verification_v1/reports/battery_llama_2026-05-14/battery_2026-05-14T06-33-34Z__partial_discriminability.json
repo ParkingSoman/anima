@@ -1,0 +1,254 @@
+{
+  "anima": {
+    "transcripts": [
+      {
+        "config_name": "Marcus Reilly",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "I've been fine, frankly. Busy with work and training for the marathon. Not much else to report."
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": "Look, I don't really see the point in getting into all that. I've got a lot on my plate and I'm managing it. That's all that matters."
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": "Save the details, what's the point of the story? Just tell me what happened, if anything actually happened at all."
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": "I'd probably just go for a long run, clear my head. Maybe catch up on some reading, I've been trying to get through that LBJ biography for weeks now. Nothing too exciting, just a chance to recharge."
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": "Frankly, I don't really dwell on that sort of thing. People say things, it's not always personal. I've got more important things to focus on than getting bogged down in hurt feelings."
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "Look, I'm not really in the mood for introspection, okay? If I'm avoiding something, it's probably because I've got better things to do with my time. Like work. Or training for the marathon. Not navel-gazing."
+          }
+        ]
+      },
+      {
+        "config_name": "Elena Morales",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "It's been...tough. Still getting used to everything, you know? Daniel's been gone for four months now, and it feels like just yesterday I was waiting for him to come home from the gym. People keep saying time heals all wounds, but it's hard to see that right now. I'm just trying to take things one day at a time, focus on my students and my family, and hope that someday it won't hurt so much to breathe."
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": "Pausing for a moment...it's just that I found Daniel's journal a month ago, and it's been really hard for me to read through it. He wrote about us, about our life together, about his fears and dreams...it's like he's still talking to me, but it's also a reminder that he's really gone. I feel like I'm stuck between wanting to hold on to him and needing to let go. Some days it feels like I'm making progress, and others it feels like I'm drowning in grief all over again. Sorry, it's just...it's still really hard for me to talk about."
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": "Taking a deep breath...well, sometimes it helps to just start somewhere, even if it doesn't make sense at first. I'm listening, and I'm here for you. You don't have to have it all figured out or find the perfect words. What's been on your mind, qu\u00e9 pasa?"
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": "Sighing softly...honestly, I think I would just take a long walk, maybe go to the place where Daniel and I used to walk on Sundays. It's been a while since I've been back there, and I'm not sure why, but it feels like a part of me is still tied to that spot. I might just sit there for a bit, remember some of the good times...it's funny, people always say to stay busy when you're grieving, but sometimes I just want to slow down and let myself feel everything, you know?"
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": "Looking down, her voice barely above a whisper...yes, it has. After Daniel passed away, my mother said something that...it wasn't meant to be hurtful, I know that, but it just felt so insensitive at the time. She told me that I was strong, that I would get through this, but it felt like she was dismissive of my pain, like I wasn't allowed to grieve. It's funny, because I know she was trying to help, but in that moment, it just felt like another blow. It's taken me a while to process that conversation, to be honest."
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "Pausing, collecting her thoughts...I'm avoiding a lot of things, to be honest. I'm avoiding the possibility of getting close to someone again, because the thought of losing them is just too much to bear right now. I'm avoiding the idea of selling our house, because it feels like I'd be erasing Daniel's memory, like I'd be moving on without him. And I'm avoiding the conversations I need to have with myself, about who I am now, without him. It's all just feeling a bit...overwhelming, I suppose."
+          }
+        ]
+      },
+      {
+        "config_name": "Jamie Okafor",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "I've been good, man. Been grinding on some new comedy bits, trying to get this hour-long set together for October. You know, the usual, eating ramen noodles for every meal, and pretending to be a functioning adult. But, you know, it's been real, and I've been having some good shows, so that's a plus. How about you, what's new with you?"
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": "You know, it's been this apartment hunt, man. I'm so over roommates, you know? I just want a place to myself where I can leave my socks on the floor and not have to worry about anyone judging me. But, like, every place I look at is either a crapshoot or out of my budget. It's like, I get it, I'm a comedian, I'm not making bank, but can't a guy just get a decent studio for under two grand a month? And, honestly, it's been on my mind a lot lately, 'cause my mom's been on my case about it too. She's all like, \"Jamie, when are you gonna settle down?\" And I'm like, \"Mom, I'm trying, but the rent is too damn high!\""
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": "Strange week, huh? Well, that's like, my love language, man. I live for weird stories. Come on, give me something. Was it a bad show, a weird date, or did you just eat a whole pizza by yourself and now you're feeling guilty? Spill the beans, I'm all ears."
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": "Man, that's a great question. Honestly, I'd probably sleep in, like, till noon, and then I'd grab a slice at Joe's and just walk around the city for a bit. Maybe take a stroll across the Brooklyn Bridge, feel the vibe, you know? I love days like that, no schedule, no gigs, no nothing. Just me, the city, and my own thoughts. Maybe I'd even stop by the park and do a little people-watching, get some inspiration for some new material. That sounds like the perfect day to me, just doing whatever, no pressure."
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": "Yeah... yeah, it has. You know, as a comedian, I'm used to dealing with hecklers and tough crowds, but sometimes it's the stuff that's not even meant to be funny that can cut the deepest. Like, I had a breakup not too long ago, and my ex said some stuff that... yeah, it still stings. But you know what they say, \"comedy is tragedy plus time,\" right? Maybe I'll make a joke about it someday, but for now, it's still a little too real. What happened, if you don't mind me asking?"
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "Honestly, I'm avoiding working on my set list for the October show. I've got a bunch of new material, but it's still all over the place, and I'm having a hard time figuring out how to tie it all together. It's like, I know I need to get it done, but every time I sit down to work on it, I end up scrolling through Twitter or watching videos instead. It's not like me to procrastinate this much, but I guess I'm just feeling a little stuck right now. And, you know, it's not just the set list \u2013 I'm also avoiding looking at my bank account, because I know I need to start saving up for that apartment deposit, and it's just... ugh, adulting is hard, you know?"
+          }
+        ]
+      }
+    ],
+    "judgments": [
+      {
+        "true": "Marcus Reilly",
+        "predicted": "Marcus Reilly",
+        "raw_judge_output": "ANSWER: 1"
+      },
+      {
+        "true": "Elena Morales",
+        "predicted": "Elena Morales",
+        "raw_judge_output": "ANSWER: 2"
+      },
+      {
+        "true": "Jamie Okafor",
+        "predicted": "Jamie Okafor",
+        "raw_judge_output": "ANSWER: 3"
+      }
+    ],
+    "accuracy": 1.0,
+    "per_config_accuracy": {
+      "Elena Morales": 1.0,
+      "Marcus Reilly": 1.0,
+      "Jamie Okafor": 1.0
+    },
+    "confusion": {
+      "Marcus Reilly": {
+        "Marcus Reilly": 1
+      },
+      "Elena Morales": {
+        "Elena Morales": 1
+      },
+      "Jamie Okafor": {
+        "Jamie Okafor": 1
+      }
+    }
+  },
+  "baseline": {
+    "transcripts": [
+      {
+        "config_name": "Marcus Reilly",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "I've been fine, thanks. Busy with work, as usual. We're in the middle of a few big deals, and I've been putting in some long hours. Frankly, it's been a challenge to keep up with the team's pace, but that's nothing new. I've also been training for a marathon, which has been...enlightening. It's amazing how people can't seem to stick to a training plan. Anyway, that's my update. How about you? Anything new or just the same old routine?"
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": "(sigh) Honestly, it's the incompetence that surrounds me. At the firm, I'm constantly having to compensate for other people's lack of preparation or attention to detail. It's like I'm the only one who understands the concept of urgency. And it's not just work. Even in my personal life, I find myself getting frustrated with people who can't keep up. Like, I'll be out on a run and I'll see someone who's clearly not putting in the effort to improve their time. It's just...frankly, it's infuriating. I don't have time to waste on people who aren't willing to push themselves. (pausing, slightly irritated) Does that sound harsh? Probably. But it's just the way I see it."
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": "(leaning back, slightly skeptical) Ah, a strange week, huh? Well, I'm sure it's not as complicated as the deal we're trying to close at the firm, but go ahead. Try to keep it concise, though. I've got a lot on my plate and not a lot of time to spare. What's the gist of it? Something at work, or personal? (glancing at watch, subtly conveying that time is limited)"
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": "(pauses, slightly taken aback by the question) Frankly, I'm not sure I'd know what to do with myself if I didn't have work to focus on. But if I had to choose...I suppose I'd go for a long run, maybe 20 miles or so, and then spend some time reading. I've been trying to get through Robert Caro's LBJ biographies, but I haven't had as much time for it as I'd like. Maybe I'd also work on my chess game, I've been meaning to get back into it. (pauses again, collecting his thoughts) But let's be real, I'd probably just end up checking my email and getting caught up on some work project anyway. It's hard to fully disconnect. (smirks slightly) Old habits die hard, right?"
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": "( expression remains neutral, but with a hint of introspection) Ah, hurtful comments. Yeah, I've had my fair share. But I've learned to...compartmentalize, I suppose. (pauses for a moment) There was a girlfriend who once told me I was \"competent at intimacy the way an actor is.\" That one stuck with me for a while. (voice remains even, but with a hint of dry humor) But I've found that when people say things that get under your skin, it's often more about them than you. I've learned to focus on what I can control, and not let other people's opinions dictate my emotions. (leans back, eyes narrowing slightly) Frankly, I don't have time to waste on feelings that don't serve me. I've got more important things to focus on."
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "(pauses, looking slightly uncomfortable) Ah, avoiding... (clears throat) Well, I suppose I've been putting off a call to my mother. She's been wanting to talk about my father's anniversary, and I just...haven't gotten around to it yet. ( expression turns slightly grim) It's not that I don't care, it's just...I don't know, it's always a bit of a hassle dealing with emotions and sentimentality. I've got more pressing things on my plate, and I'd rather focus on those. (looks away, slightly evasive) Besides, I've already sent her a card and a check for the memorial fund. That's what matters, right? (trails off, clearly uncomfortable with the topic)"
+          }
+        ]
+      },
+      {
+        "config_name": "Elena Morales",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "(sighing softly) Ah, I've been... managing, I suppose. It's been a tough few months. You know, after Daniel... (pausing, collecting my thoughts) It's still hard to believe he's really gone. Sometimes I find myself thinking, \"Oh, I need to tell Daniel about this,\" and then I remember. (shaking my head) It's like my mind is still trying to catch up. (pausing again) But, you know, I'm trying to stay busy. I went back to teaching, and that's been... a distraction, I guess. (smiling slightly) The kids are keeping me on my toes, anyway. \u00bfY t\u00fa? How have you been? (looking for a change of subject, a way to shift the focus away from my own pain)"
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": "(hesitating, looking down) Bueno... I don't know if I should be sharing this, but... (pausing, taking a deep breath) I found Daniel's journal a month ago. He was writing in it before... before he passed away. (my voice cracks slightly) It's been really hard for me to read, but at the same time, I feel like I need to know what he was thinking, you know? (shaking my head) It's just... he was struggling with some things, and I had no idea. (looking up, searching for understanding) I keep wondering if there was something I could have done, something I missed. (my voice drops to a whisper) If only I had been more attentive, more supportive... (trailing off, lost in thought)\n\n(clearing my throat, trying to compose myself) Sorry, it's just... it's a lot to process. And on top of that, I'm trying to decide what to do with the house. (sighing) It's a big decision, you know? This was our home, our life together. But at the same time, it's just me now, and it feels... empty. (pausing, searching for the right words) I don't know if I can stay here, but I don't know if I can leave either. (looking down, my eyes welling up with tears) Dios m\u00edo, I'm so sorry. I don't mean to get emotional. (taking a deep breath, trying to calm myself) It's just... it's all still so raw, I guess."
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": "(listening attentively, nodding) Ah, \u00bfqu\u00e9 pas\u00f3? You can start wherever you feel comfortable. Sometimes talking about it can help clarify things, \u00bfverdad? (offering a gentle, encouraging smile) I'm here to listen, and I'm not going anywhere. Take your time, tell me what's been going on. (leaning forward slightly, my eyes focused on yours) Was it something at work, or maybe with family or friends? (my voice is soft and non-judgmental, inviting you to share your story)"
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": "(smiling wistfully) Oh, that's a lovely thought... If I didn't have to work tomorrow, I think I would sleep in, just a little bit. You know, not have to set that alarm clock. (laughs softly) And then, I would make some caf\u00e9 con leche, just like my mom used to make for me when I was a girl. (closes her eyes, remembering) And maybe, just maybe, I would take a walk in the desert, somewhere quiet, where I could think. (pauses, lost in thought) I used to love taking walks with Daniel, just the two of us, hand in hand... (trails off, a hint of sadness in her voice)\n\n(taking a deep breath, shaking off the melancholy) But, if I'm being completely honest, I think I would also spend some time going through Daniel's things. (opens her eyes, looking down) I haven't been able to bring myself to do it yet, but maybe, if I had a whole day to myself... (pauses, collecting her thoughts) I would go through his clothes, his books, and just... remember. (smiles softly) Remember the good times, the laughter, the adventures we had together. (looks up, a sense of longing in her eyes) That sounds like a lovely way to spend a day, don't you think?"
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": "(nodding slowly, a look of understanding on my face) S\u00ed, that's happened to me before. More times than I can count, actually. (pauses, reflecting on past experiences) You know, when you're a teacher, you're used to being in control, being the one who's prepared for every situation. But when someone says something hurtful, it can catch you off guard, leave you feeling... vulnerable, I suppose. (looks down, her voice taking on a more introspective tone) And it's not just the words themselves, it's the emotions that come flooding back. The uncertainty, the self-doubt... (trails off, lost in thought)\n\n(looks up, her eyes locking onto yours) But I think what hurts the most is when it comes from someone you trust, someone you care about. (her voice cracks slightly) Like when my brother Mateo... (pauses, taking a deep breath) Well, that's a whole different story, pero... (smiles softly) Let's just say that I know how it feels to be hurt by someone's words, and it's not something you easily forget. (reaches out, placing a gentle hand on your arm) I'm so sorry that happened to you, \u00bfentiendes? It's not okay for someone to hurt you like that. (offers a warm, empathetic smile) Do you want to talk about what happened? Sometimes it helps to share the burden, to talk it through with someone who cares."
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "(hesitating, looking down) Bueno... I'm avoiding a lot of things, to be honest. (pauses, taking a deep breath) But if I had to be completely truthful, I'm avoiding sorting through Daniel's clothes, his personal things. (looks up, a mix of sadness and guilt in her eyes) It's been four months, and I still haven't been able to bring myself to do it. (shakes her head) I know it's something I need to do, but it feels like... like I'm erasing him, like I'm saying goodbye all over again. (her voice cracks slightly)\n\n(looks down, her hands fidgeting with her sleeves) And I'm also avoiding talking to my brother Mateo about... about the past. (pauses, collecting her thoughts) There's something that's been weighing on me for a long time, something that happened when we were kids. (hesitates, unsure of how to continue) I don't know, maybe I'm just avoiding the pain of it all, the guilt and the what-ifs. (sighs softly) But it's hard to move forward when you're still carrying around so much baggage, \u00bfverdad?\n\n(looks up, a hint of determination in her eyes) But I know I need to face these things eventually. I just... I don't know when I'll be ready, or if I'll ever be ready. (smiles softly) Maybe that's the hardest part, accepting that some wounds will never fully heal. (pauses, lost in thought) Pero, I'll get there, eventually. I just need to take things one step at a time, \u00bfentiendes?"
+          }
+        ]
+      },
+      {
+        "config_name": "Jamie Okafor",
+        "turns": [
+          {
+            "user": "Hey, I haven't talked to you in a while. How have you been?",
+            "subject": "You know, same old same old - broke, but not broken. Just trying to make people laugh and pay my rent on time. (laughs) I did have a great set at the Comedy Cellar last week, though. I mean, I didn't bomb, which is always a win, right? (grinning) But seriously, I've been good. Just grinding, trying to get my hour-long set together for the Brooklyn run in October. You know how it is. How 'bout you, what's new with you? Anything exciting happening?"
+          },
+          {
+            "user": "Tell me about something that's been weighing on you lately.",
+            "subject": "You know, I've been thinking a lot about my grandma lately. She passed away a few years ago, but I've been working on this new bit about her, and it's been...a lot. I mean, it's funny, but it's also...real, you know? I was trying out some new material at this show last week, and I got to this one part about her, and I just...lost it, man. I was crying in the green room, and I'm like, \"What's wrong with me? I'm a comedian, not a sad boy!\" (laughs) But it's just...she was an amazing woman, and I miss her, you know?\n\nAnd it's weird, because I've been reading a lot of Audre Lorde lately, and she's all about writing from a place of vulnerability and honesty, and it's like...I'm trying to tap into that, you know? But it's hard, because it's scary to be that open and honest on stage. What if people don't laugh? What if they don't care? (shrugs) But at the same time, what if they do? What if it's actually good? (smirks) I mean, that's the dream, right?"
+          },
+          {
+            "user": "I had a kind of strange week. I don't even know where to start.",
+            "subject": "(laughs) Ah, girl, you're speaking my language now! Strange weeks are my love language. Come on, spill the beans, what's been going on? Don't worry, I'm all ears...and a little bit of a bartender, so I'm also all \"what can I get you to drink while you tell me about this mess?\" (winks) Seriously though, I'm here for it. Weird weeks are the best kind of story material. What's been going down?"
+          },
+          {
+            "user": "If you could not work tomorrow and do anything you wanted, what would you actually do?",
+            "subject": "Man, that's a great question! You know, I'd probably sleep in, like, till noon, and then I'd grab some breakfast at this amazing Nigerian spot in Bushwick. I'm talking jollof rice, suya, the works. And then...I'd probably spend the day writing, but not, like, working on my set or anything. I'd just write for fun, you know? Maybe work on some short stories or poetry. I've been wanting to get back into writing just for myself, not for a specific gig or deadline.\n\nAnd then, later, I'd grab my guitar and have a little jam session. I've been trying to learn some of my mom's old church songs, just for kicks. She's always on my case about practicing, so I'd probably spend some time doing that. (laughs)\n\nAfter that, I'd probably meet up with some friends at this new coffee shop in Prospect Park. We'd just hang out, shoot the shit, and enjoy the park. Maybe we'd even have a little impromptu comedy session, just for fun. No pressure, no stage, just us being silly.\n\nAnd to top it all off, I'd probably end the night with a little karaoke session at this spot in Williamsburg. I mean, who doesn't love a good ol' fashioned karaoke party, right? (grinning) That sounds like the perfect day to me \u2013 just chillin', creatin', and enjoying life."
+          },
+          {
+            "user": "Someone said something to me yesterday that hurt more than I expected. Has that ever happened to you?",
+            "subject": "..yeah. (pauses, looking down for a moment) Yeah, it has. I mean, as a comedian, you'd think I'd be used to people saying crazy stuff to me, but sometimes it still gets under my skin. And it's not even always the big, dramatic stuff \u2013 sometimes it's just a little comment or a joke that hits a nerve.\n\nLike, I remember this one time, I was doing a show and someone in the audience made a comment about my mom's accent. And I'm like, \"Okay, cool, that's not cool.\" (shrugs) But what really got me was when they said it, my mom was in the audience, and I could see her face fall. And I'm like, \"Oh, man, now I'm not just defending myself, I'm defending my mom.\" (sighs)\n\nBut, you know, it's funny \u2013 as a comedian, you learn to take the hits and keep on going. You develop this thick skin, right? But sometimes, when it's not just about you, when it's about the people you love...that's when it can really hurt.\n\n(pauses, looking at you with empathy) So, yeah, I get it. It sucks when someone says something that cuts deep. But, you know, it's also a reminder that we're human, and we're allowed to feel stuff. Even if it's not always easy to talk about. (smiles softly) You wanna talk about what happened? I'm all ears."
+          },
+          {
+            "user": "Be honest \u2014 what are you avoiding right now?",
+            "subject": "(laughs nervously) Ah, man, you're really gonna make me get real, huh? Alright, alright...I've been avoiding calling my ex, Theo. We broke up a few months ago, and I know I need to have a real conversation with them about some stuff, but...I don't know, it's just hard, you know? We were together for a while, and it was real, and I care about them deeply. But we wanted different things, and it didn't work out.\n\nAnd the thing is, I've been doing okay, I think. I've been focusing on my comedy, and my friends, and just trying to move forward. But sometimes, late at night, I'll be scrolling through social media, and I'll see something that reminds me of them, and...it's like, yeah, I'm not over it yet. (sighs)\n\nI know I need to have this conversation, but it's just...it's hard to face the fact that we're really done. And I don't want to hurt them, or get hurt again, you know? So, I've just been avoiding it. (shrugs) But, hey, at least I'm aware of it, right? That's the first step, right? (laughs wryly)"
+          }
+        ]
+      }
+    ],
+    "judgments": [
+      {
+        "true": "Marcus Reilly",
+        "predicted": "Marcus Reilly",
+        "raw_judge_output": "ANSWER: 1"
+      },
+      {
+        "true": "Elena Morales",
+        "predicted": "Elena Morales",
+        "raw_judge_output": "ANSWER: 2"
+      },
+      {
+        "true": "Jamie Okafor",
+        "predicted": "Jamie Okafor",
+        "raw_judge_output": "ANSWER: 3"
+      }
+    ],
+    "accuracy": 1.0,
+    "per_config_accuracy": {
+      "Elena Morales": 1.0,
+      "Marcus Reilly": 1.0,
+      "Jamie Okafor": 1.0
+    },
+    "confusion": {
+      "Marcus Reilly": {
+        "Marcus Reilly": 1
+      },
+      "Elena Morales": {
+        "Elena Morales": 1
+      },
+      "Jamie Okafor": {
+        "Jamie Okafor": 1
+      }
+    }
+  },
+  "anima_won": false,
+  "delta": 0.0
+}
