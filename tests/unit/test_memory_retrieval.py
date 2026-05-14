@@ -11,11 +11,18 @@ Covers:
 
 from __future__ import annotations
 
+import datetime as dt
+
 import pytest
 
 from anima.config import load_config
 from anima.llm import make_adapter
-from anima.state.episodic import AffectTag, EpisodicEvent, EpisodicStore
+from anima.state.episodic import (
+    _RETRIEVAL_THRESHOLD,
+    AffectTag,
+    EpisodicEvent,
+    EpisodicStore,
+)
 from anima.state.mood import MoodVector
 from anima.state.self_model import SelfModel
 from anima.subsystems.memory_retrieval import MemoryRetrieval, RetrievedMemory
@@ -292,3 +299,136 @@ def test_retrieved_memory_dataclass_shape():
     assert rm.score == pytest.approx(0.5)
     assert rm.retrieval_reason == "r"
     assert rm.reconstructed_framing == "f"
+
+
+# -----------------------------------------------------------------------------
+# E4: decay-based retrieval threshold (candidate-pool filter; store not pruned)
+# -----------------------------------------------------------------------------
+
+
+def _now_iso() -> str:
+    return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+
+
+def test_below_threshold_event_excluded_at_retrieval_but_remains_in_store():
+    """An event with importance below `_RETRIEVAL_THRESHOLD` at encode time is
+    not surfaced — but the store itself is never pruned. The exclusion is a
+    retrieval-time gate."""
+    llm = make_adapter("fake")
+    now = dt.datetime.now(dt.timezone.utc)
+    # Event timestamped 'now' (so age=0, decay=1) but importance below threshold.
+    fresh_ts = now.isoformat(timespec="seconds")
+    store = EpisodicStore()
+    store.append(_episode(
+        "ev-dim",
+        ts=fresh_ts,
+        importance=0.04,  # below _RETRIEVAL_THRESHOLD=0.05
+    ))
+
+    mr = MemoryRetrieval(llm)
+    out = mr.run(
+        perception=_percept(),
+        perception_view="",
+        self_model=_self_model(),
+        mood=MoodVector(),
+        active_schemas=[],
+        episodic_store=store,
+        k=3,
+    )
+    # Nothing surfaced — and so no LLM call needed.
+    assert out == []
+    assert llm.calls == []
+    # The store still has the event — exclusion is retrieval-time only.
+    assert store.get("ev-dim") is not None
+    assert store.get("ev-dim").importance == pytest.approx(0.04)
+    assert len(store.list_recent(10)) == 1
+
+
+def test_old_event_decayed_below_threshold_is_excluded():
+    """An event with high importance but very old timestamp falls below the
+    decay threshold and is excluded from retrieval."""
+    llm = make_adapter("fake")
+    now = dt.datetime.now(dt.timezone.utc)
+    year_old = (now - dt.timedelta(days=365)).isoformat(timespec="seconds")
+    store = EpisodicStore()
+    store.append(_episode(
+        "ev-ancient",
+        ts=year_old,
+        importance=0.9,  # high importance but 365 days old
+    ))
+    # Sanity: confirm precondition.
+    assert store.get("ev-ancient").importance_decayed(_now_iso()) < _RETRIEVAL_THRESHOLD
+
+    mr = MemoryRetrieval(llm)
+    out = mr.run(
+        perception=_percept(),
+        perception_view="",
+        self_model=_self_model(),
+        mood=MoodVector(),
+        active_schemas=[],
+        episodic_store=store,
+        k=3,
+    )
+    assert out == []
+    assert llm.calls == []
+    # Store still has it.
+    assert store.get("ev-ancient") is not None
+
+
+def test_above_threshold_event_with_retrieval_boost_is_included():
+    """Sanity check: a moderate-importance event with retrieval_count=10
+    (capped boost) is well above threshold and surfaces normally."""
+    llm = make_adapter("fake")
+    now = dt.datetime.now(dt.timezone.utc)
+    fresh_ts = now.isoformat(timespec="seconds")
+    store = EpisodicStore()
+    ev = _episode("ev-loved", ts=fresh_ts, importance=0.5)
+    store.append(ev)
+    # Pre-bump retrieval count to 10 (capped boost = 1.5).
+    for _ in range(10):
+        store.mark_retrieved("ev-loved")
+    assert store.get("ev-loved").retrieval_count == 10
+    # Decayed importance: 0.5 * 1.0 * 1.5 = 0.75, well above threshold.
+    assert store.get("ev-loved").importance_decayed(_now_iso()) >= _RETRIEVAL_THRESHOLD
+
+    mr = MemoryRetrieval(llm)
+    out = mr.run(
+        perception=_percept(),
+        perception_view="",
+        self_model=_self_model(),
+        mood=MoodVector(),
+        active_schemas=[],
+        episodic_store=store,
+        k=3,
+    )
+    assert len(out) == 1
+    assert out[0].event.id == "ev-loved"
+
+
+def test_mixed_pool_only_surviving_events_surface():
+    """With a mix of fresh-high-importance and old-low-importance events, only
+    the survivors of the threshold filter make it into the retrieved list."""
+    llm = make_adapter("fake")
+    now = dt.datetime.now(dt.timezone.utc)
+    fresh_ts = now.isoformat(timespec="seconds")
+    old_ts = (now - dt.timedelta(days=365)).isoformat(timespec="seconds")
+    store = EpisodicStore()
+    store.append(_episode("ev-fresh-A", ts=fresh_ts, importance=0.6))
+    store.append(_episode("ev-fresh-B", ts=fresh_ts, importance=0.5))
+    store.append(_episode("ev-faded",   ts=old_ts,   importance=0.9))  # decays out
+    store.append(_episode("ev-dim",     ts=fresh_ts, importance=0.02))  # below thresh
+
+    mr = MemoryRetrieval(llm)
+    out = mr.run(
+        perception=_percept(),
+        perception_view="",
+        self_model=_self_model(),
+        mood=MoodVector(),
+        active_schemas=[],
+        episodic_store=store,
+        k=5,
+    )
+    ids = {rm.event.id for rm in out}
+    assert ids == {"ev-fresh-A", "ev-fresh-B"}
+    # The store still has all four events — gating is retrieval-time only.
+    assert len(store.events) == 4

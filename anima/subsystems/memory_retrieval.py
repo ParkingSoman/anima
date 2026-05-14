@@ -16,19 +16,27 @@ goals, self-model, and affect. This subsystem implements that:
 Design notes:
   - Numerical ranker uses mood (valence/arousal/dominance) vs event.affect_tag
     cosine-similarity. Discrete dict is deferred to E4 (affect-congruence).
-  - importance is read directly off event.importance — no decay (E4 work).
+  - importance is read via event.importance_decayed(now) (E4 decay). Events
+    whose decayed importance falls below `_RETRIEVAL_THRESHOLD` are excluded
+    from the candidate pool at retrieval-time only — the store is never pruned.
   - The LLM call is batched (k events in, k {reason, framing} pairs out) so
     cost stays at ≤1 LLM call per turn regardless of k.
-  - Empty store / k=0 short-circuits to []. No LLM call in those cases.
+  - Empty store / k=0 / fully-decayed pool short-circuits to []. No LLM call in
+    those cases.
 """
 
 from __future__ import annotations
 
+import datetime
 import math
 from dataclasses import dataclass
 
 from anima.llm.base import LLMAdapter
-from anima.state.episodic import EpisodicEvent, EpisodicStore
+from anima.state.episodic import (
+    _RETRIEVAL_THRESHOLD,
+    EpisodicEvent,
+    EpisodicStore,
+)
 from anima.state.mood import MoodVector
 from anima.state.self_model import SelfModel
 from anima.subsystems._common import extract_json
@@ -127,11 +135,13 @@ def _recency_score(event: EpisodicEvent, all_events: list[EpisodicEvent]) -> flo
 
 
 def _score_event(event: EpisodicEvent, *, mood: MoodVector,
-                 active_schemas: list[str], all_events: list[EpisodicEvent]) -> float:
+                 active_schemas: list[str], all_events: list[EpisodicEvent],
+                 now: str | None = None) -> float:
     mood_c = _mood_congruence(mood, event)                  # [0,1]
     schema_r = _schema_relevance(event, active_schemas)     # 0 or 1
     recency = _recency_score(event, all_events)             # [0,1]
-    importance = max(0.0, min(1.0, event.importance))       # [0,1]
+    # Use decayed importance (E4): time-decay + retrieval-boost, clamped [0,1].
+    importance = event.importance_decayed(now)              # [0,1]
     score = (_W_MOOD * mood_c
              + _W_SCHEMA * schema_r
              + _W_RECENCY * recency
@@ -202,11 +212,25 @@ class MemoryRetrieval:
         if not candidates:
             candidates = episodic_store.list_recent(20)
 
+        # 1b. Decay filter (E4). Exclude events whose decayed importance is
+        # below `_RETRIEVAL_THRESHOLD`. The store itself is NEVER pruned —
+        # this is a retrieval-time gate. Computed `now` is shared across the
+        # filter and the scoring step so a single turn sees a consistent clock.
+        now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat(
+            timespec="seconds"
+        )
+        candidates = [
+            ev for ev in candidates
+            if ev.importance_decayed(now_iso) >= _RETRIEVAL_THRESHOLD
+        ]
+        if not candidates:
+            return []
+
         # 2. Score each candidate.
         all_events = episodic_store.events
         scored: list[tuple[float, EpisodicEvent]] = [
             (_score_event(ev, mood=mood, active_schemas=active_schemas,
-                          all_events=all_events), ev)
+                          all_events=all_events, now=now_iso), ev)
             for ev in candidates
         ]
         # 3. Top-k by score (stable order ties by ts desc as a tiebreaker).

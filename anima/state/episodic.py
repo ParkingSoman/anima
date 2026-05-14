@@ -11,14 +11,35 @@ One Python process, in-memory list. No DB, no index. Phase 2 is small.
 
 from __future__ import annotations
 
+import datetime
+import math
 from dataclasses import dataclass, field
 from typing import Any
 
 from anima.state.mood import MoodVector
 
 
+# Decay constants (E4). Tunable; module-level for ease of experimentation.
+# importance_decayed = importance * exp(-age_days / time_constant) * retrieval_boost
+# time_constant=30d => half-life ~21d. retrieval_boost rewards repeated recall
+# (Hebbian: "what fires together wires together"), bounded so it stays sane.
+_DECAY_TIME_CONSTANT_DAYS = 30.0
+_RETRIEVAL_BOOST_PER_HIT = 0.1
+_MAX_RETRIEVAL_BOOST = 1.5
+# Below this decayed importance, the retrieval ranker excludes the event from
+# its candidate pool. Set at the retrieval layer, NOT applied to the store.
+_RETRIEVAL_THRESHOLD = 0.05
+
+
 def _clip(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
+
+
+def _parse_iso(ts: str) -> datetime.datetime:
+    """Parse an ISO-8601 timestamp string, accepting trailing 'Z' as +00:00."""
+    if ts.endswith("Z"):
+        ts = ts[:-1] + "+00:00"
+    return datetime.datetime.fromisoformat(ts)
 
 
 @dataclass(frozen=True)
@@ -77,6 +98,30 @@ class EpisodicEvent:
     importance: float                             # [0, 1]
     retrieval_count: int = 0
     links: list[str] = field(default_factory=list)  # ids of related events
+
+    def importance_decayed(self, now: str | None = None) -> float:
+        """Time- and retrieval-modulated importance for the retrieval ranker.
+
+        Decay is exponential with time-constant `_DECAY_TIME_CONSTANT_DAYS`.
+        Retrieval count provides a bounded Hebbian boost so memories that are
+        recalled often resist decay. Result clamped to [0, 1] — high importance
+        with high retrieval_count cannot exceed the original [0, 1] range.
+
+        Args:
+            now: ISO-8601 timestamp string. If None, uses current UTC time.
+        """
+        if now is None:
+            now_dt = datetime.datetime.now(datetime.timezone.utc)
+        else:
+            now_dt = _parse_iso(now)
+        then_dt = _parse_iso(self.ts)
+        age_days = max(0.0, (now_dt - then_dt).total_seconds() / 86400.0)
+        time_factor = math.exp(-age_days / _DECAY_TIME_CONSTANT_DAYS)
+        retrieval_boost = min(
+            _MAX_RETRIEVAL_BOOST,
+            1.0 + _RETRIEVAL_BOOST_PER_HIT * max(0, self.retrieval_count),
+        )
+        return _clip(self.importance * time_factor * retrieval_boost, 0.0, 1.0)
 
     def to_jsonable(self) -> dict[str, Any]:
         return {
