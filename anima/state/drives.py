@@ -7,6 +7,7 @@ the scarcity backbone: drive levels gate goal salience.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from anima.config.schema import PankseppDrives
 
@@ -32,6 +33,13 @@ class DriveState:
         for k, v in base.items():
             cur = self.activations.get(k, v)
             self.activations[k] = _clip01(cur + rate * (v - cur))
+
+    def to_jsonable(self) -> dict[str, Any]:
+        return {"activations": dict(self.activations)}
+
+    @classmethod
+    def from_jsonable(cls, data: dict[str, Any]) -> "DriveState":
+        return cls(activations=dict(data.get("activations", {})))
 
     def render(self) -> str:
         items = sorted(self.activations.items(), key=lambda kv: -kv[1])

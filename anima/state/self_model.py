@@ -41,6 +41,33 @@ class SelfModelKernel:
     formative_events: list[str] = field(default_factory=list)
     family_of_origin: str = ""
 
+    def to_jsonable(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "one_line": self.one_line,
+            "iwm_of_self": self.iwm_of_self,
+            "iwm_of_others": self.iwm_of_others,
+            "role": self.role,
+            "age": self.age,
+            "culture": self.culture,
+            "formative_events": list(self.formative_events),
+            "family_of_origin": self.family_of_origin,
+        }
+
+    @classmethod
+    def from_jsonable(cls, data: dict[str, Any]) -> "SelfModelKernel":
+        return cls(
+            name=str(data["name"]),
+            one_line=str(data.get("one_line", "")),
+            iwm_of_self=str(data.get("iwm_of_self", "")),
+            iwm_of_others=str(data.get("iwm_of_others", "")),
+            role=str(data.get("role", "")),
+            age=int(data.get("age", 0)),
+            culture=str(data.get("culture", "")),
+            formative_events=list(data.get("formative_events", [])),
+            family_of_origin=str(data.get("family_of_origin", "")),
+        )
+
 
 @dataclass
 class SelfModel:
@@ -127,6 +154,35 @@ class SelfModel:
             f"What I'm afraid of: {fears_str}\n"
             f"Opinions I currently hold:\n  {opinions_str}\n"
             f"--- end self-model ---"
+        )
+
+    # ---------- JSON I/O (E5 — cross-session persistence; §5.2 interpreted state)
+
+    def to_jsonable(self) -> dict[str, Any]:
+        return {
+            "kernel": self.kernel.to_jsonable(),
+            "believed_traits": dict(self.believed_traits),
+            "believed_values": list(self.believed_values),
+            "current_concerns": list(self.current_concerns),
+            "current_hopes": list(self.current_hopes),
+            "current_fears": list(self.current_fears),
+            "held_opinions": dict(self.held_opinions),
+            "ongoing_life_projects": list(self.ongoing_life_projects),
+            "provenance": [dict(p) for p in self.provenance],
+        }
+
+    @classmethod
+    def from_jsonable(cls, data: dict[str, Any]) -> "SelfModel":
+        return cls(
+            kernel=SelfModelKernel.from_jsonable(data["kernel"]),
+            believed_traits=dict(data.get("believed_traits", {})),
+            believed_values=list(data.get("believed_values", [])),
+            current_concerns=list(data.get("current_concerns", [])),
+            current_hopes=list(data.get("current_hopes", [])),
+            current_fears=list(data.get("current_fears", [])),
+            held_opinions=dict(data.get("held_opinions", {})),
+            ongoing_life_projects=list(data.get("ongoing_life_projects", [])),
+            provenance=[dict(p) for p in data.get("provenance", [])],
         )
 
     # ---------- candidate deltas (per turn, committed only if non-dissonant)

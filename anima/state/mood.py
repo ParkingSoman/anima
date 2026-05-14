@@ -7,6 +7,7 @@ Dimensions: valence (negative↔positive), arousal (calm↔excited), dominance
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from anima.config.schema import Big5
 
@@ -55,6 +56,23 @@ class MoodVector:
             self.discrete[k] = max(0.0, self.discrete[k] - rate)
             if self.discrete[k] < 0.02:
                 del self.discrete[k]
+
+    def to_jsonable(self) -> dict[str, Any]:
+        return {
+            "valence": self.valence,
+            "arousal": self.arousal,
+            "dominance": self.dominance,
+            "discrete": dict(self.discrete),
+        }
+
+    @classmethod
+    def from_jsonable(cls, data: dict[str, Any]) -> "MoodVector":
+        return cls(
+            valence=float(data.get("valence", 0.0)),
+            arousal=float(data.get("arousal", 0.0)),
+            dominance=float(data.get("dominance", 0.0)),
+            discrete=dict(data.get("discrete", {})),
+        )
 
     def render(self) -> str:
         labels = []

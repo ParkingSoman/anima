@@ -13,11 +13,13 @@ from typing import Any
 from anima.config import AnimaConfig, load_config
 from anima.llm.base import LLMAdapter
 from anima.llm import make_adapter
+from anima.persistence.store import AnimaStore, AnimaStoreSnapshot
 from anima.state.drives import DriveState
 from anima.state.episodic import EpisodicStore
 from anima.state.mood import MoodVector
 from anima.state.relations import PredictedIntent, RelationsStore
 from anima.state.self_model import SelfModel
+from anima.state.semantic import SemanticStore
 from anima.subsystems.appraisal import AppraisalSubsystem
 from anima.subsystems.inner_monologue import InnerMonologueSubsystem
 from anima.subsystems.memory_retrieval import MemoryRetrieval
@@ -43,10 +45,36 @@ class TurnTrace:
     surprise_from_last_turn: dict = field(default_factory=dict)  # serialized SurpriseRecord or {}
     prediction: dict = field(default_factory=dict)               # serialized PredictionResult
 
+    def to_jsonable(self) -> dict[str, Any]:
+        """Serialize one turn for the §5.1 action-history record (append-only).
+
+        All nested fields are already plain dicts/strings here (constructed
+        from subsystem ``.to_jsonable()`` calls upstream), so this is a thin
+        copy. Round-tripping is not required — the behavioral record is
+        researcher-facing audit data, not read back by the Anima at runtime.
+        """
+        return {
+            "user_msg": self.user_msg,
+            "perception": dict(self.perception),
+            "appraisal": dict(self.appraisal),
+            "monologue": self.monologue,
+            "mood_before": dict(self.mood_before),
+            "mood_after": dict(self.mood_after),
+            "drives_before": dict(self.drives_before),
+            "drives_after": dict(self.drives_after),
+            "response": self.response,
+            "retrieved": [dict(r) for r in self.retrieved],
+            "usage": dict(self.usage),
+            "surprise_from_last_turn": dict(self.surprise_from_last_turn),
+            "prediction": dict(self.prediction),
+        }
+
 
 class Anima:
     def __init__(self, cfg: AnimaConfig, llm: LLMAdapter | None = None,
-                 *, ablate_monologue_length: bool = False):
+                 *, ablate_monologue_length: bool = False,
+                 store: AnimaStore | None = None,
+                 autosave_every: int = 5):
         """Construct an Anima.
 
         Parameters
@@ -63,6 +91,16 @@ class Anima:
             the research battery to isolate the causal contribution of the
             parameter-aware monologue. Default False — production behavior
             is byte-identical to before this kwarg existed.
+        store: AnimaStore, optional
+            Per-Anima JSON-on-disk persistence (E5). If supplied AND on-disk
+            state exists for this Anima name, ``__init__`` hydrates §5.1 +
+            §5.2 from the snapshot — wiring cross-session memory. If supplied
+            but no on-disk state exists yet, the Anima starts fresh and will
+            persist on autosave. If ``None`` (default), no persistence — the
+            Phase 1 behavior.
+        autosave_every: int, default 5
+            Number of ``respond()`` calls between automatic saves. Only
+            consulted when ``store`` is not None.
         """
         self.cfg = cfg
         self.llm = llm or make_adapter("anthropic")
@@ -86,13 +124,30 @@ class Anima:
         # populate it from each turn's encoding pass.
         self.episodic_store = EpisodicStore()
 
+        # Phase-2 semantic store (§5.1). Empty at construction; consolidation
+        # (Phase 4) writes here. Held on the Anima now so persistence (E5)
+        # has a clear surface to load/save against.
+        self.semantic_store = SemanticStore()
+
         # Phase-2 relational schemas (§5.2 / §6). Theory-of-mind state lives
         # here: predictions made about the user, surprise history, beliefs.
-        # Cross-session persistence is E5; this is in-memory for now.
         self.relations = RelationsStore()
         self._user_relation = self.relations.get_or_create("user")
 
         self.traces: list[TurnTrace] = []
+
+        # E5: per-Anima JSON persistence. Hydrate state from disk if a store
+        # is provided and on-disk state exists. The §5.1/§5.2 separation is
+        # preserved by reading the two regions back into their distinct stores.
+        self._store = store
+        self._autosave_every = max(1, int(autosave_every))
+        self._turns_since_save = 0
+        self._current_session_id: str | None = None
+
+        if self._store is not None:
+            snap = self._store.load()
+            if snap is not None:
+                self._hydrate_from_snapshot(snap)
 
     @classmethod
     def from_config_path(cls, path: str | Path, llm: LLMAdapter | None = None,
@@ -224,7 +279,107 @@ class Anima:
             prediction=prediction.to_jsonable(),
         )
         self.traces.append(trace)
+
+        # E5: autosave countdown. We tick AFTER the trace is appended so a
+        # crash mid-turn doesn't leave a half-recorded turn on disk.
+        if self._store is not None:
+            self._turns_since_save += 1
+            if self._turns_since_save >= self._autosave_every:
+                self._autosave()
+
         return response.text, trace
+
+    # ---------- E5 persistence
+
+    def _hydrate_from_snapshot(self, snap: AnimaStoreSnapshot) -> None:
+        """Restore §5.1 + §5.2 state from an on-disk snapshot.
+
+        Each region is restored via its dedicated ``from_jsonable`` codec so
+        the in-memory invariants (e.g. EpisodicStore's ``_by_id`` index) are
+        rebuilt. If a sub-region is empty on disk (fresh field), the existing
+        config-seeded default is kept — we only overwrite when we have data.
+        """
+        # §5.1 behavioral record.
+        if snap.episodic_events:
+            self.episodic_store = EpisodicStore.from_jsonable(
+                {"events": snap.episodic_events}
+            )
+        # action_history is researcher-facing; not re-hydrated into TurnTraces
+        # (we don't need to reconstruct the live trace objects across sessions
+        # — they're an audit trail). Kept on snapshot for save round-trips.
+
+        # §5.2 interpreted state.
+        if snap.semantic_facts:
+            self.semantic_store = SemanticStore.from_jsonable(
+                {"facts": snap.semantic_facts}
+            )
+        if snap.relations:
+            self.relations = RelationsStore.from_jsonable(
+                {"schemas": snap.relations}
+            )
+            self._user_relation = self.relations.get_or_create("user")
+        if snap.self_model:
+            self.self_model = SelfModel.from_jsonable(snap.self_model)
+        if snap.mood:
+            self.mood = MoodVector.from_jsonable(snap.mood)
+        if snap.drives:
+            self.drives = DriveState.from_jsonable(snap.drives)
+
+        # Session bookkeeping.
+        if snap.conversation_history:
+            self.conversation_history = list(snap.conversation_history)
+        self._current_session_id = snap.current_session_id
+
+    def _build_snapshot(self) -> AnimaStoreSnapshot:
+        """Serialize current in-memory state into an :class:`AnimaStoreSnapshot`.
+
+        Flat-list field shapes (e.g. ``episodic_events`` as ``list[dict]``)
+        match the on-disk JSON — see :class:`AnimaStoreSnapshot` for the
+        canonical schema.
+        """
+        return AnimaStoreSnapshot(
+            episodic_events=[e.to_jsonable() for e in self.episodic_store.events],
+            action_history=[t.to_jsonable() for t in self.traces],
+            self_model=self.self_model.to_jsonable(),
+            semantic_facts=[f.to_jsonable() for f in self.semantic_store.facts],
+            relations={n: s.to_jsonable() for n, s in self.relations.schemas.items()},
+            mood=self.mood.to_jsonable(),
+            drives=self.drives.to_jsonable(),
+            conversation_history=list(self.conversation_history),
+            current_session_id=self._current_session_id,
+        )
+
+    def _autosave(self) -> None:
+        """Internal: build a snapshot and write through the store.
+
+        No-op if no store is attached. Resets the turn counter so the next
+        autosave fires after another ``autosave_every`` turns.
+        """
+        if self._store is None:
+            return
+        snap = self._build_snapshot()
+        self._store.save(snap, session_id=self._current_session_id)
+        self._turns_since_save = 0
+
+    def save(self) -> None:
+        """Public: force a save right now, regardless of the autosave countdown.
+
+        Use this at session end / before process exit / on user request to
+        guarantee the §5.1 + §5.2 state is durable. No-op if no store is
+        attached.
+        """
+        if self._store is None:
+            return
+        self._autosave()
+
+    def set_session_id(self, session_id: str) -> None:
+        """Mark the start of a new named session.
+
+        The CLI (E6) calls this so per-session transcript files are kept
+        separate — preserving the audit invariant that one session's
+        conversation log is one JSON file.
+        """
+        self._current_session_id = session_id
 
     # ---------- module surface (lightweight for Phase 1; expanded later)
 
