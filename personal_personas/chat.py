@@ -24,6 +24,11 @@ Examples:
     # Forced long (8–12 sentence monologue, 720 token cap):
     .venv/bin/python personal_personas/chat.py --config personal_personas/wren.yaml --provider openrouter --monologue long
 
+    # Specific model (aliases: deepseek, mistral, qwen, llama — or any raw OpenRouter slug):
+    .venv/bin/python personal_personas/chat.py --config personal_personas/vesper.yaml --model mistral
+    .venv/bin/python personal_personas/chat.py --config personal_personas/ophelia.yaml --model deepseek/deepseek-v4-pro
+    .venv/bin/python personal_personas/chat.py --config personal_personas/roisin.yaml --model llama --monologue variable
+
 In-session commands:
     /trace      show the most recent inner monologue
     /state      dump internal state (mood, drives, self-model)
@@ -49,16 +54,44 @@ from anima_v1.llm import make_adapter
 from verification.probes.monologue_length_directives import LengthControlledInnerMonologue
 
 
+# Convenience aliases for the OpenRouter slugs used in the Phase 1 experiment.
+# Any value not in this dict is passed through verbatim as the model slug.
+MODEL_ALIASES = {
+    "deepseek": "deepseek/deepseek-v4-flash",
+    "mistral":  "mistralai/mistral-small-3.2-24b-instruct",
+    "qwen":     "qwen/qwen3-30b-a3b",
+    "llama":    "meta-llama/llama-3.3-70b-instruct",
+}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="personal-chat",
-        description="Chat with an Anima, with an optional monologue-length toggle.",
+        description="Chat with an Anima, with monologue-length and model toggles.",
     )
     parser.add_argument("--config", required=True, type=Path,
                         help="Path to a persona YAML file.")
     parser.add_argument("--provider", default="openrouter",
                         choices=["anthropic", "openai", "openrouter", "fake"],
                         help="LLM provider. Default 'openrouter' (uses OPENROUTER_API_KEY).")
+    parser.add_argument(
+        "--model", default=None,
+        help=(
+            "Model to use (both tiers). Aliases: deepseek, mistral, qwen, llama "
+            "(map to the Phase 1 OpenRouter slugs). Any other value is passed "
+            "through verbatim as the model slug for the chosen provider "
+            "(e.g. 'deepseek/deepseek-v4-pro', 'gpt-4.1', 'claude-opus-4-7'). "
+            "If omitted, the adapter's default is used."
+        ),
+    )
+    parser.add_argument(
+        "--fast-model", default=None,
+        help="Override only the fast tier. If both --model and --fast-model are set, --fast-model wins for the fast tier.",
+    )
+    parser.add_argument(
+        "--strong-model", default=None,
+        help="Override only the strong tier. Same precedence rule as --fast-model.",
+    )
     parser.add_argument(
         "--monologue", default="default",
         choices=["default", "variable", "short", "long"],
@@ -74,8 +107,19 @@ def main(argv: list[str] | None = None) -> int:
                         help="Print the inner monologue after every reply.")
     args = parser.parse_args(argv)
 
+    # Resolve model overrides. --model sets both tiers; --fast-model / --strong-model override per-tier.
+    adapter_kwargs: dict = {}
+    base_model = MODEL_ALIASES.get(args.model, args.model) if args.model else None
+    if base_model is not None:
+        adapter_kwargs["fast_model"] = base_model
+        adapter_kwargs["strong_model"] = base_model
+    if args.fast_model is not None:
+        adapter_kwargs["fast_model"] = MODEL_ALIASES.get(args.fast_model, args.fast_model)
+    if args.strong_model is not None:
+        adapter_kwargs["strong_model"] = MODEL_ALIASES.get(args.strong_model, args.strong_model)
+
     console = Console()
-    llm = make_adapter(args.provider)
+    llm = make_adapter(args.provider, **adapter_kwargs)
     anima = Anima.from_config_path(args.config, llm=llm)
 
     # Override the monologue subsystem if requested.
@@ -89,8 +133,17 @@ def main(argv: list[str] | None = None) -> int:
     else:
         mode_desc = "default — persona-scaled depth"
 
+    fast_m = getattr(llm, "fast_model", "(default)")
+    strong_m = getattr(llm, "strong_model", "(default)")
+    if fast_m == strong_m:
+        model_line = f"Model: [yellow]{fast_m}[/yellow]"
+    else:
+        model_line = f"Models: [yellow]fast={fast_m}  strong={strong_m}[/yellow]"
+
     console.print(Panel.fit(
         f"[bold]Talking to {anima.cfg.biography.name}[/bold]\n"
+        f"Provider: [yellow]{args.provider}[/yellow]\n"
+        f"{model_line}\n"
         f"Monologue: [yellow]{mode_desc}[/yellow]\n\n"
         f"[dim]Type a message and press enter. Ctrl-D / 'quit' to exit. "
         f"'/trace' shows the most recent inner monologue. '/state' prints internal state.[/dim]",
