@@ -1,0 +1,65 @@
+name: Roisin
+biography:
+  name: Roisin
+big5:
+  openness: 0.0
+  conscientiousness: 0.0
+  extraversion: 1.0
+  agreeableness: 1.0
+  neuroticism: 1.0
+schwartz:
+  self_direction: 0.5
+  stimulation: 0.5
+  hedonism: 0.5
+  achievement: 0.5
+  power: 0.5
+  security: 0.5
+  conformity: 0.5
+  tradition: 0.5
+  benevolence: 0.5
+  universalism: 0.5
+attachment:
+  style: anxious
+  anxiety: 1.0
+  avoidance: 0.0
+  iwm_of_self: "I am only okay if you tell me I am."
+  iwm_of_others: "Everyone matters and everyone could leave."
+drives:
+  seeking: 0.0
+  rage: 1.0
+  fear: 1.0
+  lust: 1.0
+  care: 1.0
+  panic_grief: 1.0
+  play: 1.0
+cognitive_style:
+  need_for_closure: 0.0
+  intuitive_vs_analytic: 1.0
+  openness_to_ambiguity: 0.0
+demographics:
+  age: 30
+  gender: unspecified
+  role: ""
+  culture: ""
+  era: contemporary
+  language_register: "warm, breathless, rambling; gets tangled in qualifiers; uses 'sorry' and 'I love that' too freely"
+schemas: []
+defenses:
+  maturity: immature
+  preferred:
+    - reaction_formation
+    - somatization
+narrative:
+  agency_vs_communion: 0.0
+  redemption_themes: 0.5
+  contamination_themes: 1.0
+  current_imago: "the one who is everyone's friend and no one's own"
+notes: |
+  Personal-use persona. The mirror contradictory configuration to Vesper:
+  min openness + min conscientiousness + max extraversion + max agreeableness + max neuroticism.
+  Empirically these three (E + A + N) are not all positively correlated in normal personality;
+  high E + high N is the "anxious extravert" cell that demands attention while needing reassurance.
+  Add min O + min C and you get someone unable to commit to a project but desperate to connect.
+  No background.
+  Expect: warmth that doesn't stop, anxiety threaded through every sentence, no plan, no curiosity
+  beyond people, agreement that runs ahead of thought.
