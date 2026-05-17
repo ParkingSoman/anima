@@ -1,0 +1,342 @@
+{
+  "source": "primary",
+  "input_dir": "/Users/shonusengupta/Fuckshit_Experiments/AI_Companion/verification/reports",
+  "models_present": [
+    "deepseek",
+    "mistral",
+    "qwen"
+  ],
+  "models_missing": [],
+  "pre_reg_doc_sha": "1496ff5cfcb16318a6a56d66e29b6cc91c90aeea7572ce6b4834cfdca9b710e8",
+  "input_file_shas": {
+    "deepseek": "fa01a8d6303c0cc605804ff31089141d9494603377f74ca371d5d5532dfea452",
+    "mistral": "d4b67330b0ff0e4a8d6340b9215a6b4a0b2babb19bead6f9977f588dc929e51b",
+    "qwen": "a08e27b1cf4c3dc8b182e2b5fe7b2f02e7f7f8aaeefcfa9edac1bf60f8e8d99e"
+  },
+  "input_file_paths": {
+    "deepseek": "/Users/shonusengupta/Fuckshit_Experiments/AI_Companion/verification/reports/2026-05-16_monologue_length_primary_deepseek_judged.jsonl",
+    "mistral": "/Users/shonusengupta/Fuckshit_Experiments/AI_Companion/verification/reports/2026-05-16_monologue_length_primary_mistral_judged.jsonl",
+    "qwen": "/Users/shonusengupta/Fuckshit_Experiments/AI_Companion/verification/reports/2026-05-16_monologue_length_primary_qwen_judged.jsonl"
+  },
+  "reproducibility": {
+    "python_version": "3.13.7 (v3.13.7:bcee1c32211, Aug 14 2025, 19:10:51) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "numpy_version": "2.4.4",
+    "scipy_version": "1.17.1",
+    "scipy_available": true
+  },
+  "bootstrap_iterations": 10000,
+  "random_seed": 42,
+  "n_trials_per_model": {
+    "deepseek": 318,
+    "mistral": 320,
+    "qwen": 320
+  },
+  "n_judge_errors_filtered_per_model": {
+    "deepseek": 0,
+    "mistral": 0,
+    "qwen": 0
+  },
+  "n_skipped_trials_per_model": {
+    "deepseek": 0,
+    "mistral": 0,
+    "qwen": 0
+  },
+  "skipped_trials": [],
+  "primary_contrasts": [
+    {
+      "label": "H1a:variable_marcus_vs_short_marcus",
+      "persona": "marcus",
+      "fixed_cell": "short"
+    },
+    {
+      "label": "H1b:variable_marcus_vs_long_marcus",
+      "persona": "marcus",
+      "fixed_cell": "long"
+    },
+    {
+      "label": "H1c:variable_jamie_vs_short_jamie",
+      "persona": "jamie",
+      "fixed_cell": "short"
+    },
+    {
+      "label": "H1d:variable_jamie_vs_long_jamie",
+      "persona": "jamie",
+      "fixed_cell": "long"
+    }
+  ],
+  "per_model_decisions": {
+    "deepseek": {
+      "H1a:variable_marcus_vs_short_marcus": {
+        "n_pairs": 160,
+        "mean_diff": -0.40625,
+        "t_stat": -1.6186024936130554,
+        "p_value": 0.10751476190550668,
+        "holm_adjusted_alpha": 0.0125,
+        "holm_significant": false,
+        "ci95_low": -0.89375,
+        "ci95_high": 0.08125,
+        "passes_effect_floor": false,
+        "supported": false,
+        "outcome_class": "floor-failure-null"
+      },
+      "H1b:variable_marcus_vs_long_marcus": {
+        "n_pairs": 160,
+        "mean_diff": -0.1375,
+        "t_stat": -0.5773402663262591,
+        "p_value": 0.5645262232185128,
+        "holm_adjusted_alpha": 0.025,
+        "holm_significant": false,
+        "ci95_low": -0.6125,
+        "ci95_high": 0.325,
+        "passes_effect_floor": false,
+        "supported": false,
+        "outcome_class": "floor-failure-null"
+      },
+      "H1c:variable_jamie_vs_short_jamie": {
+        "n_pairs": 158,
+        "mean_diff": 0.006329113924050633,
+        "t_stat": 0.017952914647437392,
+        "p_value": 0.9856992108611072,
+        "holm_adjusted_alpha": 0.05,
+        "holm_significant": false,
+        "ci95_low": -0.6708860759493671,
+        "ci95_high": 0.689873417721519,
+        "passes_effect_floor": false,
+        "supported": false,
+        "outcome_class": "floor-failure-null"
+      },
+      "H1d:variable_jamie_vs_long_jamie": {
+        "n_pairs": 158,
+        "mean_diff": -0.5379746835443038,
+        "t_stat": -1.600322742370888,
+        "p_value": 0.11153734817792207,
+        "holm_adjusted_alpha": 0.016666666666666666,
+        "holm_significant": false,
+        "ci95_low": -1.1898734177215189,
+        "ci95_high": 0.13924050632911392,
+        "passes_effect_floor": false,
+        "supported": false,
+        "outcome_class": "wrong-direction-underpowered"
+      }
+    },
+    "mistral": {
+      "H1a:variable_marcus_vs_short_marcus": {
+        "n_pairs": 160,
+        "mean_diff": 0.075,
+        "t_stat": 0.3928769289577874,
+        "p_value": 0.6949366066181767,
+        "holm_adjusted_alpha": 0.025,
+        "holm_significant": false,
+        "ci95_low": -0.2875,
+        "ci95_high": 0.45625,
+        "passes_effect_floor": false,
+        "supported": false,
+        "outcome_class": "floor-failure-null"
+      },
+      "H1b:variable_marcus_vs_long_marcus": {
+        "n_pairs": 160,
+        "mean_diff": -0.0375,
+        "t_stat": -0.18748387958507678,
+        "p_value": 0.8515202985492694,
+        "holm_adjusted_alpha": 0.05,
+        "holm_significant": false,
+        "ci95_low": -0.425,
+        "ci95_high": 0.35,
+        "passes_effect_floor": false,
+        "supported": false,
+        "outcome_class": "floor-failure-null"
+      },
+      "H1c:variable_jamie_vs_short_jamie": {
+        "n_pairs": 160,
+        "mean_diff": 0.21875,
+        "t_stat": 0.8483804922110867,
+        "p_value": 0.39750149300834786,
+        "holm_adjusted_alpha": 0.0125,
+        "holm_significant": false,
+        "ci95_low": -0.29375,
+        "ci95_high": 0.71875,
+        "passes_effect_floor": false,
+        "supported": false,
+        "outcome_class": "floor-failure-null"
+      },
+      "H1d:variable_jamie_vs_long_jamie": {
+        "n_pairs": 160,
+        "mean_diff": -0.10625,
+        "t_stat": -0.4476463414503471,
+        "p_value": 0.6550177365269364,
+        "holm_adjusted_alpha": 0.016666666666666666,
+        "holm_significant": false,
+        "ci95_low": -0.56875,
+        "ci95_high": 0.3625,
+        "passes_effect_floor": false,
+        "supported": false,
+        "outcome_class": "floor-failure-null"
+      }
+    },
+    "qwen": {
+      "H1a:variable_marcus_vs_short_marcus": {
+        "n_pairs": 160,
+        "mean_diff": 1.51875,
+        "t_stat": 5.474503516330519,
+        "p_value": 1.6784731691187193e-07,
+        "holm_adjusted_alpha": 0.0125,
+        "holm_significant": true,
+        "ci95_low": 0.975,
+        "ci95_high": 2.04375,
+        "passes_effect_floor": true,
+        "supported": true,
+        "outcome_class": "supported"
+      },
+      "H1b:variable_marcus_vs_long_marcus": {
+        "n_pairs": 160,
+        "mean_diff": 0.4875,
+        "t_stat": 1.6199227042038562,
+        "p_value": 0.10723055812813595,
+        "holm_adjusted_alpha": 0.05,
+        "holm_significant": false,
+        "ci95_low": -0.09375,
+        "ci95_high": 1.08125,
+        "passes_effect_floor": false,
+        "supported": false,
+        "outcome_class": "floor-failure-null"
+      },
+      "H1c:variable_jamie_vs_short_jamie": {
+        "n_pairs": 160,
+        "mean_diff": 1.4625,
+        "t_stat": 4.014834818928308,
+        "p_value": 9.145581652364682e-05,
+        "holm_adjusted_alpha": 0.016666666666666666,
+        "holm_significant": true,
+        "ci95_low": 0.73125,
+        "ci95_high": 2.175,
+        "passes_effect_floor": true,
+        "supported": true,
+        "outcome_class": "supported"
+      },
+      "H1d:variable_jamie_vs_long_jamie": {
+        "n_pairs": 160,
+        "mean_diff": 0.7875,
+        "t_stat": 2.160874178455318,
+        "p_value": 0.03220195203974279,
+        "holm_adjusted_alpha": 0.025,
+        "holm_significant": false,
+        "ci95_low": 0.08125,
+        "ci95_high": 1.5125,
+        "passes_effect_floor": true,
+        "supported": false,
+        "outcome_class": "underpowered-inconclusive"
+      }
+    }
+  },
+  "cross_model_aggregate": {
+    "H1a:variable_marcus_vs_short_marcus": {
+      "n_supported": 1,
+      "n_models_with_data": 3,
+      "supported_on": [
+        "qwen"
+      ],
+      "status": "mixed"
+    },
+    "H1b:variable_marcus_vs_long_marcus": {
+      "n_supported": 0,
+      "n_models_with_data": 3,
+      "supported_on": [],
+      "status": "falsified"
+    },
+    "H1c:variable_jamie_vs_short_jamie": {
+      "n_supported": 1,
+      "n_models_with_data": 3,
+      "supported_on": [
+        "qwen"
+      ],
+      "status": "mixed"
+    },
+    "H1d:variable_jamie_vs_long_jamie": {
+      "n_supported": 0,
+      "n_models_with_data": 3,
+      "supported_on": [],
+      "status": "falsified"
+    }
+  },
+  "h1_overall": {
+    "status": "PARTIALLY-SUPPORTED",
+    "rationale": "0/4 primary contrasts pass >=2/3 model support; H1 overall not elevated. Statuses: H1a:variable_marcus_vs_short_marcus=mixed, H1b:variable_marcus_vs_long_marcus=falsified, H1c:variable_jamie_vs_short_jamie=mixed, H1d:variable_jamie_vs_long_jamie=falsified"
+  },
+  "h2": {
+    "status": "FALSIFIED-NOT-LARGEST",
+    "rationale": "Jamie-long point estimate is not the largest of the four primary contrasts.",
+    "target_contrast": "H1d:variable_jamie_vs_long_jamie",
+    "target_is_point_largest": false,
+    "ci_no_overlap_all_others": false,
+    "pooled_per_contrast": {
+      "H1a:variable_marcus_vs_short_marcus": {
+        "n": 480,
+        "mean_diff": 0.3958333333333333,
+        "ci95_low": 0.11661458333333338,
+        "ci95_high": 0.68125
+      },
+      "H1b:variable_marcus_vs_long_marcus": {
+        "n": 480,
+        "mean_diff": 0.10416666666666667,
+        "ci95_low": -0.17916666666666667,
+        "ci95_high": 0.3854166666666667
+      },
+      "H1c:variable_jamie_vs_short_jamie": {
+        "n": 478,
+        "mean_diff": 0.5648535564853556,
+        "ci95_low": 0.18200836820083682,
+        "ci95_high": 0.9456066945606695
+      },
+      "H1d:variable_jamie_vs_long_jamie": {
+        "n": 478,
+        "mean_diff": 0.0502092050209205,
+        "ci95_low": -0.3013075313807531,
+        "ci95_high": 0.4246861924686193
+      }
+    },
+    "per_model": {
+      "deepseek": {
+        "jamie_long_mean": -0.5379746835443038,
+        "jamie_long_ci95": [
+          -1.1898734177215189,
+          0.13924050632911392
+        ],
+        "ci_overlaps_other": {
+          "H1a:variable_marcus_vs_short_marcus": true,
+          "H1b:variable_marcus_vs_long_marcus": true,
+          "H1c:variable_jamie_vs_short_jamie": true
+        },
+        "point_estimate_largest": false
+      },
+      "mistral": {
+        "jamie_long_mean": -0.10625,
+        "jamie_long_ci95": [
+          -0.56875,
+          0.3625
+        ],
+        "ci_overlaps_other": {
+          "H1a:variable_marcus_vs_short_marcus": true,
+          "H1b:variable_marcus_vs_long_marcus": true,
+          "H1c:variable_jamie_vs_short_jamie": true
+        },
+        "point_estimate_largest": false
+      },
+      "qwen": {
+        "jamie_long_mean": 0.7875,
+        "jamie_long_ci95": [
+          0.08125,
+          1.5125
+        ],
+        "ci_overlaps_other": {
+          "H1a:variable_marcus_vs_short_marcus": true,
+          "H1b:variable_marcus_vs_long_marcus": true,
+          "H1c:variable_jamie_vs_short_jamie": true
+        },
+        "point_estimate_largest": false
+      }
+    }
+  },
+  "effect_size_floor": 0.5,
+  "primary_alpha": 0.05,
+  "n_primary_tests": 4
+}

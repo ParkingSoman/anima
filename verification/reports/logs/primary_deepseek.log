@@ -1,0 +1,58 @@
+[mle] prompts: loaded 8 from /Users/shonusengupta/Fuckshit_Experiments/AI_Companion/verification/prompts/aai_2026-05-16.json
+[mle] pre_reg_doc_sha=1496ff5cfcb16318a6a56d66e29b6cc91c90aeea7572ce6b4834cfdca9b710e8
+[mle] anima_v1_sha=027aebf1c9f0c36193a4e7368c5073a449461052b717fb9cb4d735c5ad51ee29
+[mle] model=deepseek (deepseek/deepseek-v4-flash)
+[mle] source=primary
+[mle] trials=20
+[mle] personas=['marcus', 'jamie']
+[mle] cells=['variable', 'short', 'long']
+[mle] seed=42
+[mle] provider=openrouter
+[mle] plan: 960 trials = 2 personas x 3 cells x 8 prompts x 20 trials
+[mle] expected_llm_calls=3840 (4 per Anima trial)
+[mle] cost_estimate=~$0.19–$0.77 (very rough, order-of-magnitude)
+[mle] output=/Users/shonusengupta/Fuckshit_Experiments/AI_Companion/verification/reports/2026-05-16_monologue_length_primary_deepseek.jsonl
+[mle] no existing output file — starting fresh.
+[mle] adapter=OpenRouterAdapter
+[mle]   progress 25/960
+[mle]   progress 50/960
+[mle]   progress 75/960
+[mle]   progress 100/960
+[mle]   progress 125/960
+[mle]   progress 150/960
+[mle]   progress 175/960
+[mle]   progress 200/960
+[mle]   progress 225/960
+[mle]   progress 250/960
+[mle]   progress 275/960
+[mle]   progress 300/960
+[mle]   progress 325/960
+[mle]   progress 350/960
+[mle]   progress 375/960
+[mle]   progress 400/960
+[mle]   progress 425/960
+[mle]   progress 450/960
+[mle]   progress 475/960
+[mle]   progress 500/960
+[mle]   TRIAL FAILED [510] persona=jamie cell=short prompt=0 trial=12: JSONDecodeError: Expecting value: line 2551 column 1 (char 14025)
+[mle]   progress 525/960
+[mle]   progress 550/960
+[mle]   TRIAL FAILED [573] persona=jamie cell=variable prompt=7 trial=17: JSONDecodeError: Expecting value: line 3263 column 1 (char 17941)
+[mle]   progress 575/960
+[mle]   progress 600/960
+[mle]   progress 625/960
+[mle]   progress 650/960
+[mle]   progress 675/960
+[mle]   progress 700/960
+[mle]   progress 725/960
+[mle]   progress 750/960
+[mle]   progress 775/960
+[mle]   progress 800/960
+[mle]   progress 825/960
+[mle]   progress 850/960
+[mle]   progress 875/960
+[mle]   progress 900/960
+[mle]   progress 925/960
+[mle]   progress 950/960
+[mle] summary: written=958 errors=2 total=960 success_rate=0.998
+[mle] done. wrote=958 errors=2 -> /Users/shonusengupta/Fuckshit_Experiments/AI_Companion/verification/reports/2026-05-16_monologue_length_primary_deepseek.jsonl
