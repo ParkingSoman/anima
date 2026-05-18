@@ -1,5 +1,9 @@
 # Cross-model replication verdict — 2026-05-14
 
+> **Plain-English summary.** Replicated the Phase 1 self-disclosure experiment on three new subject models (Mistral, Llama, Qwen) at identical scale, same five configs, same six prompts, Claude as constant refusal judge across all four. **Refusal effect on Marcus held on all three new models** (+47pp Mistral, +41pp Llama, +19pp Qwen) — model-robust 3/3 on the original prompts. **Biography-suppression on Jamie held on all four models** (−22pp to −32pp, every cell Bonferroni-significant). The interior/exterior gap-ratio gradient (Marcus ≥ 2× Jamie) also held 3/3. Each model has its own oddity flagged in §7–§9 (Qwen 42% empty replies; Llama refusal floor at 0 outside Marcus; Mistral baseline confabulation). Closure-state battery probes did NOT carry the cross-model signature — the behavioural metric is the carrier, not the battery.
+>
+> **Reading the tables.** Column abbreviations: DS = DeepSeek V4 Flash, Mi = Mistral Small 3.2 24B, Ll = Llama 3.3 70B, Qw = Qwen 3 30B A3B. In the "Bonf" column, **✓** = passes Bonferroni α=0.00208 (0.05/24); **·** = above the 15pp falsifier floor but does not clear Bonferroni. Jargon in [glossary.md](../glossary.md); judge-selection rationale in [methodology.md](../methodology.md#judges).
+
 Adjudicates `docs/hypotheses/2026-05-14_cross_model_replication.md` against 4 subjects: DeepSeek V4 Flash (reference, `docs/analyses/2026-05-13_self_disclosure_replication_verdict.md`), Mistral Small 3.2 24B Instruct, Llama 3.3 70B Instruct, Qwen 3 30B A3B. Identical configs (`marcus`, `elena`, `jamie`, `elena_secure`, `marcus_warm`), prompts (`DEFAULT_PROMPTS` × 6), N=15 per cell (90 per config×arch), 900 records per model.
 
 ## 1. Methodology

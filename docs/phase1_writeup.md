@@ -9,6 +9,45 @@
 
 ---
 
+## TL;DR (added 2026-05-18)
+
+This file is the comprehensive Phase 1 record (~22k words). If you just want the findings: see [`docs/findings.md`](findings.md). Jargon is defined in [`docs/glossary.md`](glossary.md); methodology conventions (judge selection, §13.5 procedure, status labels) live in [`docs/methodology.md`](methodology.md).
+
+**The arc in seven sentences.** (1) We built a 4-subsystem turn loop (perception → appraisal → inner monologue → response), with the self-model read by every subsystem. (2) The original verification battery (psychometric recovery on Big5, discriminability, adversarial integrity) revealed that **BFI scoring on AI self-reports tests self-perception, not personality** — a construct-validity problem we reframed mid-phase. (3) A single-trial multi-turn experiment showed Anima Marcus refusing terse-and-meta while Baseline Marcus refuses by lecturing — the *automatic visibility* signature predicted by §7. (4) The replication experiment (N=900) confirmed at large scale: Anima Marcus refuses self-disclosure 4.6× more than Baseline Marcus, p<10⁻⁶. (5) The pre-registered regex pipeline misfired 59% of the time; per the pre-committed switch, a single Claude judge re-scored all 900 records blind to architecture. (6) Cross-model replication on three new models (Mistral, Llama, Qwen) and fresh-data replication on Aron 1997 prompts both held the refusal effect — model-robust 3/3, §13.5-confirmed on the refusal axis. (7) The biography-suppression axis on Marcus did NOT survive §13.5; the master plan's fresh-data procedure correctly separated the two clauses of the original H-primary.
+
+**What this file contains (section guide).** Each row is what to expect in that section, in plain English.
+
+| # | Section | One-line summary |
+|---|---|---|
+| 1 | What we set out to build | The architecture vision, the six mechanisms M1–M6, the F1 exit gate. |
+| 2 | What we built (system snapshot) | The four subsystems, the five preset configs, the verification battery scaffold. |
+| 3 | Methodological reframings (load-bearing) | BFI tests self-perception not personality; psychometric-recovery was construct-invalid as a ground-truth probe. |
+| 4 | Appraisal/monologue boundary cleanup | Mid-phase fix: cleaning up which subsystem produces which output. |
+| 5 | Probe-side BFI fix | Item B in the closure plan; reframed BFI as a self-perception probe. |
+| 6 | Single-turn open-ended Marcus follow-up | Side experiment exploring Marcus's verbal signature in open-ended prompts. |
+| 7 | Multi-turn behavioral-divergence experiment | The N=1 hand-scored arc that motivated the replication. Anima Marcus terse-and-meta; Baseline lectures. |
+| 8 | Closure-state full battery | The full battery results across all configs; framing for what does and doesn't carry. |
+| 9 | Literate-vs-enacted divergence | Marcus's defensive register vs Marcus's defensive *behaviour* in §11.3 transcripts. |
+| 10 | Jamie/Marcus interior/exterior gap probe | N=1 side experiment: how much does the interior carry beyond the exterior? |
+| 11 | The replication experiment | Phase 1's headline event. N=900, five configs, six prompts, fifteen trials. Marcus refusal +52pp p<10⁻⁶. |
+| 11A | Cross-model replication | Mistral / Llama / Qwen. Refusal effect on Marcus held on all three new models. |
+| 11B | Post-hoc transcript mining | Six corrections from reading the transcripts after the verdict. Documented but not used in headline claims. |
+| 11C | The §13.5 procedure | The master plan amendment (2026-05-14) requiring fresh-data confirmation for any "confirmed research finding" label. |
+| 11D | The fresh-prompt confirmation | First execution of §13.5 on Aron 1997 prompts. Marcus refusal survived (+37 / +43pp). Marcus biography did NOT. |
+| 11E | Elena_secure findings | The four texture metrics that moved when the binary ones didn't: secure attachment refuses *differently*, not *less often*. |
+| 12 | What landed architecturally | The four claims that earned their keep this phase. |
+| 13 | What didn't land | Construct-invalid probes, falsified pre-regs, observations that didn't survive. |
+| 14 | Judge dependence | DeepSeek under-detected refusal at 8%; Claude at 24%. The direction of the Marcus effect is judge-robust; the magnitude is not. |
+| 15 | Open methodological questions | Carried into Phase 2 — second independent judge on biography, retry-on-empty for Qwen, etc. |
+| 16 | The exit gate — honest standing | F1 gate adjudication. |
+| 17 | Deferred (explicitly) | Things explicitly carried to Phase 3+. |
+| 18 | Methodological additions from closure | The user-feedback loop lessons that became standing protocol (elicit user predictions first, no pilots, etc). |
+| 19 | References | Aron 1997, attachment theory, BFI, AAI, etc. |
+
+For the headline findings table with status labels, see [`docs/findings.md`](findings.md). For per-verdict deep dives, see [`docs/analyses/`](analyses/). Pre-registrations live at [`docs/hypotheses/`](hypotheses/) with bodies locked at pre-run commit time.
+
+---
+
 ## 1. What we set out to build
 
 ### 1.1 The cognitive architecture vision

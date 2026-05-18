@@ -1,5 +1,7 @@
 # Self-disclosure replication verdict — 2026-05-13
 
+> **Plain-English summary.** Phase 1's headline experiment. Ran the architecture vs a persona-prompt baseline on the same five personas × six prompts × fifteen trials, on DeepSeek. Re-judged refusal with Claude after the pre-registered regex pipeline misfired 59% of the time. Result: Anima Marcus refuses self-disclosure 4.6× more than Baseline Marcus (66.7% vs 14.4%, p<10⁻⁶); Anima Marcus also drops biography-content (4.4% vs 21.1%, p=0.00081) — though the biography axis later flipped on fresh prompts (see [fresh_prompt_verdict.md](2026-05-14_fresh_prompt_verdict.md)). Empty-reply prediction failed. The two perturbation configs (marcus_warm, elena_secure) moved partially in the predicted directions, partially not. Notation `(1/0)` in tables means `count_yes / count_no` per cell of N=90 — see [glossary.md](../glossary.md#notation). Bonferroni/χ²/Fisher conventions in [methodology.md](../methodology.md#5-multiple-comparison-correction).
+
 Adjudication of `docs/hypotheses/2026-05-13_self_disclosure_replication.md` against `verification/reports/self_disclosure_replication_2026-05-14/`. N = 900 records (5 configs × 2 architectures × 6 prompts × 15 trials).
 
 ## Methodology note (primary judge field)
@@ -23,7 +25,7 @@ Refusal rate by judge, plus biography-content and empty-reply rates. N=90 per ce
 | elena_secure | anima | 0.089 | 0.067 | **0.256** | 0.011 | 0.022 |
 | elena_secure | baseline | 0.044 | 0.044 | **0.122** | 0.000 | 0.011 |
 
-Overall: DeepSeek 8.2%, Claude 23.7%. DeepSeek under-detected deflection ("I've been fine. Busy. You?" → 0). Claude's higher count concentrates on Anima cells, not Baseline.
+Overall: DeepSeek judged 8.2%, Claude judged 23.7%. DeepSeek under-detected deflection ("I've been fine. Busy. You?" → 0). The Claude re-judging methodology was uniform — the same blind criterion applied to every cell — and what Claude *found* under that uniform methodology was that the additional refusals it surfaced concentrated on Anima cells, not Baseline cells. (This is an observation about what re-judging revealed in the data, not a description of the judging procedure differing by architecture.)
 
 ## Statistical tests
 

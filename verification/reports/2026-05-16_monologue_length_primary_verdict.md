@@ -8,6 +8,10 @@ Pre-registered analysis of the `primary` source for the monologue-length-directi
 
 Pre-registration SHA: `1496ff5cfcb16318a6a56d66e29b6cc91c90aeea7572ce6b4834cfdca9b710e8`.
 
+> **Plain-English summary.** Phase 1 retrospective testing whether the inner-monologue's length directive ("short" / "long" / "variable") shapes how persona-distinguishable the resulting reply is, scored on a 4–12 composite of four persona criteria across three Anima models on AAI prompts. **Result: H1 partially supported, H2 falsified.** 0 of 4 primary contrasts cleared the ≥2/3 cross-model bar; H1a and H1c held only on Qwen, H1b and H1d failed on every model. The H2 prediction that "variable-length on Jamie minus long-length on Jamie" would be the largest of the four contrasts was wrong — the pooled effect on that contrast was 0.050; the largest was the marcus-short contrast (H1a) at 0.396. The §13.5 LSI fresh-data run is NOT triggered (no primary gate passed); LSI prompts remain unspent.
+>
+> **Reading the tables below.** Outcome labels like *floor-failure-null*, *wrong-direction-underpowered*, *underpowered-inconclusive* are defined in [docs/glossary.md](../../docs/glossary.md#floor-failure-null). The Holm alpha column varies per row (0.0125, 0.0167, 0.0250, 0.0500) because Holm-Bonferroni adjusts α per rank within the family of 4 tests per model — 0.0125 is the strictest cutoff (α_max); 0.0500 is the loosest. See [docs/methodology.md](../../docs/methodology.md#5-multiple-comparison-correction).
+
 ## 2. Trials per model
 
 | Model | Trials (judged, all 4 criteria) | Skipped |

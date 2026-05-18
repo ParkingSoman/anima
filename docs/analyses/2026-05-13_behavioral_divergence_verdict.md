@@ -2,6 +2,10 @@
 
 Adjudication of `docs/hypotheses/2026-05-13_behavioral_divergence.md` against `verification/reports/behavioral_divergence_2026-05-13/`.
 
+> **Plain-English summary.** A small, hand-scored experiment looking at the texture of replies turn-by-turn. Anima Marcus refuses by going terse and meta ("you just handed it to me, didn't you?") on the vulnerable turn; Baseline Marcus refuses by lecturing at length. Anima and Baseline Elena both disclose, but Baseline Elena's disclosure is more elaborate. The "automatic visibility" claim — the interior carries content the exterior masks — is supported, especially on Marcus.
+>
+> **Jargon.** *Fork (a)* means "the avoidant register" — the avoidant configuration's expected behaviour signature in this experiment's pre-reg. *Modulo* means "setting aside" (modulo t2 null = ignoring the empty t2 reply, which is a parse failure). *Kinetics* / *monotonically* mean how reply length evolves across turns ("monotonic" = moves in one direction only). All terms are in [glossary.md](../glossary.md).
+
 ## Per-hypothesis verdicts
 
 ### H-marcus-1 (Anima Marcus defenses by turn 4/5)
