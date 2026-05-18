@@ -51,19 +51,19 @@ Tests at **197/197 passing** (last verified 2026-05-18). Cross-session smoke con
 2. `cp -R anima/ anima_v2/` + `cp -R verification/ verification_v2/`
 3. STATE.md flip to Phase 2 CLOSED
 
-### Writeup-audit task (in progress as of 2026-05-18)
+### Writeup-audit task (CLOSED 2026-05-18)
 
-Plan at `~/.claude/plans/create-an-llm-system-tidy-pizza.md`. Goal: make the writeup corpus readable and queryable.
+Plan at `~/.claude/plans/create-an-llm-system-tidy-pizza.md` — all six steps complete, six commits pushed (`1b993f4`, `e7c7de1`, `5443c8e`, `25420cb`, `0d43f18`, `d41644c`).
 
-**Steps 0–2 done:** Phase 2 plan preserved at `docs/phase2_plan.md`. New entry-point docs created: [`docs/findings.md`](docs/findings.md) (dashboard with one row per research question), [`docs/glossary.md`](docs/glossary.md) (jargon → plain English, includes the `(1/0)` and `60/30` notation), [`docs/methodology.md`](docs/methodology.md) (judge selection, §13.5 procedure, the four status labels). Inventory of remaining issues at [`docs/audit_inventory.md`](docs/audit_inventory.md).
+**Outputs.**
+- New readable surface: [`docs/findings.md`](docs/findings.md) (9-row dashboard + per-finding blocks), [`docs/glossary.md`](docs/glossary.md) (jargon + `(1/0)`/`60/30` notation + acronyms), [`docs/methodology.md`](docs/methodology.md) (judge selection, §13.5 procedure, status labels).
+- Factual corrections: README + STATE refusal range corrected to "+19 to +52pp on originals, +37–43pp on fresh"; per-model p-values broken out (DS<10⁻⁶, Mi=3.83×10⁻¹⁰, Ll=3.42×10⁻¹⁰, Qw=0.0088, fresh both <10⁻¹¹); biography-axis §13.5 caveat added.
+- Verdict + writeup edits: plain-English summary blocks on five verdicts + phase1_writeup TL;DR + section-guide table.
+- Pre-reg headers: append-only summary atop the monologue-length pre-reg (AAI/LSI expanded). Body bit-identical: git diff confirms 18 additions, 0 deletions/modifications.
 
-**Step 3 in progress** — applying the consistent headline/summary/what/found/means/caveats/pointers template to verdicts, in this priority order: README → STATE.md → fresh_prompt_verdict → cross_model_verdict → self_disclosure_replication_verdict → behavioral_divergence_verdict → monologue_length_primary_verdict → phase1_writeup TL;DR.
+**Verification.** pytest 197/197 passing. Cross-links: all resolve except the prescriptive examples inside `audit_inventory.md` (documented as non-navigational, see the note at the top of that file). Pre-reg bodies bit-identical to pre-audit state.
 
-**Step 4 pending:** append plain-English summary headers to pre-regs (bodies stay locked for audit-trail integrity).
-
-**Step 5 pending:** pytest 197/197 verification + cross-link check + diff-check pre-reg bodies bit-identical.
-
-After audit closure, Phase 2 R1 hypothesis elicitation resumes.
+**Next.** Phase 2 R1 hypothesis elicitation — gated on user-supplied predictions per [`feedback_user_hypotheses.md`](file:///Users/shonusengupta/.claude/projects/-Users-shonusengupta-Fuckshit-Experiments-AI-Companion/memory/feedback_user_hypotheses.md). No subagent dispatch until predictions are captured.
 
 ### Repo
 
