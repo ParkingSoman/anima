@@ -20,16 +20,11 @@ Jargon (Bonferroni, χ², MWU, §13.5, refusal-marker, biography-content, gap-ra
 
 ## Phase 2 — what the architecture remembers
 
-Research not started. Engineering complete; five fresh configs (Tomás, Priya, Wolfgang, Aiyana, Mei-Lin) created so the user's hypotheses are not coloured by Phase 1 interaction memory.
+🚧 **Findings pending — still figuring this out.** 🚧
 
-| # | Question | Status |
-|---|---|---|
-| R1 | Affect-congruent retrieval: does the memory ranker pull mood-matching events more often than mood-neutral ones? | **Pending hypothesis elicitation** |
-| R2 | Does the user-prediction subsystem track an evolving user profile across sessions? | **Pending** |
-| R3 | Does forgetting (importance × time-decay) produce stable trait expression with shifting episodic recall? | **Pending** |
-| R4 | Does self-monitoring update mood/schemas in directions consistent with the appraisal? | **Pending** |
+Engineering is complete (memory retrieval, user prediction, forgetting, persistence, self-monitor) and five fresh configs are wired (Tomás, Priya, Wolfgang, Aiyana, Mei-Lin). The research cycles haven't run yet — what the architecture *does* with memory across sessions is what Phase 2 will answer. This row will populate as cycles complete.
 
-Each is gated on user-supplied predictions before pre-registration authoring (per the standing protocol in [methodology.md](methodology.md#elicit-first)).
+In the meantime: focus on the Phase 1 findings above. Those are the ones currently up for review and refinement.
 
 ---
 
