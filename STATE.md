@@ -53,7 +53,17 @@ Tests at **197/197 passing** (last verified 2026-05-18). Cross-session smoke con
 
 ### Writeup-audit task (in progress as of 2026-05-18)
 
-Plan at `~/.claude/plans/create-an-llm-system-tidy-pizza.md`. Goal: make the writeup corpus readable and queryable. Phase 2 plan preserved at `docs/phase2_plan.md` before plan file was repurposed. New entry-point docs to be created: `docs/findings.md`, `docs/glossary.md`, `docs/methodology.md`. Verdicts to be rewritten with a consistent headline/summary/what/found/means/caveats/pointers template. Pre-reg bodies stay locked; only plain-English summary headers appended.
+Plan at `~/.claude/plans/create-an-llm-system-tidy-pizza.md`. Goal: make the writeup corpus readable and queryable.
+
+**Steps 0–2 done:** Phase 2 plan preserved at `docs/phase2_plan.md`. New entry-point docs created: [`docs/findings.md`](docs/findings.md) (dashboard with one row per research question), [`docs/glossary.md`](docs/glossary.md) (jargon → plain English, includes the `(1/0)` and `60/30` notation), [`docs/methodology.md`](docs/methodology.md) (judge selection, §13.5 procedure, the four status labels). Inventory of remaining issues at [`docs/audit_inventory.md`](docs/audit_inventory.md).
+
+**Step 3 in progress** — applying the consistent headline/summary/what/found/means/caveats/pointers template to verdicts, in this priority order: README → STATE.md → fresh_prompt_verdict → cross_model_verdict → self_disclosure_replication_verdict → behavioral_divergence_verdict → monologue_length_primary_verdict → phase1_writeup TL;DR.
+
+**Step 4 pending:** append plain-English summary headers to pre-regs (bodies stay locked for audit-trail integrity).
+
+**Step 5 pending:** pytest 197/197 verification + cross-link check + diff-check pre-reg bodies bit-identical.
+
+After audit closure, Phase 2 R1 hypothesis elicitation resumes.
 
 ### Repo
 

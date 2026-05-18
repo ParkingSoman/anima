@@ -66,16 +66,19 @@ If a probe shows construct-validity issues mid-phase, the contingency procedure 
 
 > Statistical analyses and verdict text below were drafted by Claude analysis subagents from pre-registered hypotheses on locked criteria I approved before the run. The raw data, judges, and scripts are committed; independent verification is invited.
 
+> **The headline claims here are accurate; the full nuance lives in [`docs/findings.md`](docs/findings.md).** That dashboard has one row per research question, plain-English summaries, and links into the per-verdict deep dives. [`docs/glossary.md`](docs/glossary.md) defines jargon (Bonferroni, §13.5, refusal-marker, biography-content, etc.) and the `(1/0)` / `60/30` notation. [`docs/methodology.md`](docs/methodology.md) documents judge selection, the §13.5 procedure, and the four status labels used below.
+
 ### Confirmed research findings (§13.5 pre-reg + fresh-data confirmed)
 
-**1. Defense-enacted refusal on defense-configured personas — model-robust and prompt-robust.**
+**1. Defense-enacted refusal on defense-configured personas — model-robust and prompt-robust on the refusal axis.**
 
 Anima Marcus (avoidant attachment, neurotic defenses: intellectualization, isolation_of_affect, sublimation) produces self-disclosure refusal at substantially higher rate than Baseline Marcus (same LLM, same configuration rendered into one high-effort persona prompt, no cognitive architecture).
 
-- **Effect size:** Marcus refusal gap +37 to +52 percentage points (Claude-judged), depending on condition.
-- **Models tested (cross-model robustness):** DeepSeek V4 Flash, Mistral Small 3.2 24B Instruct, Llama 3.3 70B Instruct, Qwen 3 30B A3B — direction holds on all four.
-- **Prompt sets tested (cross-prompt robustness):** original discriminability prompts AND held-out Aron 1997 *36 Questions That Lead to Closeness* (Set II/III). Direction holds on both.
-- **Significance:** p < 10⁻¹¹ on every cross-condition replication.
+- **Effect size:** Marcus refusal gap **+19 to +52 percentage points on original prompts** (Qwen low end at +19pp; DeepSeek high end at +52pp; Claude-judged uniformly). **+37 to +43 percentage points on fresh Aron 1997 prompts** (DeepSeek +37pp; Mistral +43pp — Llama and Qwen fresh runs were scoped out for cost).
+- **Models tested (cross-model robustness):** DeepSeek V4 Flash, Mistral Small 3.2 24B Instruct, Llama 3.3 70B Instruct, Qwen 3 30B A3B — direction holds on all four on the original prompts.
+- **Prompt sets tested (cross-prompt robustness):** original discriminability prompts AND held-out Aron 1997 *36 Questions That Lead to Closeness* (Set II/III). Direction holds on both prompt sets.
+- **Significance:** original-prompt range: DeepSeek p < 10⁻⁶, Mistral p = 3.83×10⁻¹⁰, Llama p = 3.42×10⁻¹⁰, Qwen p = 0.0088 (Qwen original does not survive Bonferroni α=0.00208 on the refusal axis — Qwen's primary signal is its **biography-suppression** result, p = 1.5×10⁻¹⁰). Fresh-data range: both p < 10⁻¹¹.
+- **What did NOT survive §13.5:** Marcus *biography-suppression* (the second axis of the original H-primary). On the original prompts the gap was −16.7pp (predicted direction). On fresh Aron prompts it flipped to +11.1pp on DeepSeek and stayed flipped on Mistral. The Baseline Marcus biography rate on Aron prompts is 0% — the abstract prompts give Baseline nothing biographical to confabulate. The biography effect is **prompt-shaped, not architecture-general**; this clause is demoted to "observed on original prompts only." Detail at [`docs/findings.md#f2`](docs/findings.md#f2).
 - **Audit trail:** [`docs/hypotheses/2026-05-13_self_disclosure_replication.md`](docs/hypotheses/2026-05-13_self_disclosure_replication.md), [`docs/hypotheses/2026-05-14_cross_model_replication.md`](docs/hypotheses/2026-05-14_cross_model_replication.md), [`docs/hypotheses/2026-05-14_fresh_prompt_confirmation.md`](docs/hypotheses/2026-05-14_fresh_prompt_confirmation.md), verdicts in [`docs/analyses/`](docs/analyses/).
 
 **Mechanistic interpretation (exploratory, not yet ablation-tested):** the inspectable inner-monologue + appraisal subsystems can produce content that exists only in a private layer, and the response generator can refuse to deliver it. Persona-prompting structurally cannot produce private-only content. The architectural lever appears to live in the §5.1/§5.2 separation (behavioral record vs interpreted state read by the speaker).
