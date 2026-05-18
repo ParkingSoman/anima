@@ -1,5 +1,23 @@
 # Pre-registered hypotheses: variable vs fixed inner-monologue length (Phase 1 retrospective)
 
+## Plain-English summary (post-hoc, non-binding, added 2026-05-18)
+
+> This summary was added after the run; the pre-registration body below it is locked at pre-run commit time and is the binding document.
+>
+> **What this experiment tests.** Phase 1's inner-monologue subsystem switched from a uniform fixed-length directive ("2–6 sentences" for everyone) to a persona-parameterised directive that scales target length by Big5 + attachment scores. Was the switch load-bearing? Or does letting the Anima emit its own length produce equally-good or better persona-distinguishable replies?
+>
+> **Design.** Two personas (Marcus, Jamie) × three length cells (short / long / variable) × three Anima models (DeepSeek, Mistral, Qwen) × 8 prompts × N trials. Replies scored on a 4-criterion persona-fidelity composite (4–12 scale, sum of ranks).
+>
+> **Acronyms.**
+> - **AAI** — Adult Attachment Interview (George, Kaplan & Main 1985, 1996). The eight AAI prompts (§3) are the **primary** prompt source for this experiment.
+> - **LSI** — Life Story Interview (McAdams 1995/2008). The eight LSI prompts (§4) are reserved as the §13.5 **fresh-data** confirmation set if the primary AAI run triggers a fresh-data check.
+>
+> **Result** (verdict at `verification/reports/2026-05-16_monologue_length_primary_verdict.md`): H1 partially supported (0/4 contrasts cross-model), H2 falsified-not-largest. No primary gate passed → LSI fresh-data run not triggered; LSI prompts remain unspent.
+>
+> **Status of this header.** Non-binding. The locked body below is the canonical pre-registration.
+
+---
+
 **Date written:** 2026-05-16 (BEFORE running the experiment)
 **Status:** pre-registered. Subject models, architecture wrapper, personas, cells, directive strings, prompts, judging pipeline, N, thresholds, and falsification criteria are locked below. The 8 AAI primary prompts (§3) and 8 McAdams LSI fresh prompts (§4) were committed to in this document BEFORE any capture call or judge call against `anima_v1/`. Not revised post-hoc.
 
