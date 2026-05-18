@@ -2,7 +2,7 @@
 
 A cognitive architecture wrapping an LLM to simulate **behaviorally-realistic, parameterizable, persistent, goal-bearing simulated persons** — and a research instrument for studying which architectural moves actually do measurable work in approximating human psychology.
 
-> ⚠️ **AI-generated research disclaimer.** Anima is being built by a human collaborating with Claude-driven implementer and reviewer subagents under a pre-registration discipline (master plan §13.5). Engineering work, statistical analyses, and verdicts in this repo were produced by AI agents working from human-authored hypotheses and human-approved methodology. All pre-registrations, raw data, judges, and analyses are committed for independent verification. None of the findings below have been peer-reviewed.
+> **About the human/AI division of labor.** The research direction, methodology, hypotheses, and gate criteria are mine. Every pre-registration is reviewed and approved by me **before** the corresponding run, and the standing protocol requires my predictions to be elicited before any pre-reg is authored. Claude-driven implementer and reviewer subagents do the engineering implementation and draft the statistical analyses and verdict text under those pre-registered, locked criteria (master plan §13.5). I approve each verdict before it lands in `docs/analyses/`. All raw data, judge transcripts, pre-registrations, and analysis scripts are committed so anyone can re-run the analysis themselves. None of the findings have been peer-reviewed.
 
 ---
 
@@ -64,7 +64,7 @@ If a probe shows construct-validity issues mid-phase, the contingency procedure 
 
 ## Findings so far
 
-> ⚠️ **AI-generated.** All statistical analyses below were produced by Claude-driven analysis subagents working from pre-registered hypotheses on locked criteria. Independent verification is invited; raw data and analysis scripts are committed.
+> Statistical analyses and verdict text below were drafted by Claude analysis subagents from pre-registered hypotheses on locked criteria I approved before the run. The raw data, judges, and scripts are committed; independent verification is invited.
 
 ### Confirmed research findings (§13.5 pre-reg + fresh-data confirmed)
 
