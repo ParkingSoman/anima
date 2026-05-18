@@ -12,14 +12,52 @@ This file is the cold-resume artifact. Read this, then `docs/master_plan.md` (es
 6. **Run data:** `verification/reports/<run>/...` — raw JSON + per-probe partials. Don't inline this; reference by path.
 7. **Memory:** `~/.claude/projects/-Users-shonusengupta-Fuckshit-Experiments-AI-Companion/memory/` — feedback rules that survive sessions.
 
-## Phase status (as of 2026-05-14)
+## Phase status (as of 2026-05-18)
 
-**Phase 1: CLOSED.** Single §13.5-confirmed research finding:
-- **Anima Marcus produces self-disclosure refusal at p<10⁻¹¹ higher rate than Baseline Marcus.** Confirmed across 4 LLM families (DeepSeek V4 Flash, Mistral Small 3.2 24B Instruct, Llama 3.3 70B Instruct, Qwen 3 30B A3B) AND across 2 prompt sets (discriminability + Aron 1997 36 Questions). Marcus refusal gap +37 to +52pp (Claude-judged) on every condition tested. The architecture's defense-enacted refusal behavior on defense-configured personas is the load-bearing positive Phase 1 result.
+### Phase 1: CLOSED (2026-05-14)
 
-**Phase 2: IN PROGRESS** (started 2026-05-14). Plan at `~/.claude/plans/create-an-llm-system-tidy-pizza.md`. Scope: memory + theory-of-mind + cross-session persistence + 5 NEW configs (E0). Engineering tasks E0–E6 land first; research cycles R1–R4 run after with per-pre-reg user-hypothesis elicitation. Exit gate (master plan §12): affect-congruent retrieval shown + ToM accuracy > random with appropriate updating + memory degrades realistically.
+One §13.5-confirmed research finding: **Anima Marcus produces self-disclosure refusal at a much higher rate than Baseline Marcus on Aron-1997 fresh prompts (DeepSeek +36.7pp, Mistral +43.3pp, both p < 10⁻¹¹, Bonferroni-significant).** The cross-model picture on the original discriminability prompts has a wider Marcus refusal range — +18.9pp (Qwen, not Bonferroni at the locked alpha) to +52.2pp (DeepSeek). The biography-suppression conjunct of the original H-primary did NOT survive §13.5 fresh-data confirmation on Marcus (it flipped sign on Aron prompts; it was prompt-shaped, not architecture-general).
 
-**Repo:** wired to `https://github.com/ParkingSoman/anima` (private) on 2026-05-14. `.env.local` is gitignored.
+Phase 1 retrospective (parallel session, 2026-05-16) added a monologue-length-directive experiment: **H1 partially supported (0/4 contrasts cross-model), H2 falsified-not-largest.** Verdict at `verification/reports/2026-05-16_monologue_length_primary_verdict.md`. §13.5 LSI fresh-data run NOT triggered (no primary gate passed); LSI prompts remain unspent.
+
+### Phase 2: ENGINEERING COMPLETE, RESEARCH NOT STARTED (as of 2026-05-18)
+
+Plan preserved at `docs/phase2_plan.md`. Scope: memory + theory-of-mind + cross-session persistence + 5 NEW configs (E0).
+
+**Engineering: COMPLETE.** All six SDD cycles landed and pushed:
+
+| Task | Commit | Delivered |
+|---|---|---|
+| E0 — 5 new configs | `a34cb4a` | Tomás, Priya, Wolfgang, Aiyana, Mei-Lin |
+| E1 — state scaffolding | `93e36c6` | episodic, semantic, relations, narrative-stub |
+| E2 — memory_retrieval | `c63acac` | turn loop step 2; mood-cosine + schema + recency + importance ranker |
+| E3 — user_prediction | `a8ca9f8` | turn loop step 4; heuristic surprise feeds appraisal |
+| E4 — forgetting | `ea95b15` | decay (exp(-age/30) × Hebbian boost); threshold filter at retrieval; store never pruned |
+| E5 — persistence | `ede3318` | AnimaStore JSON, §5.1/§5.2 file separation, atomic save via os.replace |
+| E6 — self_monitor + CLI | `1c27faa` | EpisodicEvent per turn; --session-id and --version v1\|head flags |
+
+Tests at **197/197 passing** (last verified 2026-05-18). Cross-session smoke confirmed: session 1 writes 3 events, session 2 loads 3 events, retrieval on resume surfaces 3 memories. `anima_v1/` imports rewritten so `--version v1` truly isolates the Phase 1 architecture.
+
+**Research: NOT STARTED.** R1–R4 each require user-supplied predictions BEFORE pre-reg authoring (standing protocol: `feedback_user_hypotheses.md`). Cycles:
+
+- **R1** Affect-congruent retrieval (master plan §12 gate 1) — 5 fresh configs
+- **R2** Theory-of-mind accuracy by config (master plan §12 gate 2; §11.10) — 5 fresh configs
+- **R3** Memory's effect on Marcus refusal (Phase 1 carry-forward, auxiliary not gate) — existing Marcus
+- **R4** Retention curve realism (master plan §12 gate 3) — 5 fresh configs
+
+**Phase 2 closure work remaining beyond R1–R4:**
+
+1. `docs/phase2_writeup.md` (mirrors phase1_writeup structure)
+2. `cp -R anima/ anima_v2/` + `cp -R verification/ verification_v2/`
+3. STATE.md flip to Phase 2 CLOSED
+
+### Writeup-audit task (in progress as of 2026-05-18)
+
+Plan at `~/.claude/plans/create-an-llm-system-tidy-pizza.md`. Goal: make the writeup corpus readable and queryable. Phase 2 plan preserved at `docs/phase2_plan.md` before plan file was repurposed. New entry-point docs to be created: `docs/findings.md`, `docs/glossary.md`, `docs/methodology.md`. Verdicts to be rewritten with a consistent headline/summary/what/found/means/caveats/pointers template. Pre-reg bodies stay locked; only plain-English summary headers appended.
+
+### Repo
+
+PUBLIC at `https://github.com/ParkingSoman/anima` (flipped 2026-05-18). `.env.local` is gitignored.
 
 ## §13.5 procedure (BINDING for all future Phase exits)
 
@@ -56,14 +94,16 @@ Added to master plan 2026-05-14. Three load-bearing rules:
 7. **Don't break Anima immersion in fixes.** Format-discipline lives in the surrounding system (probes, battery, score-extractor), never in Anima's own prompts.
 8. **§11.1 / §11.3 / §11.7 are NOT model-robust.** Direction flips across models on psychometric and adversarial. Architectural signature lives in self-disclosure metrics (refusal-marker, biography-content, gap-ratio), not the original Phase 1 battery probes.
 9. **Judge dependence is real.** DeepSeek refusal judge under-detects (8.2% overall); Claude judges 23.7% overall (~3× stricter). Direction of H-primary is judge-robust; magnitude is not. Multi-judge agreement matters for fine effects.
-10. **Stage-1 regex audit is necessary.** Original refusal regex had 59% misfire rate. Always audit regex-derived metrics before treating them as primary.
+10. **Regex was abandoned mid-Phase-1; Claude is the primary refusal judge.** The original Stage-1 regex was audited and found to misfire ~59% of the time. Per the pre-registered contingency rule, the project switched primary judging to a single Claude pass over all 900 records, blind to architecture/config. Every cross-model and fresh-prompt result since uses Claude as the constant refusal judge. The regex stays in the trace data for transparency but is not the primary metric.
 
 ## Cold-resume protocol (next session does this in order)
 
 1. Read THIS file (STATE.md).
-2. Read `docs/master_plan.md` §13.5 (the procedure binding all future work).
-3. Read `docs/phase1_writeup.md` §16 (honest exit-gate standing) and §18 (methodological additions) for full Phase 1 status.
-4. Check `TaskList` — Phase 1 tasks (#16-#26) are all completed. Any new tasks are Phase 2+ work.
+2. Read `docs/phase2_plan.md` for Phase 2 execution context (preserved 2026-05-18).
+3. Read the active plan file at `~/.claude/plans/create-an-llm-system-tidy-pizza.md` — currently the writeup-audit plan.
+4. Read `docs/master_plan.md` §13.5 (the procedure binding all future work).
+5. Read `docs/phase1_writeup.md` §16 (honest exit-gate standing) and §18 (methodological additions) for full Phase 1 status.
+6. Check `TaskList`. The audit task ids are #50–#55 (#50 done after compaction).
 5. Check `~/.claude/projects/.../memory/MEMORY.md` for active feedback rules.
 6. Read the relevant code/files on demand (don't recall from compacted history).
 
