@@ -243,7 +243,7 @@ def test_retry_marks_transcript_turn_as_retry_of(
     assert rc == 0
 
     json_files = list((tmp_path / "transcripts").glob("*.json"))
-    md_files = list((tmp_path / "transcripts").glob("*.md"))
+    md_files = [m for m in (tmp_path / "transcripts").glob("*.md") if not m.stem.endswith("_neat")]
     assert json_files and md_files
     data = json.loads(json_files[0].read_text())
     md_text = md_files[0].read_text()

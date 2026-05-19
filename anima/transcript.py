@@ -400,6 +400,10 @@ class TranscriptWriter:
         stem = f"{persona_name}_{session_id}_{stamp}"
         self.md_path: Path = self.output_dir / f"{stem}.md"
         self.json_path: Path = self.output_dir / f"{stem}.json"
+        # NEAT companion markdown — dialogue + inner monologue + compact
+        # appraisal/perception only. No mood/drives deltas, no llm_calls,
+        # no retrieved memories, no raw_messages. See _format_neat_turn_md.
+        self.neat_md_path: Path = self.output_dir / f"{stem}_neat.md"
 
         # In-memory JSON model. Flushed to disk on every write_turn so a
         # crash leaves a complete record up to the last completed turn.
@@ -478,6 +482,31 @@ class TranscriptWriter:
         ]
         with self.md_path.open("w", encoding="utf-8") as fh:
             fh.write("\n".join(md_lines) + "\n")
+
+        # NEAT companion header — short frontmatter + persona + one-liner.
+        # No retry policy, no model details, no provider; the ugly file
+        # carries those. The ``neat-companion-to`` field cross-links to
+        # the ugly file so a reader scanning the neat transcript knows
+        # where to look for the debug detail if they want it.
+        neat_md_lines = [
+            "---",
+            f"persona: {bio.name}",
+            f"session_id: {self.session_id}",
+            f"architecture: {architecture}",
+            f"started_at: {start_ts}",
+            f"neat-companion-to: {self.md_path.name}",
+            "---",
+            "",
+            f"# {bio.name} \u2014 session {self.session_id}",
+            "",
+            f"> {bio.one_line}",
+            "",
+            "---",
+            "",
+        ]
+        with self.neat_md_path.open("w", encoding="utf-8") as fh:
+            fh.write("\n".join(neat_md_lines) + "\n")
+
         self._flush_json()
         self._header_written = True
 
@@ -757,6 +786,18 @@ class TranscriptWriter:
         with self.md_path.open("a", encoding="utf-8") as fh:
             fh.write("\n".join(md_lines) + "\n")
 
+        # NEAT companion — strict whitelist of dialogue + internal surfaces.
+        # See _format_neat_turn_md for what gets included (and what doesn't).
+        try:
+            neat_block = self._format_neat_turn_md(turn_idx, user_msg, anima_reply, trace)
+            with self.neat_md_path.open("a", encoding="utf-8") as fh:
+                fh.write(neat_block)
+        except Exception:
+            # Never let neat rendering break the primary transcript path.
+            # The ugly md + JSON are the canonical record; the neat file is
+            # a readability nicety.
+            pass
+
         # Build a JSON turn entry that's resilient to traces without
         # to_jsonable (v1's TurnTrace doesn't define one). When available,
         # use it; otherwise serialize the known fields by hand.
@@ -794,6 +835,124 @@ class TranscriptWriter:
             "drives_after": dict(drives_after),
         })
         self._flush_json()
+
+    # ---------- neat-companion formatting
+
+    @staticmethod
+    def _fmt_num(v) -> str:
+        """Render a numeric appraisal/perception scalar to 2 decimals.
+
+        Signed format (``+0.45`` / ``-0.10``) so the polarity of valence
+        and goal_congruence is obvious at a glance. Returns the empty
+        string for None / non-numeric so the caller can skip the field.
+        """
+        if isinstance(v, (int, float)):
+            return f"{float(v):+.2f}"
+        return ""
+
+    def _format_neat_turn_md(
+        self,
+        turn_idx: int,
+        user_msg: str,
+        anima_reply: str,
+        trace,
+    ) -> str:
+        """Render ONE turn of the neat-companion markdown.
+
+        Per-turn content (strict whitelist):
+          1. User's message
+          2. Iris's external reply
+          3. Inner monologue (blockquote, ``*in her head:*``)
+          4. Perception line — only populated fields
+          5. Appraisal line — scene_tag (bold), primary emotion, 5 numeric dims
+
+        Anything else (mood/drives deltas, retrieved memories, surprise,
+        prediction, llm_calls, raw_messages, subsystem_errors, silences,
+        retry_of) is intentionally OMITTED. Missing fields are skipped
+        silently — no placeholder noise.
+        """
+        persona_name = self._json["meta"].get("persona_name", self.persona_name)
+
+        appraisal = getattr(trace, "appraisal", {}) or {}
+        perception = getattr(trace, "perception", {}) or {}
+        monologue = (getattr(trace, "monologue", "") or "").strip()
+
+        lines: list[str] = [
+            f"### Turn {turn_idx}",
+            "",
+            f"**You** \u2014 {user_msg}",
+            "",
+            f"**{persona_name}** \u2014 {anima_reply}",
+            "",
+        ]
+
+        # The in-her-head block bundles monologue + perception + appraisal
+        # inside a single blockquote so the reader sees the three internal
+        # surfaces as one continuous stream.
+        block: list[str] = []
+
+        if monologue:
+            block.append(f"*in her head:* {monologue}")
+
+        # ---- perception line: only populated fields, joined with " \u00b7 "
+        perception_bits: list[str] = []
+        intent = perception.get("perceived_intent")
+        if isinstance(intent, str) and intent.strip():
+            perception_bits.append(intent.strip())
+        valence = perception.get("perceived_valence")
+        v_str = self._fmt_num(valence)
+        if v_str:
+            perception_bits.append(f"valence {v_str}")
+        demands = perception.get("perceived_demands")
+        if demands:
+            if isinstance(demands, (list, tuple)):
+                d_str = "; ".join(str(x) for x in demands if x)
+            else:
+                d_str = str(demands)
+            if d_str:
+                perception_bits.append(f"demands {d_str}")
+        if perception_bits:
+            if block:
+                block.append("")
+            block.append("*she perceived:* " + " \u00b7 ".join(perception_bits))
+
+        # ---- appraisal line: scene_tag (bold) + primary emotion + 5 numeric dims
+        appraisal_bits: list[str] = []
+        scene_tag = appraisal.get("appraisal_scene_tag")
+        if isinstance(scene_tag, str) and scene_tag.strip():
+            appraisal_bits.append(f"**{scene_tag.strip()}**")
+        primary_emotion = appraisal.get("primary_emotion")
+        if isinstance(primary_emotion, str) and primary_emotion.strip():
+            appraisal_bits.append(primary_emotion.strip())
+        for label, key in (
+            ("relevance",  "relevance"),
+            ("ego-relevance", "ego_relevance"),
+            ("coping",     "coping_potential"),
+            ("congruence", "goal_congruence"),
+            ("expectancy", "future_expectancy"),
+        ):
+            n_str = self._fmt_num(appraisal.get(key))
+            if n_str:
+                appraisal_bits.append(f"{label} {n_str}")
+        if appraisal_bits:
+            if block:
+                block.append("")
+            block.append("*she appraised it as:* " + " \u00b7 ".join(appraisal_bits))
+
+        # Render the inner block as a blockquote. Empty separators inside
+        # the block become blockquote-empty-lines (``> ``) so the rendered
+        # markdown stays one cohesive quote rather than splitting.
+        if block:
+            for ln in block:
+                if ln == "":
+                    lines.append(">")
+                else:
+                    lines.append(f"> {ln}")
+            lines.append("")
+
+        lines.append("---")
+        lines.append("")
+        return "\n".join(lines) + "\n"
 
     def write_failed_turn(
         self,
@@ -847,6 +1006,23 @@ class TranscriptWriter:
         with self.md_path.open("a", encoding="utf-8") as fh:
             fh.write("\n".join(md_lines) + "\n")
 
+        # NEAT companion — minimal failed-turn record.
+        try:
+            neat_lines = [
+                f"### Turn {turn_idx}",
+                "",
+                f"**You** \u2014 {user_msg}",
+                "",
+                f"**{persona_name}** \u2014 *(no reply this turn \u2014 generation failed)*",
+                "",
+                "---",
+                "",
+            ]
+            with self.neat_md_path.open("a", encoding="utf-8") as fh:
+                fh.write("\n".join(neat_lines) + "\n")
+        except Exception:
+            pass
+
         self._json["turns"].append({
             "turn": turn_idx,
             "user_msg": user_msg,
@@ -899,6 +1075,21 @@ class TranscriptWriter:
         ]
         with self.md_path.open("a", encoding="utf-8") as fh:
             fh.write("\n".join(md_lines) + "\n")
+
+        # NEAT companion footer — single timestamp line, no trajectory dump.
+        try:
+            end_ts = _iso_now()
+            neat_footer = [
+                "",
+                "---",
+                "",
+                f"*Session ended at {end_ts}*",
+                "",
+            ]
+            with self.neat_md_path.open("a", encoding="utf-8") as fh:
+                fh.write("\n".join(neat_footer) + "\n")
+        except Exception:
+            pass
 
         self._json["finalized_at"] = _iso_now()
         self._flush_json()
