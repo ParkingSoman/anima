@@ -15,6 +15,7 @@ from typing import Any, Callable, TypeVar
 from anima.config import AnimaConfig, load_config
 from anima.llm.base import LLMAdapter
 from anima.llm import make_adapter
+from anima.llm.capture import CapturingLLMAdapter
 from anima.llm.retry import RetryConfig, EmptyResponseAfterRetries
 from anima.persistence.store import AnimaStore, AnimaStoreSnapshot
 from anima.state.drives import DriveState
@@ -40,6 +41,38 @@ from anima.subsystems.user_prediction import (
 
 
 T = TypeVar("T")
+
+
+def _snapshot_llm_calls(capture: CapturingLLMAdapter | None) -> list[dict]:
+    """Serialize the per-turn captured LLM calls into JSON-able dicts.
+
+    Each captured call carries the full :class:`anima.llm.base.LLMResponse`
+    including ``raw_message`` (the entire provider message dict — DeepSeek's
+    ``reasoning`` chain-of-thought lives there, as do tool_calls, refusal,
+    annotations, etc.). We keep it untruncated: the user's instruction is
+    "everything the model does is cool stuff!" — the trace is where this
+    material lives, and the JSON sidecar carries the canonical copy.
+    """
+    if capture is None:
+        return []
+    out: list[dict] = []
+    for c in capture.calls:
+        resp = c.response
+        usage = dict(resp.usage) if isinstance(resp.usage, dict) else {}
+        out.append({
+            "tier": c.tier,
+            "system_prompt_chars": c.system_prompt_chars,
+            "user_message_preview": c.user_message_preview,
+            "elapsed_ms": c.elapsed_ms,
+            "timestamp": c.timestamp,
+            "response": {
+                "text": resp.text,
+                "usage": usage,
+                "finish_reason": resp.finish_reason,
+                "raw_message": resp.raw_message,
+            },
+        })
+    return out
 
 
 @dataclass
@@ -72,6 +105,14 @@ class TurnTrace:
     # turn, this points to that prior turn's index (1-based) in the transcript.
     # None on a normal turn.
     retry_of: int | None = None
+    # Capture every LLM call made during this turn (all subsystems +
+    # response generator). Each entry is the JSON-shape produced by
+    # ``Anima.respond()`` from a ``CapturedLLMCall``: tier, system prompt
+    # char-count, user-message preview, elapsed_ms, timestamp, and the
+    # full LLMResponse (``text``, ``usage``, ``finish_reason``, full
+    # ``raw_message`` dict). The raw_message is where DeepSeek's
+    # ``reasoning`` chain-of-thought lives — keep it untruncated.
+    llm_calls: list[dict] = field(default_factory=list)
 
     def to_jsonable(self) -> dict[str, Any]:
         """Serialize one turn for the §5.1 action-history record (append-only).
@@ -98,6 +139,7 @@ class TurnTrace:
             "subsystem_errors": [dict(e) for e in self.subsystem_errors],
             "silences": [dict(s) for s in self.silences],
             "retry_of": self.retry_of,
+            "llm_calls": [dict(c) for c in self.llm_calls],
         }
 
 
@@ -179,7 +221,18 @@ class Anima:
             consulted when ``store`` is not None.
         """
         self.cfg = cfg
-        self.llm = llm or make_adapter("anthropic")
+        # Capture every LLM call's full output (including DeepSeek
+        # ``reasoning`` chain-of-thought, tool_calls, refusals, etc.).
+        # CapturingLLMAdapter is a transparent wrapper: it forwards
+        # ``generate(...)`` to the inner adapter and forwards every
+        # other attribute access via __getattr__, so all existing
+        # subsystem call sites (which only call ``.generate`` and
+        # occasionally read ``.retry_cfg`` / ``.name`` / ``.model``)
+        # work unchanged. The buffer is reset at the start of each
+        # ``respond()`` and snapshotted onto the TurnTrace at the end.
+        _inner_llm = llm or make_adapter("anthropic")
+        self._llm_capture: CapturingLLMAdapter = CapturingLLMAdapter(_inner_llm)
+        self.llm = self._llm_capture
         self.ablate_monologue_length = ablate_monologue_length
         self.self_model = SelfModel.from_config(cfg)
         self.mood = MoodVector.baseline_for(cfg.big5)
@@ -240,6 +293,10 @@ class Anima:
     # ---------- the turn loop
 
     def respond(self, user_msg: str) -> tuple[str, TurnTrace]:
+        # Capture: clear the LLM-call buffer so this turn's snapshot only
+        # contains calls made during this turn (the wrapper accumulates
+        # across calls — reset on entry, snapshot on exit).
+        self._llm_capture.reset()
         # F2: snapshot all turn-modified state BEFORE the turn does anything,
         # so ``rollback_last_turn()`` can restore the pre-turn state if /retry
         # is invoked. Deep-copied so subsequent in-place mutations of mood /
@@ -503,6 +560,7 @@ class Anima:
                 prediction=prediction.to_jsonable(),
                 subsystem_errors=[e.to_jsonable() for e in errors],
                 silences=list(silences),
+                llm_calls=_snapshot_llm_calls(self._llm_capture),
             )
             self.traces.append(partial)
             raise ResponseGenerationFailed(
@@ -552,6 +610,7 @@ class Anima:
             prediction=prediction.to_jsonable(),
             subsystem_errors=[e.to_jsonable() for e in errors],
             silences=list(silences),
+            llm_calls=_snapshot_llm_calls(self._llm_capture),
         )
         self.traces.append(trace)
 

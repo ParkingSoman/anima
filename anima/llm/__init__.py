@@ -4,6 +4,7 @@ from anima.llm.anthropic_adapter import AnthropicAdapter
 from anima.llm.openai_adapter import OpenAIAdapter
 from anima.llm.openrouter_adapter import OpenRouterAdapter
 from anima.llm.fake_adapter import FakeAdapter, FlakyFakeAdapter, EmptyTextFakeAdapter
+from anima.llm.capture import CapturedLLMCall, CapturingLLMAdapter
 
 __all__ = [
     "LLMAdapter",
@@ -17,6 +18,8 @@ __all__ = [
     "FakeAdapter",
     "FlakyFakeAdapter",
     "EmptyTextFakeAdapter",
+    "CapturedLLMCall",
+    "CapturingLLMAdapter",
 ]
 
 

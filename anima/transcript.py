@@ -168,6 +168,155 @@ def _format_raw_message_md(raw: dict | None) -> list[str]:
     return lines
 
 
+def _format_llm_calls_md(llm_calls: list[dict]) -> list[str]:
+    """Render every captured LLM call this turn, with FULL chain-of-thought.
+
+    The user's standing instruction: "everything the model does is cool stuff!"
+    — so we render the visible content AND the reasoning (DeepSeek's
+    ``reasoning`` / OpenAI-style ``reasoning_content``) UNTRUNCATED. Tool
+    calls, refusals, annotations, function_call, and any other non-empty
+    raw_message keys are surfaced; the full raw_message JSON is included at
+    the bottom of each call's block for completeness.
+
+    Returns a list of markdown lines (NOT joined) so the caller can splice
+    the block into the existing inner-trace ``<details>`` section.
+    """
+    if not llm_calls:
+        return [
+            "**LLM calls (0 total):** _(none captured this turn)_",
+            "",
+        ]
+    n = len(llm_calls)
+    lines: list[str] = [
+        f"**LLM calls ({n} total):**",
+        "",
+        "<details><summary>full chain-of-thought + raw outputs</summary>",
+        "",
+    ]
+    # Keys we render in dedicated subsections so the catch-all "other fields"
+    # block isn't redundant with them.
+    DEDICATED_KEYS = {
+        "content", "reasoning", "reasoning_content",
+        "tool_calls", "function_call", "refusal", "annotations",
+        "role",
+    }
+    for i, c in enumerate(llm_calls, start=1):
+        tier = c.get("tier", "?")
+        elapsed = c.get("elapsed_ms")
+        elapsed_s = f"{elapsed}ms" if isinstance(elapsed, int) else "?ms"
+        sys_chars = c.get("system_prompt_chars", 0)
+        preview = c.get("user_message_preview", "")
+        resp = c.get("response") or {}
+        text = resp.get("text") or ""
+        finish = resp.get("finish_reason")
+        raw = resp.get("raw_message") if isinstance(resp.get("raw_message"), dict) else None
+
+        lines.append(
+            f"#### Call {i} \u2014 tier=`{tier}`, elapsed={elapsed_s}, "
+            f"finish_reason=`{finish}`, system_prompt={sys_chars} chars"
+        )
+        lines.append("")
+        if preview:
+            lines.append(f"User message preview: `{preview}`")
+            lines.append("")
+
+        # Visible content — full, with a char-count in the header for skim
+        # readers. Use a quoted block so multi-line content reads naturally.
+        lines.append(f"**Visible content** ({len(text)} chars):")
+        lines.append("")
+        if text.strip():
+            for ln in text.splitlines() or [""]:
+                lines.append(f"> {ln}")
+        else:
+            lines.append("> _(empty)_")
+        lines.append("")
+
+        # Reasoning — DeepSeek populates ``reasoning``; some OpenAI-style
+        # providers use ``reasoning_content``. We check both, render FULL
+        # content (no truncation). Fall back to "(none)" if neither exists.
+        reasoning_text = ""
+        reasoning_key = None
+        if isinstance(raw, dict):
+            rc1 = raw.get("reasoning")
+            rc2 = raw.get("reasoning_content")
+            if isinstance(rc1, str) and rc1.strip():
+                reasoning_text = rc1
+                reasoning_key = "reasoning"
+            elif isinstance(rc2, str) and rc2.strip():
+                reasoning_text = rc2
+                reasoning_key = "reasoning_content"
+        if reasoning_text:
+            lines.append(f"**Reasoning** ({len(reasoning_text)} chars, field=`{reasoning_key}`):")
+            lines.append("")
+            for ln in reasoning_text.splitlines() or [""]:
+                lines.append(f"> {ln}")
+            lines.append("")
+        else:
+            lines.append("**Reasoning:** _(none)_")
+            lines.append("")
+
+        # tool_calls / function_call / refusal / annotations — surface
+        # whichever are non-empty in raw_message.
+        if isinstance(raw, dict):
+            tc = raw.get("tool_calls")
+            if tc:
+                lines.append(f"**tool_calls:** `{tc}`")
+                lines.append("")
+            fc = raw.get("function_call")
+            if fc:
+                lines.append(f"**function_call:** `{fc}`")
+                lines.append("")
+            refusal = raw.get("refusal")
+            if refusal:
+                lines.append(f"**refusal:** `{refusal}`")
+                lines.append("")
+            annotations = raw.get("annotations")
+            if annotations:
+                lines.append(f"**annotations:** `{annotations}`")
+                lines.append("")
+
+            # Catch-all "other fields" — any non-empty raw_message key we
+            # haven't explicitly rendered (e.g. ``audio``, ``logprobs``,
+            # provider-specific extensions). Strings are quoted; everything
+            # else printed as-repr.
+            other_lines: list[str] = []
+            for k, v in raw.items():
+                if k in DEDICATED_KEYS:
+                    continue
+                # Skip trivially empty values to keep the block tight.
+                if v in (None, "", [], {}):
+                    continue
+                if isinstance(v, str):
+                    sample = v if len(v) <= 400 else v[:400] + " ... [truncated]"
+                    other_lines.append(f"- `{k}`: {sample}")
+                else:
+                    other_lines.append(f"- `{k}`: `{v!r}`")
+            if other_lines:
+                lines.append("**other raw_message fields:**")
+                lines.append("")
+                lines.extend(other_lines)
+                lines.append("")
+
+            # Full raw_message JSON for completeness. Keep it as a single
+            # fenced block — the JSON sidecar also carries it (canonical).
+            lines.append("**Full raw_message:**")
+            lines.append("")
+            lines.append("```json")
+            try:
+                lines.append(json.dumps(raw, indent=2, default=str))
+            except Exception:
+                lines.append(repr(raw))
+            lines.append("```")
+            lines.append("")
+        else:
+            lines.append("**Full raw_message:** _(not captured by this adapter)_")
+            lines.append("")
+
+    lines.append("</details>")
+    lines.append("")
+    return lines
+
+
 def _format_subsystem_errors_md(errors: list[dict]) -> str:
     """Render a per-turn generation-errors block.
 
@@ -593,6 +742,15 @@ class TranscriptWriter:
             monologue,
             "```",
             "",
+        ]
+        # Render every captured LLM call inline in the inner trace. This is
+        # the "preserve everything the model did" surface: the visible reply
+        # is already up-top; here we surface reasoning chain-of-thought,
+        # tool calls, refusals, annotations, and the full raw_message JSON
+        # for each subsystem's call.
+        llm_calls = list(getattr(trace, "llm_calls", None) or [])
+        md_lines += _format_llm_calls_md(llm_calls)
+        md_lines += [
             "</details>",
             "",
         ]
@@ -617,6 +775,7 @@ class TranscriptWriter:
                 "drives_after": dict(drives_after),
                 "response": getattr(trace, "response", anima_reply),
                 "usage": dict(getattr(trace, "usage", {}) or {}),
+                "llm_calls": list(getattr(trace, "llm_calls", None) or []),
             }
         # The JSON view adds top-level conveniences to the per-turn record so
         # consumers don't have to dig into the trace:
