@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal, Protocol
 
+from anima.llm.retry import RetryConfig
+
 Tier = Literal["fast", "strong"]
 
 
@@ -23,9 +25,12 @@ class LLMAdapter(Protocol):
       - support multi-message conversation (`messages` is OpenAI-style list of
         {"role": "user"|"assistant", "content": str});
       - return an LLMResponse with the assistant text in `.text`.
+      - accept an optional ``retry_cfg`` per-call override (None means use the
+        adapter's default policy).
     """
 
     name: str
+    retry_cfg: RetryConfig
 
     def generate(
         self,
@@ -36,5 +41,6 @@ class LLMAdapter(Protocol):
         max_tokens: int = 1024,
         temperature: float = 0.7,
         stop: list[str] | None = None,
+        retry_cfg: RetryConfig | None = None,
     ) -> LLMResponse:
         ...

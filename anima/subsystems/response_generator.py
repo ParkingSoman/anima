@@ -12,6 +12,11 @@ Critical constraints (enforced via prompt and via adversarial probe §11.7):
   - The Anima is NOT an assistant. It may agree or disagree, change topic,
     decline to engage, and have its own opinions.
   - The Anima speaks in its own register; no boilerplate.
+
+Retry: this subsystem accepts an optional ``retry_cfg`` per-call override
+because it is the externally-visible step and warrants a heavier policy
+(``RetryConfig(max_attempts=5)`` from the orchestrator). When omitted, the
+adapter's own default policy is used.
 """
 
 from __future__ import annotations
@@ -20,6 +25,7 @@ from dataclasses import dataclass
 
 from anima.config.schema import AnimaConfig
 from anima.llm.base import LLMAdapter
+from anima.llm.retry import RetryConfig
 from anima.state.self_model import SelfModel
 
 
@@ -108,6 +114,7 @@ class ResponseGeneratorSubsystem:
         conversation_history: list[dict],
         retrieval_view: str = "",
         prediction_view: str = "",
+        retry_cfg: RetryConfig | None = None,
     ) -> GeneratedResponse:
         from anima.subsystems.appraisal import _config_appraisal_block
 
@@ -137,5 +144,6 @@ class ResponseGeneratorSubsystem:
         # Last few turns of conversation history for short-term context
         history = conversation_history[-6:] + [{"role": "user", "content": user_msg}]
         resp = self.llm.generate(tier="strong", system=system, messages=history,
-                                 max_tokens=400, temperature=0.8)
+                                 max_tokens=400, temperature=0.8,
+                                 retry_cfg=retry_cfg)
         return GeneratedResponse(text=resp.text.strip(), metadata={"usage": resp.usage})

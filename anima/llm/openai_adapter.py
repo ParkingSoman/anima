@@ -5,6 +5,7 @@ import os
 from openai import OpenAI
 
 from anima.llm.base import LLMResponse, Tier
+from anima.llm.retry import RetryConfig, _retry_call
 
 
 class OpenAIAdapter:
@@ -16,23 +17,25 @@ class OpenAIAdapter:
         fast_model: str = "gpt-4.1-mini",
         strong_model: str = "gpt-4.1",
         api_key: str | None = None,
+        retry_cfg: RetryConfig | None = None,
     ) -> None:
         self.fast_model = fast_model
         self.strong_model = strong_model
         self.client = OpenAI(api_key=api_key or os.environ.get("OPENAI_API_KEY"))
+        self.retry_cfg = retry_cfg or RetryConfig()
 
     def _model_for(self, tier: Tier) -> str:
         return self.strong_model if tier == "strong" else self.fast_model
 
-    def generate(
+    def _raw_call(
         self,
         *,
         tier: Tier,
         system: str,
         messages: list[dict],
-        max_tokens: int = 1024,
-        temperature: float = 0.7,
-        stop: list[str] | None = None,
+        max_tokens: int,
+        temperature: float,
+        stop: list[str] | None,
     ) -> LLMResponse:
         chat = [{"role": "system", "content": system}] + messages
         resp = self.client.chat.completions.create(
@@ -50,3 +53,23 @@ class OpenAIAdapter:
             "cache_create_tokens": 0,
         }
         return LLMResponse(text=text, usage=usage, raw={"id": resp.id})
+
+    def generate(
+        self,
+        *,
+        tier: Tier,
+        system: str,
+        messages: list[dict],
+        max_tokens: int = 1024,
+        temperature: float = 0.7,
+        stop: list[str] | None = None,
+        retry_cfg: RetryConfig | None = None,
+    ) -> LLMResponse:
+        cfg = retry_cfg or self.retry_cfg
+        return _retry_call(
+            lambda: self._raw_call(
+                tier=tier, system=system, messages=messages,
+                max_tokens=max_tokens, temperature=temperature, stop=stop,
+            ),
+            cfg,
+        )

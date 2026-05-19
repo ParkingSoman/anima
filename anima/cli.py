@@ -15,6 +15,7 @@ from rich.panel import Panel
 from anima.core import Anima
 from anima.llm import make_adapter
 from anima.persistence.store import AnimaStore
+from anima.subsystems.errors import ResponseGenerationFailed
 from anima.transcript import TranscriptWriter
 from verification.baseline import BaselineAnima
 
@@ -96,6 +97,17 @@ def cmd_chat(args: argparse.Namespace) -> int:
             "\n[bold yellow]blind mode[/bold yellow] — inner trace is not shown "
             "during the session; full transcript will be written to disk at the end."
         )
+    # F-A: surface the retry policy in the banner so users running a CLI
+    # session can see at a glance how many retries each subsystem gets before
+    # a fallback fires. The adapter default is 3 attempts (= 2 retries);
+    # response_generator uses a heavier 5-attempt (= 4-retry) override.
+    adapter_retry = getattr(anima.llm, "retry_cfg", None)
+    adapter_max = getattr(adapter_retry, "max_attempts", None)
+    subsystem_retries = (adapter_max - 1) if isinstance(adapter_max, int) else "?"
+    retry_banner = (
+        f"\n[dim]retry policy: {subsystem_retries} retries per subsystem + "
+        f"4 retries for the response, then graceful fallback[/dim]"
+    )
     console.print(Panel.fit(
         f"[bold]Talking to {anima.cfg.biography.name}[/bold]\n"
         f"{anima.cfg.biography.one_line}\n\n"
@@ -104,10 +116,19 @@ def cmd_chat(args: argparse.Namespace) -> int:
         f"persistence root: {store.dir}\n"
         f"transcript: {transcript.md_path}\n"
         f"Type a message and press enter. Ctrl-D / 'quit' to exit. "
-        f"'/trace' shows the most recent inner trace. '/state' prints internal state.[/dim]"
+        f"'/trace' shows the most recent inner trace. '/state' prints internal state. "
+        f"'/retry' re-sends the last message that failed.[/dim]"
+        f"{retry_banner}"
         f"{intro_extra}",
         title="anima"))
     turn_idx = 0
+    # F2: when /retry is invoked we remember the turn-index it's a retry OF
+    # so the transcript can label it as such. Cleared after the retry runs.
+    retry_target_idx: int | None = None
+    # E8: holds the most-recent user message that failed to produce a reply.
+    # Cleared on the next successful turn (or on a new failure that overwrites
+    # it). /retry resends it through the loop.
+    last_failed_msg: str | None = None
     try:
         while True:
             try:
@@ -119,6 +140,28 @@ def cmd_chat(args: argparse.Namespace) -> int:
                 continue
             if msg in {"quit", "exit", "/quit"}:
                 break
+            if msg == "/retry":
+                if last_failed_msg is None:
+                    console.print("[dim]nothing to retry[/dim]")
+                    continue
+                # F2: roll back any state changes the failed/degraded turn
+                # made, BEFORE the retry runs. This removes the failed user
+                # message from conversation_history, undoes any mood/drive
+                # mutations, and drops the partial trace + episodic event the
+                # turn may have produced. The transcript is intentionally
+                # untouched — retries appear as additional turns there.
+                rolled = anima.rollback_last_turn()
+                if rolled:
+                    console.print(
+                        "[dim]rolled back the failed turn's state — "
+                        "retry will run against a clean context[/dim]"
+                    )
+                # Remember which turn this is a retry OF so the transcript
+                # records ``retry_of: N-1``. ``turn_idx`` at this point is the
+                # index of the most recent (failed) turn that was written.
+                retry_target_idx = turn_idx
+                msg = last_failed_msg
+                console.print(f"[dim]retrying: {msg[:80]}{'…' if len(msg) > 80 else ''}[/dim]")
             if msg == "/trace":
                 if blind:
                     console.print(hidden_notice)
@@ -167,15 +210,74 @@ def cmd_chat(args: argparse.Namespace) -> int:
                     continue
                 console.print_json(json.dumps(anima.observe()))
                 continue
-            reply, trace = anima.respond(msg)
+            # E8: per-turn error handling. ResponseGenerationFailed → log
+            # to transcript, preserve message for /retry, keep loop alive.
+            # Any OTHER unexpected exception → last-resort catch so the
+            # session does not die. The user's input is preserved either way.
+            try:
+                reply, trace = anima.respond(msg)
+            except ResponseGenerationFailed as exc:
+                turn_idx += 1
+                transcript.write_failed_turn(turn_idx, msg, exc)
+                last_failed_msg = msg
+                console.print(
+                    f"[red]turn failed:[/red] {exc} — your message is preserved."
+                )
+                snippet = msg if len(msg) <= 60 else msg[:60] + "…"
+                console.print(
+                    f"[dim]type /retry to re-send {snippet!r} or type a new message[/dim]"
+                )
+                continue
+            except Exception as exc:  # noqa: BLE001 — last-resort: never crash the REPL
+                turn_idx += 1
+                try:
+                    transcript.write_failed_turn(turn_idx, msg, exc)
+                except Exception as t_exc:  # pragma: no cover — defensive nested
+                    console.print(f"[red]transcript write failed:[/red] {t_exc!r}")
+                last_failed_msg = msg
+                console.print(f"[red]unexpected error:[/red] {exc!r}")
+                console.print(
+                    "[dim]your message is preserved; conversation state may be inconsistent. "
+                    "type /retry to attempt again.[/dim]"
+                )
+                continue
             turn_idx += 1
+            # F2: if this turn was initiated via /retry, stamp the trace with
+            # the prior turn-index so the transcript header reads
+            # "Turn N — retry of turn N-1" and the JSON entry carries
+            # ``retry_of: N-1``. We set this on the live trace right before
+            # write_turn so all downstream serialization picks it up.
+            if retry_target_idx is not None:
+                try:
+                    trace.retry_of = retry_target_idx
+                except Exception:  # pragma: no cover — defensive
+                    pass
+                retry_target_idx = None
             transcript.write_turn(turn_idx, msg, reply, trace)
+            # Successful reply clears the last-failed message.
+            last_failed_msg = None
             console.print(f"[bold green]{anima.cfg.biography.name} >[/bold green] {reply}")
             # --show-trace is silently overridden in blind mode; the operator
             # opted into not seeing the trace, so we honor that even if the
             # flag is also set.
             if args.show_trace and not blind:
                 console.print(Panel(trace.monologue, title="(inner)", border_style="magenta"))
+            # If the turn used fallbacks, surface that to the operator so they
+            # know the reply was assembled with degraded inputs.
+            if trace.subsystem_errors and not blind:
+                warned = ", ".join(e.get("subsystem", "?") for e in trace.subsystem_errors)
+                console.print(
+                    f"[yellow]⚠️  generation errors this turn: {warned} — see transcript[/yellow]"
+                )
+            # F1: also surface model-silences inline. Distinguished from
+            # errors: not a glitch, just the model declining to produce
+            # content. Still useful for the operator to see.
+            silences = getattr(trace, "silences", []) or []
+            if silences and not blind:
+                silenced = ", ".join(s.get("subsystem", "?") for s in silences)
+                console.print(
+                    f"[blue]🤐 model chose silence: {silenced} — see transcript[/blue]"
+                )
     finally:
         # Always flush state to disk at session end so partial transcripts
         # don't get lost between autosaves.

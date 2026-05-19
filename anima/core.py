@@ -6,14 +6,16 @@ Phase 1 MVP turn loop:
 
 from __future__ import annotations
 
+import copy
 import datetime as _dt
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, TypeVar
 
 from anima.config import AnimaConfig, load_config
 from anima.llm.base import LLMAdapter
 from anima.llm import make_adapter
+from anima.llm.retry import RetryConfig
 from anima.persistence.store import AnimaStore, AnimaStoreSnapshot
 from anima.state.drives import DriveState
 from anima.state.episodic import AffectTag, EpisodicEvent, EpisodicStore
@@ -21,12 +23,23 @@ from anima.state.mood import MoodVector
 from anima.state.relations import PredictedIntent, RelationsStore
 from anima.state.self_model import SelfModel
 from anima.state.semantic import SemanticStore
-from anima.subsystems.appraisal import AppraisalSubsystem
-from anima.subsystems.inner_monologue import InnerMonologueSubsystem
+from anima.subsystems.appraisal import Appraisal, AppraisalSubsystem
+from anima.subsystems.errors import ResponseGenerationFailed, SubsystemError
+from anima.subsystems.inner_monologue import InnerMonologueSubsystem, Monologue
 from anima.subsystems.memory_retrieval import MemoryRetrieval
-from anima.subsystems.perception import PerceptionSubsystem
-from anima.subsystems.response_generator import ResponseGeneratorSubsystem
-from anima.subsystems.user_prediction import UserPredictionSubsystem, _now_ts
+from anima.subsystems.perception import Perception, PerceptionSubsystem
+from anima.subsystems.response_generator import (
+    GeneratedResponse,
+    ResponseGeneratorSubsystem,
+)
+from anima.subsystems.user_prediction import (
+    PredictionResult,
+    UserPredictionSubsystem,
+    _now_ts,
+)
+
+
+T = TypeVar("T")
 
 
 @dataclass
@@ -45,6 +58,20 @@ class TurnTrace:
     # E3: theory-of-mind trace fields.
     surprise_from_last_turn: dict = field(default_factory=dict)  # serialized SurpriseRecord or {}
     prediction: dict = field(default_factory=dict)               # serialized PredictionResult
+    # E8: per-turn subsystem error records. Populated when a subsystem's LLM
+    # call fails after all retries and the turn falls back to a structurally-
+    # valid default. Empty on a clean turn.
+    subsystem_errors: list[dict] = field(default_factory=list)
+    # F1: per-turn "model chose silence" records. Populated when a subsystem's
+    # LLM call SUCCEEDED but the output was empty in a subsystem-specific way
+    # (empty monologue, empty response, unknown user prediction, etc.). This is
+    # NOT an error — it's the model declining to produce content — and is
+    # surfaced separately in the transcript from generation errors.
+    silences: list[dict] = field(default_factory=list)
+    # F2: when this turn is the result of /retry on a prior failed/degraded
+    # turn, this points to that prior turn's index (1-based) in the transcript.
+    # None on a normal turn.
+    retry_of: int | None = None
 
     def to_jsonable(self) -> dict[str, Any]:
         """Serialize one turn for the §5.1 action-history record (append-only).
@@ -68,7 +95,55 @@ class TurnTrace:
             "usage": dict(self.usage),
             "surprise_from_last_turn": dict(self.surprise_from_last_turn),
             "prediction": dict(self.prediction),
+            "subsystem_errors": [dict(e) for e in self.subsystem_errors],
+            "silences": [dict(s) for s in self.silences],
+            "retry_of": self.retry_of,
         }
+
+
+# E8: fallback values used when a subsystem's LLM call fails after retries.
+# Each must be structurally valid for downstream consumers (no None traps).
+def _fallback_perception(user_msg: str) -> Perception:
+    return Perception(
+        literal_content=user_msg[:1000],
+        perceived_intent="unknown",
+        perceived_valence=0.0,
+        perceived_demands=[],
+        salient_features=[],
+    )
+
+
+def _fallback_appraisal() -> Appraisal:
+    return Appraisal(
+        relevance=0.5,
+        goal_congruence=0.0,
+        ego_relevance=0.5,
+        coping_potential=0.5,
+        future_expectancy=0.0,
+        primary_emotion="neutral",
+        appraisal_scene_tag="unclassified",
+        mood_dv=0.0,
+        mood_da=0.0,
+        mood_dd=0.0,
+        discrete_deltas={},
+        drive_deltas={},
+    )
+
+
+def _fallback_prediction() -> PredictionResult:
+    return PredictionResult(
+        next_intent_label="unknown",
+        content_hint="",
+        confidence=0.0,
+        rationale="user prediction failed; using neutral fallback",
+    )
+
+
+def _fallback_monologue() -> Monologue:
+    # Empty monologue. The response generator's prompt tolerates this — it
+    # treats the (empty) "private thoughts" block as a non-signal and still
+    # produces a reply on the appraisal + perception + register hint.
+    return Monologue(text="", summary="")
 
 
 class Anima:
@@ -150,6 +225,12 @@ class Anima:
             if snap is not None:
                 self._hydrate_from_snapshot(snap)
 
+        # F2: pre-turn snapshot for ``rollback_last_turn()``. Set at the start
+        # of each ``respond()`` call (success or failure). ``None`` means
+        # nothing-to-rollback (either no turn has been run yet, or the most
+        # recent rollback already consumed the snapshot — idempotent).
+        self._pre_turn_snapshot: dict[str, Any] | None = None
+
     @classmethod
     def from_config_path(cls, path: str | Path, llm: LLMAdapter | None = None,
                          *, ablate_monologue_length: bool = False) -> "Anima":
@@ -159,6 +240,15 @@ class Anima:
     # ---------- the turn loop
 
     def respond(self, user_msg: str) -> tuple[str, TurnTrace]:
+        # F2: snapshot all turn-modified state BEFORE the turn does anything,
+        # so ``rollback_last_turn()`` can restore the pre-turn state if /retry
+        # is invoked. Deep-copied so subsequent in-place mutations of mood /
+        # drives / episodic_store / relations / traces do not leak into the
+        # snapshot. The transcript writer is intentionally NOT snapshotted —
+        # the transcript is the audit trail of what happened, not part of the
+        # Anima's working state.
+        self._pre_turn_snapshot = self._take_turn_snapshot()
+
         mood_view = self.mood.render()
         drive_view = self.drives.render()
         mood_before = {"valence": self.mood.valence, "arousal": self.mood.arousal,
@@ -166,10 +256,47 @@ class Anima:
                        "discrete": dict(self.mood.discrete)}
         drives_before = dict(self.drives.activations)
 
+        # E8: subsystem-error accumulator. Each safe-call below appends a
+        # SubsystemError record on failure; the turn keeps going with a
+        # structurally-valid fallback. The accumulator is attached to the
+        # TurnTrace at the end so the transcript can surface what failed.
+        errors: list[SubsystemError] = []
+        # F1: silence accumulator. A subsystem call counts as "silence" when
+        # it SUCCEEDED (so it's NOT in ``errors``) but its output is empty in
+        # a subsystem-specific way. Populated after each subsystem call below.
+        silences: list[dict] = []
+
+        def _safe(subsystem: str, fn: Callable[[], T], fallback: T) -> T:
+            """Run an LLM-backed subsystem call; on failure, log + fall back.
+
+            The retry happens INSIDE the adapter (``RetryConfig`` default = 3
+            attempts). By the time an exception reaches this helper, the
+            adapter has already given up. We then build a SubsystemError
+            record and return the fallback so the turn loop continues.
+            """
+            try:
+                return fn()
+            except Exception as exc:  # noqa: BLE001 — last-line defense per spec
+                # The adapter's retry policy ran inside fn(); attempts reflects
+                # the adapter default (or whatever override the subsystem used).
+                attempts = getattr(self.llm, "retry_cfg", None)
+                attempts_n = getattr(attempts, "max_attempts", 1) if attempts else 1
+                errors.append(SubsystemError(
+                    subsystem=subsystem,
+                    error_type=type(exc).__name__,
+                    message=str(exc)[:500],
+                    attempts=attempts_n,
+                ))
+                return fallback
+
         # 1. perception
-        perception = self._perception.run(
-            user_msg=user_msg, self_model=self.self_model,
-            mood_view=mood_view, relational_summary=self.relational_summary,
+        perception = _safe(
+            "perception",
+            lambda: self._perception.run(
+                user_msg=user_msg, self_model=self.self_model,
+                mood_view=mood_view, relational_summary=self.relational_summary,
+            ),
+            _fallback_perception(user_msg),
         )
         perception_view = self._perception.render(perception)
 
@@ -177,19 +304,32 @@ class Anima:
         # anima/subsystems/memory_retrieval.py. retrieval_view is appended to
         # every downstream subsystem prompt so appraisal/monologue/response
         # all read against the same surfaced memories.
-        retrieved = self._memory.run(
-            perception=perception, perception_view=perception_view,
-            self_model=self.self_model, mood=self.mood,
-            active_schemas=[s.value for s in self.cfg.schemas],
-            episodic_store=self.episodic_store,
-            k=3,
+        retrieved = _safe(
+            "memory_retrieval",
+            lambda: self._memory.run(
+                perception=perception, perception_view=perception_view,
+                self_model=self.self_model, mood=self.mood,
+                active_schemas=[s.value for s in self.cfg.schemas],
+                episodic_store=self.episodic_store,
+                k=3,
+            ),
+            [],
         )
         retrieval_view = self._memory.render(retrieved)
 
+        # F1: silence detection — memory_retrieval. If the call didn't error
+        # (memory_retrieval not in errored set) and surfaced no memories,
+        # that's the model declining to recall anything. We flag it as silence;
+        # the trace section keeps its `(none surfaced)` rendering separately.
+        _errored = {e.subsystem for e in errors}
+        if "memory_retrieval" not in _errored and not retrieved:
+            silences.append({
+                "subsystem": "memory_retrieval",
+                "detail": "surfaced 0 memories (LLM call succeeded; no memories matched the query)",
+            })
+
         # 3a. surprise from last turn's prediction (master plan §10 / §11.10).
-        # On turn 1 this is None (no prior prediction exists). After turn 1, we
-        # compare what we predicted the user would do against what they
-        # actually did — feed the prediction-error into appraisal.
+        # Pure-Python heuristic; no LLM call, so no retry needed.
         last_prediction = self._user_relation.last_prediction()
         surprise = self._user_prediction.compute_surprise(
             last_prediction=last_prediction, perception=perception,
@@ -198,21 +338,29 @@ class Anima:
             self._user_relation.record_surprise(surprise)
 
         # 3. appraisal (now reads the surprise signal when present)
-        appraisal = self._appraisal.run(
-            cfg=self.cfg, self_model=self.self_model, mood_view=mood_view,
-            drive_view=drive_view, perception=perception, perception_view=perception_view,
-            retrieval_view=retrieval_view, surprise=surprise,
+        appraisal = _safe(
+            "appraisal",
+            lambda: self._appraisal.run(
+                cfg=self.cfg, self_model=self.self_model, mood_view=mood_view,
+                drive_view=drive_view, perception=perception, perception_view=perception_view,
+                retrieval_view=retrieval_view, surprise=surprise,
+            ),
+            _fallback_appraisal(),
         )
+        # apply() is pure-Python state mutation; safe to call even on a fallback
+        # appraisal (deltas are all zero).
         self._appraisal.apply(appraisal=appraisal, mood=self.mood, drives=self.drives)
         appraisal_view = self._appraisal.render(appraisal)
 
         # 4. user prediction (this turn's guess at next turn's user move).
-        # Recorded on the relational schema so the NEXT turn's surprise
-        # computation has something to compare against.
-        prediction = self._user_prediction.predict(
-            perception=perception, perception_view=perception_view,
-            self_model=self.self_model, appraisal_view=appraisal_view,
-            relational_schema=self._user_relation,
+        prediction = _safe(
+            "user_prediction",
+            lambda: self._user_prediction.predict(
+                perception=perception, perception_view=perception_view,
+                self_model=self.self_model, appraisal_view=appraisal_view,
+                relational_schema=self._user_relation,
+            ),
+            _fallback_prediction(),
         )
         self._user_relation.record_prediction(PredictedIntent(
             ts=_now_ts(),
@@ -223,31 +371,123 @@ class Anima:
         ))
         prediction_view = self._user_prediction.render(prediction, surprise)
 
+        # F1: silence detection — user_prediction. The trivial/floor output
+        # (unknown intent, empty hint, zero confidence) means the model
+        # declined to predict. We flag if it didn't error AND looks trivial.
+        _errored = {e.subsystem for e in errors}
+        if (
+            "user_prediction" not in _errored
+            and prediction.next_intent_label == "unknown"
+            and prediction.content_hint == ""
+            and prediction.confidence == 0.0
+        ):
+            silences.append({
+                "subsystem": "user_prediction",
+                "detail": (
+                    "returned the trivial unknown/0.0 prediction "
+                    "(LLM call succeeded; the model declined to make a prediction)"
+                ),
+            })
+
         # 5. inner monologue (re-render mood/drives so they reflect appraisal updates)
         post_mood_view = self.mood.render()
         post_drive_view = self.drives.render()
-        monologue = self._monologue.run(
-            cfg=self.cfg, self_model=self.self_model,
-            mood_view=post_mood_view, drive_view=post_drive_view,
-            perception_view=perception_view, appraisal_view=appraisal_view,
-            relational_summary=self.relational_summary,
-            recent_monologue_summary=self.recent_monologue_summary,
-            user_msg=user_msg,
-            ablate=self.ablate_monologue_length,
-            retrieval_view=retrieval_view,
-            prediction_view=prediction_view,
+        monologue = _safe(
+            "inner_monologue",
+            lambda: self._monologue.run(
+                cfg=self.cfg, self_model=self.self_model,
+                mood_view=post_mood_view, drive_view=post_drive_view,
+                perception_view=perception_view, appraisal_view=appraisal_view,
+                relational_summary=self.relational_summary,
+                recent_monologue_summary=self.recent_monologue_summary,
+                user_msg=user_msg,
+                ablate=self.ablate_monologue_length,
+                retrieval_view=retrieval_view,
+                prediction_view=prediction_view,
+            ),
+            _fallback_monologue(),
         )
         monologue_view = self._monologue.render(monologue)
 
-        # 9. response
-        response = self._response.run(
-            cfg=self.cfg, self_model=self.self_model, mood_view=post_mood_view,
-            perception_view=perception_view, appraisal_view=appraisal_view,
-            monologue_view=monologue_view, user_msg=user_msg,
-            conversation_history=self.conversation_history,
-            retrieval_view=retrieval_view,
-            prediction_view=prediction_view,
-        )
+        # F1: silence detection — inner_monologue. Empty / whitespace-only
+        # text from a successful call is the model declining to think out loud.
+        _errored = {e.subsystem for e in errors}
+        if "inner_monologue" not in _errored and not monologue.text.strip():
+            silences.append({
+                "subsystem": "inner_monologue",
+                "detail": "returned an empty string (LLM call succeeded; the model simply produced no content)",
+            })
+
+        # 6. response generation. THIS is the externally-visible subsystem;
+        # heavier retry (5 attempts) is applied via per-call retry override.
+        # If even 5 attempts fail we cannot synthesize a reply — we raise
+        # ResponseGenerationFailed AFTER appending a partial TurnTrace so the
+        # transcript records the failure.
+        response_retry_cfg = RetryConfig(max_attempts=5)
+        response: GeneratedResponse | None = None
+        response_exc: BaseException | None = None
+        try:
+            response = self._response.run(
+                cfg=self.cfg, self_model=self.self_model, mood_view=post_mood_view,
+                perception_view=perception_view, appraisal_view=appraisal_view,
+                monologue_view=monologue_view, user_msg=user_msg,
+                conversation_history=self.conversation_history,
+                retrieval_view=retrieval_view,
+                prediction_view=prediction_view,
+                retry_cfg=response_retry_cfg,
+            )
+        except Exception as exc:  # noqa: BLE001 — escalated below
+            response_exc = exc
+            errors.append(SubsystemError(
+                subsystem="response_generator",
+                error_type=type(exc).__name__,
+                message=str(exc)[:500],
+                attempts=response_retry_cfg.max_attempts,
+            ))
+
+        if response_exc is not None:
+            # Append a partial trace so the transcript captures the failed turn
+            # even though no reply went out.
+            partial = TurnTrace(
+                user_msg=user_msg,
+                perception=perception.__dict__,
+                appraisal=appraisal.__dict__,
+                monologue=monologue.text,
+                mood_before=mood_before,
+                mood_after={"valence": self.mood.valence, "arousal": self.mood.arousal,
+                            "dominance": self.mood.dominance,
+                            "discrete": dict(self.mood.discrete)},
+                drives_before=drives_before,
+                drives_after=dict(self.drives.activations),
+                response="[generation failed after 5 attempts]",
+                retrieved=[
+                    {"id": rm.event.id, "score": rm.score,
+                     "retrieval_reason": rm.retrieval_reason,
+                     "reconstructed_framing": rm.reconstructed_framing}
+                    for rm in retrieved
+                ],
+                usage={},
+                surprise_from_last_turn=(surprise.to_jsonable() if surprise else {}),
+                prediction=prediction.to_jsonable(),
+                subsystem_errors=[e.to_jsonable() for e in errors],
+                silences=list(silences),
+            )
+            self.traces.append(partial)
+            raise ResponseGenerationFailed(
+                subsystem="response_generator",
+                attempts=response_retry_cfg.max_attempts,
+                last_error=response_exc,
+            )
+
+        assert response is not None  # narrowed by the raise above
+
+        # F1: silence detection — response_generator. The user-visible reply
+        # being empty is the most surprising silence shape; we flag it loudly.
+        if not response.text.strip():
+            silences.append({
+                "subsystem": "response_generator",
+                "detail": "returned an empty reply (LLM call succeeded; the model chose to say nothing)",
+            })
 
         # Bookkeeping
         self.conversation_history.append({"role": "user", "content": user_msg})
@@ -278,6 +518,8 @@ class Anima:
             usage=response.metadata.get("usage", {}),
             surprise_from_last_turn=(surprise.to_jsonable() if surprise else {}),
             prediction=prediction.to_jsonable(),
+            subsystem_errors=[e.to_jsonable() for e in errors],
+            silences=list(silences),
         )
         self.traces.append(trace)
 
@@ -290,32 +532,39 @@ class Anima:
         # All operands clamped to [0,1]; weights sum to 1.0. ML-scored
         # importance is a later-phase upgrade — the heuristic is enough to
         # make cross-session memory functional today.
-        importance = max(0.05, min(1.0,
-            0.3 * abs(appraisal.ego_relevance)
-            + 0.3 * abs(self.mood.valence)
-            + 0.2 * min(1.0, len(monologue.text) / 600.0)
-            + 0.2 * abs(appraisal.coping_potential)
-        ))
-        # Event ID: ISO-second timestamp + turn ordinal. Turn ordinal makes
-        # IDs unique even when two events land in the same wall-clock second.
-        now_utc = _dt.datetime.now(_dt.timezone.utc)
-        turn_num = len(self.episodic_store.events) + 1
-        event_id = f"ev-{now_utc.strftime('%Y%m%dT%H%M%SZ')}-{turn_num}"
-        # full_content is the verbatim user+self pair. content_summary is a
-        # short, retrieval-keyword-friendly one-liner (the retrieval ranker
-        # substring-matches on summary OR full_content).
-        ev = EpisodicEvent(
-            id=event_id,
-            ts=now_utc.isoformat(timespec="seconds"),
-            content_summary=f"user: {user_msg[:80]}",
-            full_content=f"user: {user_msg}\nself: {response.text}",
-            participants=[self.cfg.biography.name.lower(), "user"],
-            affect_tag=AffectTag.from_mood(self.mood),  # post-appraisal mood
-            importance=importance,
-            retrieval_count=0,
-            links=[],
-        )
-        self.episodic_store.append(ev)
+        # E8: self-monitor encoding is pure-Python state mutation. If
+        # something raises here (e.g., affect_tag construction on weird
+        # values), we log + continue — the response already went out, so
+        # crashing now would be the worst possible time.
+        try:
+            importance = max(0.05, min(1.0,
+                0.3 * abs(appraisal.ego_relevance)
+                + 0.3 * abs(self.mood.valence)
+                + 0.2 * min(1.0, len(monologue.text) / 600.0)
+                + 0.2 * abs(appraisal.coping_potential)
+            ))
+            now_utc = _dt.datetime.now(_dt.timezone.utc)
+            turn_num = len(self.episodic_store.events) + 1
+            event_id = f"ev-{now_utc.strftime('%Y%m%dT%H%M%SZ')}-{turn_num}"
+            ev = EpisodicEvent(
+                id=event_id,
+                ts=now_utc.isoformat(timespec="seconds"),
+                content_summary=f"user: {user_msg[:80]}",
+                full_content=f"user: {user_msg}\nself: {response.text}",
+                participants=[self.cfg.biography.name.lower(), "user"],
+                affect_tag=AffectTag.from_mood(self.mood),  # post-appraisal mood
+                importance=importance,
+                retrieval_count=0,
+                links=[],
+            )
+            self.episodic_store.append(ev)
+        except Exception as exc:  # noqa: BLE001 — defensive: don't crash post-reply
+            trace.subsystem_errors.append(SubsystemError(
+                subsystem="self_monitor",
+                error_type=type(exc).__name__,
+                message=str(exc)[:500],
+                attempts=1,
+            ).to_jsonable())
 
         # E5: autosave countdown. We tick AFTER the trace is appended so a
         # crash mid-turn doesn't leave a half-recorded turn on disk.
@@ -325,6 +574,84 @@ class Anima:
                 self._autosave()
 
         return response.text, trace
+
+    # ---------- F2 /retry support: pre-turn snapshot + rollback
+
+    def _take_turn_snapshot(self) -> dict[str, Any]:
+        """Deep-copy every piece of state ``respond()`` mutates.
+
+        Targets (the union of what every code path inside ``respond()`` writes):
+            * ``conversation_history`` — appended user + assistant messages
+            * ``mood``                  — appraisal apply + decay_toward
+            * ``drives``                — appraisal apply
+            * ``recent_monologue_summary`` — set from monologue.summary
+            * ``traces``                — partial OR full trace appended
+            * ``episodic_store``        — self-monitor encoding appends an event
+            * ``relations``             — record_prediction / record_surprise
+              both mutate ``self._user_relation`` in-place
+            * ``self_model``            — not mutated in respond() today, but
+              snapshotted defensively (cheap; future-proofs against refactor)
+            * ``_user_relation``        — re-pointed at the restored relations
+              schema in ``rollback_last_turn()``
+            * ``_turns_since_save``     — incremented for autosave bookkeeping
+
+        Returns a dict the restore path consumes via ``rollback_last_turn()``.
+        Deep copies are used uniformly — the perf hit is dwarfed by the LLM
+        call that follows, and avoids subtle aliasing bugs around nested
+        dataclasses (``DriveState.activations`` is a dict; ``MoodVector.discrete``
+        is a dict; ``EpisodicStore._by_id`` is a derived dict).
+        """
+        return {
+            "conversation_history": copy.deepcopy(self.conversation_history),
+            "mood": copy.deepcopy(self.mood),
+            "drives": copy.deepcopy(self.drives),
+            "recent_monologue_summary": self.recent_monologue_summary,
+            "traces": copy.deepcopy(self.traces),
+            "episodic_store": copy.deepcopy(self.episodic_store),
+            "relations": copy.deepcopy(self.relations),
+            "self_model": copy.deepcopy(self.self_model),
+            "_turns_since_save": self._turns_since_save,
+        }
+
+    def rollback_last_turn(self) -> bool:
+        """Restore Anima state to immediately before the most recent ``respond()``.
+
+        Used by the CLI ``/retry`` command to ensure that a failed (or
+        degraded-with-fallbacks) turn does not pollute the context of the
+        retry attempt. Specifically: the failed user message must not appear
+        in ``conversation_history`` when the retry runs, and any mood / drive
+        / episodic changes that the failed turn caused must be undone.
+
+        Idempotent: calling twice rolls back at most once. After a successful
+        rollback the snapshot slot is cleared, so a subsequent call returns
+        ``False`` until the next ``respond()`` runs.
+
+        The transcript is deliberately NOT rolled back — it is the audit
+        trail; retries should appear as additional turns labeled
+        ``retry_of: N-1`` in the JSON record and ``### Turn N — retry of
+        turn N-1`` in the markdown.
+        """
+        if self._pre_turn_snapshot is None:
+            return False
+        snap = self._pre_turn_snapshot
+        self.conversation_history = snap["conversation_history"]
+        self.mood = snap["mood"]
+        self.drives = snap["drives"]
+        self.recent_monologue_summary = snap["recent_monologue_summary"]
+        self.traces = snap["traces"]
+        self.episodic_store = snap["episodic_store"]
+        self.relations = snap["relations"]
+        # ``_user_relation`` is a live reference into ``self.relations.schemas``;
+        # re-resolve it against the restored RelationsStore so subsequent
+        # ``record_prediction`` / ``record_surprise`` calls land on the
+        # rolled-back schema, not the dropped one.
+        self._user_relation = self.relations.get_or_create("user")
+        self.self_model = snap["self_model"]
+        self._turns_since_save = snap["_turns_since_save"]
+        # Idempotency: consume the snapshot so the next call returns False
+        # until ``respond()`` re-arms it.
+        self._pre_turn_snapshot = None
+        return True
 
     # ---------- E5 persistence
 

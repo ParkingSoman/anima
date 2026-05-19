@@ -4,13 +4,22 @@ Routes by the LAST user-message contents to a small library of canned
 responses chosen to exercise the structured-output paths (JSON parsing,
 inner monologue style, response style). For full verification you must use a
 real provider adapter; this is only for structural smoke tests.
+
+Retry / fault-injection support:
+    The Fake adapter does NOT retry by default — its ``retry_cfg`` defaults
+    to ``RetryConfig(max_attempts=1)``. The retry layer is exercised against
+    the real adapters in production; for unit tests, ``FlakyFakeAdapter``
+    below (or any callable-based subclass) lets tests pre-program a
+    sequence of failures so they can verify retry behavior.
 """
 
 from __future__ import annotations
 
 import re
+from typing import Callable
 
 from anima.llm.base import LLMResponse, Tier
+from anima.llm.retry import RetryConfig, _retry_call
 
 
 _PERCEPTION_JSON = (
@@ -53,18 +62,18 @@ class FakeAdapter:
     def __init__(self, *, strong_text: str = "It's been a strange week, honestly.",
                  fast_text: str = "ok",
                  monologue_text: str = "Something tilts in my chest. I notice it. I don't say anything for a beat.",
+                 retry_cfg: RetryConfig | None = None,
                  ):
         self.strong_text = strong_text
         self.fast_text = fast_text
         self.monologue_text = monologue_text
         self.calls: list[dict] = []
+        # The Fake does not retry by default — tests of retry semantics use
+        # FlakyFakeAdapter to inject failures, and that subclass passes its
+        # own retry_cfg through.
+        self.retry_cfg = retry_cfg or RetryConfig(max_attempts=1)
 
-    def generate(self, *, tier: Tier, system: str, messages: list[dict],
-                 max_tokens: int = 1024, temperature: float = 0.7,
-                 stop=None) -> LLMResponse:
-        self.calls.append({"tier": tier, "system": system, "messages": messages,
-                           "max_tokens": max_tokens, "temperature": temperature})
-
+    def _canned(self, *, tier: Tier, system: str, messages: list[dict]) -> LLMResponse:
         # Route by subsystem fingerprint in the system prompt.
         if "PERCEPTION subsystem" in system:
             return LLMResponse(text=_PERCEPTION_JSON, usage={}, raw={})
@@ -113,3 +122,54 @@ class FakeAdapter:
 
         return LLMResponse(text=self.fast_text if tier == "fast" else self.strong_text,
                            usage={}, raw={})
+
+    def generate(self, *, tier: Tier, system: str, messages: list[dict],
+                 max_tokens: int = 1024, temperature: float = 0.7,
+                 stop=None, retry_cfg: RetryConfig | None = None) -> LLMResponse:
+        self.calls.append({"tier": tier, "system": system, "messages": messages,
+                           "max_tokens": max_tokens, "temperature": temperature})
+        cfg = retry_cfg or self.retry_cfg
+        return _retry_call(
+            lambda: self._canned(tier=tier, system=system, messages=messages),
+            cfg,
+        )
+
+
+class FlakyFakeAdapter(FakeAdapter):
+    """Test helper: fail the first N LLM calls, then behave like FakeAdapter.
+
+    Used by ``tests/unit/test_retry.py`` and ``tests/unit/test_subsystem_fallback.py``
+    to exercise retry + fallback paths without touching the network.
+
+    Parameters
+    ----------
+    fail_first_n: int
+        Number of initial ``generate()`` calls that should raise. The
+        (N+1)-th and onward calls return the canned response.
+    exc_factory: Callable[[], BaseException]
+        Builds the exception to raise on each failure. Default constructs a
+        ``ConnectionError`` (retryable). Pass a non-retryable factory to
+        exercise the non-retry path.
+    retry_cfg: RetryConfig | None
+        Forwarded to the parent. Tests usually pass
+        ``RetryConfig(max_attempts=N)`` so this adapter participates in the
+        adapter-level retry loop.
+    """
+
+    def __init__(
+        self,
+        *,
+        fail_first_n: int = 0,
+        exc_factory: Callable[[], BaseException] | None = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(**kwargs)
+        self.fail_first_n = int(fail_first_n)
+        self._failures_emitted = 0
+        self.exc_factory = exc_factory or (lambda: ConnectionError("simulated network drop"))
+
+    def _canned(self, *, tier, system, messages):
+        if self._failures_emitted < self.fail_first_n:
+            self._failures_emitted += 1
+            raise self.exc_factory()
+        return super()._canned(tier=tier, system=system, messages=messages)
