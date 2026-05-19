@@ -11,12 +11,19 @@ Retry / fault-injection support:
     the real adapters in production; for unit tests, ``FlakyFakeAdapter``
     below (or any callable-based subclass) lets tests pre-program a
     sequence of failures so they can verify retry behavior.
+
+Empty-content retry (Fix 1):
+    When a test wires the FakeAdapter (or FlakyFakeAdapter) with
+    ``max_attempts>1`` (e.g. via ``retry_cfg=RetryConfig(max_attempts=3)``),
+    empty-content responses are retried like exceptions. With the default
+    no-retry config (``max_attempts=1``) the empty response passes through
+    unchanged so existing deterministic-empty-response tests still work.
 """
 
 from __future__ import annotations
 
 import re
-from typing import Callable
+from typing import Any, Callable
 
 from anima.llm.base import LLMResponse, Tier
 from anima.llm.retry import RetryConfig, _retry_call
@@ -125,13 +132,15 @@ class FakeAdapter:
 
     def generate(self, *, tier: Tier, system: str, messages: list[dict],
                  max_tokens: int = 1024, temperature: float = 0.7,
-                 stop=None, retry_cfg: RetryConfig | None = None) -> LLMResponse:
+                 stop=None, retry_cfg: RetryConfig | None = None,
+                 is_valid: Callable[[Any], bool] | None = None) -> LLMResponse:
         self.calls.append({"tier": tier, "system": system, "messages": messages,
                            "max_tokens": max_tokens, "temperature": temperature})
         cfg = retry_cfg or self.retry_cfg
         return _retry_call(
             lambda: self._canned(tier=tier, system=system, messages=messages),
             cfg,
+            is_valid=is_valid,
         )
 
 
@@ -172,4 +181,32 @@ class FlakyFakeAdapter(FakeAdapter):
         if self._failures_emitted < self.fail_first_n:
             self._failures_emitted += 1
             raise self.exc_factory()
+        return super()._canned(tier=tier, system=system, messages=messages)
+
+
+class EmptyTextFakeAdapter(FakeAdapter):
+    """Test helper: return empty text on the first N calls, then canned text.
+
+    Used by ``tests/unit/test_empty_retry.py`` to exercise the empty-content
+    retry path (Fix 1). The defaults are deliberate:
+      * ``empty_first_n``: how many initial calls return ``LLMResponse(text="")``
+      * After ``empty_first_n`` calls, falls through to ``FakeAdapter._canned``.
+    """
+
+    def __init__(
+        self,
+        *,
+        empty_first_n: int = 0,
+        empty_text: str = "",
+        **kwargs,
+    ) -> None:
+        super().__init__(**kwargs)
+        self.empty_first_n = int(empty_first_n)
+        self._empties_emitted = 0
+        self.empty_text = empty_text
+
+    def _canned(self, *, tier, system, messages):
+        if self._empties_emitted < self.empty_first_n:
+            self._empties_emitted += 1
+            return LLMResponse(text=self.empty_text, usage={}, raw={})
         return super()._canned(tier=tier, system=system, messages=messages)

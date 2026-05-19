@@ -70,8 +70,19 @@ def cmd_chat(args: argparse.Namespace) -> int:
     # pass through the long-form ctor.)
     from anima.config import load_config  # local import: cheap, avoids import-order coupling
     cfg = load_config(args.config)
-    anima = AnimaCls(cfg, llm=llm, store=store, autosave_every=3)
-    anima.set_session_id(session_id)
+    # Fix 2: branch on architecture version.
+    #   * head — full Phase-2 wiring (store, autosave, session id, theory of
+    #     mind, retrieval, etc.). The default.
+    #   * v1 — frozen Phase-1 Anima. Its constructor accepts only
+    #     ``cfg, llm=, ablate_monologue_length=``. No store, no session id,
+    #     no rollback. We construct it bare and disable persistence.
+    if args.version == "v1":
+        anima = AnimaCls(cfg, llm=llm)
+        persistence_enabled = False
+    else:
+        anima = AnimaCls(cfg, llm=llm, store=store, autosave_every=3)
+        anima.set_session_id(session_id)
+        persistence_enabled = True
 
     # E7: per-session transcript writer. Always on (the spec asks for the
     # transcript regardless of mode); --blind only changes what the operator
@@ -83,7 +94,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
         provider=args.provider,
         output_dir=Path(args.transcript_dir),
     )
-    transcript.write_header(anima)
+    transcript.write_header(anima, architecture=args.version)
 
     blind = bool(getattr(args, "blind", False))
     hidden_notice = (
@@ -108,17 +119,31 @@ def cmd_chat(args: argparse.Namespace) -> int:
         f"\n[dim]retry policy: {subsystem_retries} retries per subsystem + "
         f"4 retries for the response, then graceful fallback[/dim]"
     )
+    v1_banner = ""
+    if args.version == "v1":
+        v1_banner = (
+            "\n[dim]running architecture: v1 (Phase 1 frozen snapshot — "
+            "no cross-session memory, no theory-of-mind, no surprise)[/dim]"
+        )
+    # In v1 mode the store directory is created but never written to; show
+    # the path anyway so a confused user can see where it *would* live.
+    persistence_line = (
+        f"persistence root: {store.dir}"
+        if persistence_enabled
+        else f"persistence: [yellow]disabled (v1)[/yellow]; store dir would be {store.dir}"
+    )
     console.print(Panel.fit(
         f"[bold]Talking to {anima.cfg.biography.name}[/bold]\n"
         f"{anima.cfg.biography.one_line}\n\n"
         f"[dim]session id: [bold]{session_id}[/bold] "
         f"(resume: --session-id {session_id})\n"
-        f"persistence root: {store.dir}\n"
+        f"{persistence_line}\n"
         f"transcript: {transcript.md_path}\n"
         f"Type a message and press enter. Ctrl-D / 'quit' to exit. "
         f"'/trace' shows the most recent inner trace. '/state' prints internal state. "
         f"'/retry' re-sends the last message that failed.[/dim]"
         f"{retry_banner}"
+        f"{v1_banner}"
         f"{intro_extra}",
         title="anima"))
     turn_idx = 0
@@ -150,6 +175,17 @@ def cmd_chat(args: argparse.Namespace) -> int:
                 # mutations, and drops the partial trace + episodic event the
                 # turn may have produced. The transcript is intentionally
                 # untouched — retries appear as additional turns there.
+                # Fix 2: v1 has no rollback_last_turn — it doesn't snapshot
+                # per-turn state. Print a friendly note and let the user
+                # retype the message instead of crashing on the missing
+                # method.
+                if not hasattr(anima, "rollback_last_turn"):
+                    console.print(
+                        "[yellow](retry isn't available in --version v1 — the "
+                        "architecture doesn't snapshot per-turn state; "
+                        "just retype your message)[/yellow]"
+                    )
+                    continue
                 rolled = anima.rollback_last_turn()
                 if rolled:
                     console.print(
@@ -171,36 +207,41 @@ def cmd_chat(args: argparse.Namespace) -> int:
                     continue
                 t = anima.traces[-1]
                 console.print(Panel(t.monologue, title="inner monologue", border_style="magenta"))
-                console.print(Panel(t.appraisal["appraisal_scene_tag"], title="appraisal (scene-tag)", border_style="yellow"))
+                console.print(Panel(t.appraisal.get("appraisal_scene_tag", ""), title="appraisal (scene-tag)", border_style="yellow"))
                 # E6: surface the retrieval + theory-of-mind side of the trace,
                 # so the operator can SEE what the Anima recalled and predicted.
-                if t.retrieved:
+                # Fix 2: in v1 the trace has neither retrieved nor prediction
+                # nor surprise — skip those panels entirely so /trace is usable
+                # under --version v1.
+                retrieved = getattr(t, "retrieved", None)
+                if retrieved:
                     body = "\n".join(
                         f"- [{r['score']:.2f}] {r.get('reconstructed_framing') or r.get('retrieval_reason') or r['id']}"
-                        for r in t.retrieved
+                        for r in retrieved
                     )
                     console.print(Panel(
-                        f"{len(t.retrieved)} memories surfaced:\n{body}",
+                        f"{len(retrieved)} memories surfaced:\n{body}",
                         title="retrieved memories", border_style="cyan",
                     ))
-                else:
+                elif retrieved is not None:
                     console.print(Panel("(none surfaced this turn)",
                                         title="retrieved memories", border_style="dim"))
-                if t.prediction:
+                prediction = getattr(t, "prediction", None)
+                if prediction:
                     pred_body = (
-                        f"next-intent label: {t.prediction.get('next_intent_label', '?')}\n"
-                        f"content hint:      {t.prediction.get('content_hint', '?')}\n"
-                        f"confidence:        {t.prediction.get('confidence', 0.0):.2f}"
+                        f"next-intent label: {prediction.get('next_intent_label', '?')}\n"
+                        f"content hint:      {prediction.get('content_hint', '?')}\n"
+                        f"confidence:        {prediction.get('confidence', 0.0):.2f}"
                     )
                     console.print(Panel(pred_body, title="user prediction (this turn → next)",
                                         border_style="blue"))
-                if t.surprise_from_last_turn:
-                    s = t.surprise_from_last_turn
+                surprise = getattr(t, "surprise_from_last_turn", None)
+                if surprise:
                     console.print(Panel(
-                        f"surprise score: {s.get('surprise_score', 0.0):.2f}\n"
+                        f"surprise score: {surprise.get('surprise_score', 0.0):.2f}\n"
                         f"prior prediction was: "
-                        f"{s.get('predicted_intent', {}).get('next_intent_label', '?')} / "
-                        f"{s.get('predicted_intent', {}).get('content_hint', '?')}",
+                        f"{surprise.get('predicted_intent', {}).get('next_intent_label', '?')} / "
+                        f"{surprise.get('predicted_intent', {}).get('content_hint', '?')}",
                         title="surprise (from prior turn)", border_style="red",
                     ))
                 continue
@@ -264,8 +305,9 @@ def cmd_chat(args: argparse.Namespace) -> int:
                 console.print(Panel(trace.monologue, title="(inner)", border_style="magenta"))
             # If the turn used fallbacks, surface that to the operator so they
             # know the reply was assembled with degraded inputs.
-            if trace.subsystem_errors and not blind:
-                warned = ", ".join(e.get("subsystem", "?") for e in trace.subsystem_errors)
+            trace_errors = getattr(trace, "subsystem_errors", None) or []
+            if trace_errors and not blind:
+                warned = ", ".join(e.get("subsystem", "?") for e in trace_errors)
                 console.print(
                     f"[yellow]⚠️  generation errors this turn: {warned} — see transcript[/yellow]"
                 )
@@ -281,10 +323,13 @@ def cmd_chat(args: argparse.Namespace) -> int:
     finally:
         # Always flush state to disk at session end so partial transcripts
         # don't get lost between autosaves.
-        try:
-            anima.save()
-        except Exception as exc:  # pragma: no cover — defensive
-            console.print(f"[red]save failed:[/red] {exc!r}")
+        # Fix 2: v1 has no save() — guard the call so we don't crash on
+        # session exit when running --version v1.
+        if persistence_enabled and hasattr(anima, "save"):
+            try:
+                anima.save()
+            except Exception as exc:  # pragma: no cover — defensive
+                console.print(f"[red]save failed:[/red] {exc!r}")
         try:
             transcript.finalize(anima)
         except Exception as exc:  # pragma: no cover — defensive

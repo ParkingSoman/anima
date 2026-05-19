@@ -330,12 +330,36 @@ def test_silence_user_prediction_trivial_output(monkeypatch):
 
 
 def test_silence_response_generator_empty_reply():
-    """A successful but empty response is silence (loudly flagged)."""
+    """Fix 1 changed the contract for the response_generator's empty reply.
+
+    Before Fix 1: an empty reply from a successful API call would pass
+    through and surface as a ``silence`` (no retry).
+
+    After Fix 1: the retry layer treats empty/whitespace-only text as a
+    retryable failure. The response_generator uses
+    ``RetryConfig(max_attempts=5)``, so 5 consecutive empties exhaust
+    the budget and the call raises ``EmptyResponseAfterRetries`` —
+    which Anima.respond escalates to ``ResponseGenerationFailed``. The
+    transcript captures the failure via the ``subsystem_errors`` block
+    with ``error_type='EmptyResponseAfterRetries'`` (see Fix 1).
+
+    To exercise the original "empty reply leaks through as silence" path
+    explicitly, a caller would have to wire ``retry_on_empty=False`` on
+    the response_generator's per-call retry config — which we do NOT
+    do, because the whole point of Fix 1 is that empty responses from
+    DeepSeek were leaking biography content through the response
+    generator. The new behavior raises loudly instead.
+    """
     adapter = FakeAdapter(strong_text="")
     anima = Anima(load_config(PRESET), llm=adapter)
-    _, trace = anima.respond("hi")
-    sub_names = [s["subsystem"] for s in trace.silences]
-    assert "response_generator" in sub_names
+    with pytest.raises(ResponseGenerationFailed) as exc_info:
+        anima.respond("hi")
+    # The wrapped exception is EmptyResponseAfterRetries; the partial trace
+    # appended before the raise records the error with the right type.
+    assert type(exc_info.value.last_error).__name__ == "EmptyResponseAfterRetries"
+    partial = anima.traces[-1]
+    err_types = [e["error_type"] for e in partial.subsystem_errors]
+    assert "EmptyResponseAfterRetries" in err_types
 
 
 def test_silence_not_flagged_when_subsystem_errored(monkeypatch):

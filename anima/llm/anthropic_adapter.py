@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Literal
+from typing import Any, Callable, Literal
 
 from anthropic import Anthropic
 
@@ -68,6 +68,7 @@ class AnthropicAdapter:
         temperature: float = 0.7,
         stop: list[str] | None = None,
         retry_cfg: RetryConfig | None = None,
+        is_valid: Callable[[Any], bool] | None = None,
     ) -> LLMResponse:
         cfg = retry_cfg or self.retry_cfg
         return _retry_call(
@@ -76,4 +77,5 @@ class AnthropicAdapter:
                 max_tokens=max_tokens, temperature=temperature, stop=stop,
             ),
             cfg,
+            is_valid=is_valid,
         )

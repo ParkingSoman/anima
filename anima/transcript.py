@@ -75,6 +75,13 @@ def _format_subsystem_errors_md(errors: list[dict]) -> str:
     subsystem name, not a four-step collapse), the exception type, the full
     error message (no truncation beyond the upstream 500-char cap), and the
     number of attempts the adapter made before giving up.
+
+    Fix 1: when ``error_type == 'EmptyResponseAfterRetries'``, swap the
+    leading sentence to "returned empty response on all N attempts" so a
+    transcript reader can immediately distinguish "the LLM produced
+    nothing despite retries" from "the call raised an exception". Format
+    chosen to mirror the spec exactly so transcripts are grep-able for
+    the EmptyResponseAfterRetries signature.
     """
     if not errors:
         return ""
@@ -84,7 +91,12 @@ def _format_subsystem_errors_md(errors: list[dict]) -> str:
         et = e.get("error_type", "?")
         attempts = e.get("attempts", 0)
         msg = (e.get("message") or "").strip() or "(no message provided)"
-        lines.append(f"- **{sub}** failed after {attempts} attempts → fallback used")
+        if et == "EmptyResponseAfterRetries":
+            lines.append(
+                f"- **{sub}** returned empty response on all {attempts} attempts → fallback used"
+            )
+        else:
+            lines.append(f"- **{sub}** failed after {attempts} attempts → fallback used")
         lines.append(f"    - error type: `{et}`")
         lines.append(f"    - error message: {msg}")
         lines.append(f"    - attempts: {attempts}")
@@ -145,7 +157,7 @@ class TranscriptWriter:
 
     # ---------- header
 
-    def write_header(self, anima: "Anima") -> None:
+    def write_header(self, anima: "Anima", *, architecture: str = "head") -> None:
         bio = anima.cfg.biography
         start_ts = _iso_now()
         # The Anima exposes model identity only via the LLM adapter; we keep
@@ -186,6 +198,7 @@ class TranscriptWriter:
             "biography_one_line": bio.one_line,
             "started_at": start_ts,
             "retry_policy": retry_policy,
+            "architecture": architecture,
         }
         self._json["meta"] = meta
 
@@ -198,6 +211,7 @@ class TranscriptWriter:
             f"model: {model}",
             f"started_at: {start_ts}",
             f"retry_policy: {retry_policy['policy_summary']}",
+            f"architecture: {architecture}",
             "---",
             "",
             f"# Transcript — {bio.name} ({self.session_id})",
@@ -225,11 +239,21 @@ class TranscriptWriter:
         if self._initial_drives is None:
             self._initial_drives = dict(trace.drives_before)
 
-        scene_tag = trace.appraisal.get("appraisal_scene_tag", "")
-        primary_emotion = trace.appraisal.get("primary_emotion", "")
+        # Fix 2 (v1 compatibility): every TurnTrace field below uses
+        # ``getattr(trace, ..., default)`` so the writer accepts both
+        # head's larger TurnTrace and v1's smaller one. Sections that
+        # depend on absent v1 fields (retrieved memories, prediction,
+        # surprise) are conditionally OMITTED from the markdown — not
+        # rendered as "(none surfaced)" placeholders — to keep v1
+        # transcripts free of cognitive-architecture noise that
+        # isn't real on that architecture.
+        appraisal = getattr(trace, "appraisal", {}) or {}
+        scene_tag = appraisal.get("appraisal_scene_tag", "")
+        primary_emotion = appraisal.get("primary_emotion", "")
 
+        retrieved = getattr(trace, "retrieved", None)
         retrieved_lines: list[str] = []
-        for r in trace.retrieved:
+        for r in (retrieved or []):
             score = r.get("score", 0.0)
             label = (
                 r.get("reconstructed_framing")
@@ -237,17 +261,25 @@ class TranscriptWriter:
                 or r.get("id", "?")
             )
             retrieved_lines.append(f"- [{score:.2f}] {label}")
+        # ``retrieved is None`` means the trace doesn't carry the field at all
+        # (v1). ``retrieved == []`` means head ran and surfaced zero memories.
+        # We distinguish the two: omit the heading entirely on v1, but show
+        # "(none surfaced)" on head when retrieval ran and returned nothing.
+        has_retrieved_section = retrieved is not None
         retrieved_block = "\n".join(retrieved_lines) if retrieved_lines else "_(none surfaced)_"
 
-        pred = trace.prediction or {}
-        pred_block = (
-            f"- next_intent_label: `{pred.get('next_intent_label', '?')}`\n"
-            f"- content_hint: {pred.get('content_hint', '?')}\n"
-            f"- confidence: {float(pred.get('confidence', 0.0)):.2f}"
-        )
+        prediction = getattr(trace, "prediction", None)
+        has_prediction_section = bool(prediction)
+        pred_block = ""
+        if prediction:
+            pred_block = (
+                f"- next_intent_label: `{prediction.get('next_intent_label', '?')}`\n"
+                f"- content_hint: {prediction.get('content_hint', '?')}\n"
+                f"- confidence: {float(prediction.get('confidence', 0.0)):.2f}"
+            )
 
         surprise_block = ""
-        s = trace.surprise_from_last_turn or {}
+        s = getattr(trace, "surprise_from_last_turn", None) or {}
         if s:
             prior = s.get("predicted_intent") or {}
             surprise_block = (
@@ -258,14 +290,20 @@ class TranscriptWriter:
                 f"{prior.get('content_hint', '?')}\n"
             )
 
-        mood_tbl = _delta_table(trace.mood_before, trace.mood_after)
-        drives_tbl = _delta_table(trace.drives_before, trace.drives_after)
+        mood_before = getattr(trace, "mood_before", {}) or {}
+        mood_after = getattr(trace, "mood_after", {}) or {}
+        drives_before = getattr(trace, "drives_before", {}) or {}
+        drives_after = getattr(trace, "drives_after", {}) or {}
+        mood_tbl = _delta_table(mood_before, mood_after)
+        drives_tbl = _delta_table(drives_before, drives_after)
 
         # E8 / F1: surface generation errors AND model-silence flags inline
         # (above the inner trace) so the casual reader can see at a glance
         # whether the turn was clean, glitched, or chosen-silent.
-        warning_block = _format_subsystem_errors_md(trace.subsystem_errors)
-        silence_block = _format_silences_md(getattr(trace, "silences", []) or [])
+        subsystem_errors = list(getattr(trace, "subsystem_errors", None) or [])
+        silences = list(getattr(trace, "silences", None) or [])
+        warning_block = _format_subsystem_errors_md(subsystem_errors)
+        silence_block = _format_silences_md(silences)
 
         # F2: retry-labeled turn header — when this turn is a /retry of an
         # earlier turn, the markdown header says so. The JSON entry carries
@@ -288,26 +326,36 @@ class TranscriptWriter:
             md_lines.append(warning_block)
         if silence_block:
             md_lines.append(silence_block)
+        monologue = getattr(trace, "monologue", "") or ""
         md_lines += [
             "<details><summary>inner trace</summary>",
             "",
             "**Inner monologue:**",
             "",
             "```",
-            trace.monologue,
+            monologue,
             "```",
             "",
             f"**Appraisal:** scene-tag = `{scene_tag}` · primary emotion = `{primary_emotion}`",
             "",
-            "**Retrieved memories:**",
-            "",
-            retrieved_block,
-            "",
-            "**User prediction (this turn → next):**",
-            "",
-            pred_block,
-            "",
-            surprise_block,
+        ]
+        if has_retrieved_section:
+            md_lines += [
+                "**Retrieved memories:**",
+                "",
+                retrieved_block,
+                "",
+            ]
+        if has_prediction_section:
+            md_lines += [
+                "**User prediction (this turn → next):**",
+                "",
+                pred_block,
+                "",
+            ]
+        if surprise_block:
+            md_lines.append(surprise_block)
+        md_lines += [
             "**Mood Δ:**",
             "",
             mood_tbl,
@@ -322,7 +370,25 @@ class TranscriptWriter:
         with self.md_path.open("a", encoding="utf-8") as fh:
             fh.write("\n".join(md_lines) + "\n")
 
-        turn_entry = trace.to_jsonable()
+        # Build a JSON turn entry that's resilient to traces without
+        # to_jsonable (v1's TurnTrace doesn't define one). When available,
+        # use it; otherwise serialize the known fields by hand.
+        to_jsonable = getattr(trace, "to_jsonable", None)
+        if callable(to_jsonable):
+            turn_entry = to_jsonable()
+        else:
+            turn_entry = {
+                "user_msg": getattr(trace, "user_msg", user_msg),
+                "perception": dict(getattr(trace, "perception", {}) or {}),
+                "appraisal": dict(appraisal),
+                "monologue": monologue,
+                "mood_before": dict(mood_before),
+                "mood_after": dict(mood_after),
+                "drives_before": dict(drives_before),
+                "drives_after": dict(drives_after),
+                "response": getattr(trace, "response", anima_reply),
+                "usage": dict(getattr(trace, "usage", {}) or {}),
+            }
         # The JSON view adds top-level conveniences to the per-turn record so
         # consumers don't have to dig into the trace:
         #   * ``status``    — "ok" or "failed"
@@ -330,14 +396,14 @@ class TranscriptWriter:
         #   * ``silences``  — model-silence flags (see F1)
         #   * ``retry_of``  — when this turn is a /retry, the prior turn's idx
         turn_entry["status"] = "ok"
-        turn_entry["errors"] = list(trace.subsystem_errors)
-        turn_entry["silences"] = list(getattr(trace, "silences", []) or [])
-        turn_entry["retry_of"] = getattr(trace, "retry_of", None)
+        turn_entry["errors"] = list(subsystem_errors)
+        turn_entry["silences"] = list(silences)
+        turn_entry["retry_of"] = retry_of
         self._json["turns"].append(turn_entry)
         self._json["state_trajectory"].append({
             "turn": turn_idx,
-            "mood_after": dict(trace.mood_after),
-            "drives_after": dict(trace.drives_after),
+            "mood_after": dict(mood_after),
+            "drives_after": dict(drives_after),
         })
         self._flush_json()
 

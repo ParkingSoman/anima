@@ -15,7 +15,7 @@ from typing import Any, Callable, TypeVar
 from anima.config import AnimaConfig, load_config
 from anima.llm.base import LLMAdapter
 from anima.llm import make_adapter
-from anima.llm.retry import RetryConfig
+from anima.llm.retry import RetryConfig, EmptyResponseAfterRetries
 from anima.persistence.store import AnimaStore, AnimaStoreSnapshot
 from anima.state.drives import DriveState
 from anima.state.episodic import AffectTag, EpisodicEvent, EpisodicStore
@@ -273,9 +273,28 @@ class Anima:
             attempts). By the time an exception reaches this helper, the
             adapter has already given up. We then build a SubsystemError
             record and return the fallback so the turn loop continues.
+
+            Fix 1: when the adapter exhausts all attempts producing only
+            empty/whitespace-only text, it raises
+            :class:`EmptyResponseAfterRetries`. We surface that under the
+            same SubsystemError shape so the operator can distinguish
+            "model glitched and produced nothing" from "transport failed".
+            The transcript renderer reads ``error_type ==
+            'EmptyResponseAfterRetries'`` and uses a clearer wording.
             """
             try:
                 return fn()
+            except EmptyResponseAfterRetries as exc:
+                # The exception carries its own attempts count; trust it
+                # rather than re-deriving from the adapter's default config
+                # (a per-call override may have used a different budget).
+                errors.append(SubsystemError(
+                    subsystem=subsystem,
+                    error_type=type(exc).__name__,
+                    message=str(exc)[:500],
+                    attempts=int(getattr(exc, "attempts", 0) or 0),
+                ))
+                return fallback
             except Exception as exc:  # noqa: BLE001 — last-line defense per spec
                 # The adapter's retry policy ran inside fn(); attempts reflects
                 # the adapter default (or whatever override the subsystem used).
@@ -438,11 +457,15 @@ class Anima:
             )
         except Exception as exc:  # noqa: BLE001 — escalated below
             response_exc = exc
+            # Fix 1: when the adapter exhausts attempts with all-empty
+            # results, the exception carries its own ``attempts`` count.
+            # Otherwise we fall back to the override budget (5) we set above.
+            attempts_n = int(getattr(exc, "attempts", 0) or response_retry_cfg.max_attempts)
             errors.append(SubsystemError(
                 subsystem="response_generator",
                 error_type=type(exc).__name__,
                 message=str(exc)[:500],
-                attempts=response_retry_cfg.max_attempts,
+                attempts=attempts_n,
             ))
 
         if response_exc is not None:
