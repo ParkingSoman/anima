@@ -254,7 +254,7 @@ class MemoryRetrieval:
                  f"Candidate memories the ranker just selected:\n\n{candidates_block}\n\n"
                  f"For each, return retrieval_reason and reconstructed_framing. JSON only."}]
         resp = self.llm.generate(tier="fast", system=system, messages=msgs,
-                                 max_tokens=600, temperature=0.6)
+                                 max_tokens=4000, temperature=0.6)
         parsed = extract_json(resp.text) or {}
         items_by_id: dict[str, dict] = {}
         for item in (parsed.get("items") or []):

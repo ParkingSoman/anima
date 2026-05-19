@@ -57,7 +57,7 @@ class PerceptionSubsystem:
             + "\n--- end relational ---"
         )
         msgs = [{"role": "user", "content": f"Partner just said:\n\n{user_msg}"}]
-        resp = self.llm.generate(tier="fast", system=system, messages=msgs, max_tokens=400, temperature=0.4)
+        resp = self.llm.generate(tier="fast", system=system, messages=msgs, max_tokens=4000, temperature=0.4)
         data = extract_json(resp.text) or {}
         return Perception(
             literal_content=str(data.get("literal_content", user_msg))[:1000],

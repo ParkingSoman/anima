@@ -32,6 +32,15 @@ class SubsystemError:
     message: str
     attempts: int
     timestamp: str = field(default_factory=_iso_now)
+    # Investigation: the full provider message dict from the LAST failed
+    # attempt. Only populated when the underlying exception was
+    # :class:`anima.llm.retry.EmptyResponseAfterRetries` AND the adapter
+    # captured a raw_message — i.e. .content arrived empty but the
+    # provider may have produced reasoning_content / tool_calls / etc.
+    # Stays None for ordinary exception failures (TimeoutError,
+    # ConnectionError, programmer-error AttributeError, etc.) because
+    # those don't have a successful response to inspect.
+    raw_message: dict | None = None
 
     def to_jsonable(self) -> dict[str, Any]:
         return {
@@ -40,6 +49,7 @@ class SubsystemError:
             "message": self.message,
             "attempts": self.attempts,
             "timestamp": self.timestamp,
+            "raw_message": self.raw_message,
         }
 
 

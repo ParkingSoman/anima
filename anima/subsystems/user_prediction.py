@@ -152,7 +152,7 @@ class UserPredictionSubsystem:
         msgs = [{"role": "user",
                  "content": "Predict the partner's next move. Return only the JSON."}]
         resp = self.llm.generate(tier="fast", system=system, messages=msgs,
-                                 max_tokens=300, temperature=0.6)
+                                 max_tokens=4000, temperature=0.6)
         data = extract_json(resp.text)
         if not data:
             # Fallback: do not crash the turn loop.

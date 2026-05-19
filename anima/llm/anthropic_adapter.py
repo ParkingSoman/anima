@@ -50,6 +50,30 @@ class AnthropicAdapter:
             stop_sequences=stop or [],
         )
         text = "".join(b.text for b in resp.content if getattr(b, "type", None) == "text")
+        # Investigation parity with the OpenAI-shaped adapters: capture
+        # the full message dict so an operator can see every content
+        # block (text, tool_use, thinking, etc.) when .text arrives empty.
+        # Anthropic's response shape is different — content is a list of
+        # blocks — so we serialize each block individually.
+        content_blocks: list[dict] = []
+        for b in resp.content:
+            try:
+                content_blocks.append(b.model_dump())
+            except Exception:  # noqa: BLE001
+                try:
+                    content_blocks.append(dict(b))
+                except Exception:  # noqa: BLE001
+                    content_blocks.append({
+                        "type": getattr(b, "type", None),
+                        "text": getattr(b, "text", None),
+                        "repr": repr(b)[:500],
+                    })
+        msg_dict: dict | None = {
+            "role": getattr(resp, "role", "assistant"),
+            "content_blocks": content_blocks,
+            "stop_reason": getattr(resp, "stop_reason", None),
+            "stop_sequence": getattr(resp, "stop_sequence", None),
+        }
         usage = {
             "input_tokens": resp.usage.input_tokens,
             "output_tokens": resp.usage.output_tokens,
@@ -65,7 +89,8 @@ class AnthropicAdapter:
         stop_reason = getattr(resp, "stop_reason", None)
         return LLMResponse(text=text, usage=usage,
                            raw={"id": resp.id, "stop_reason": stop_reason},
-                           finish_reason=stop_reason)
+                           finish_reason=stop_reason,
+                           raw_message=msg_dict)
 
     def generate(
         self,

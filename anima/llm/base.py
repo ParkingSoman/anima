@@ -24,6 +24,16 @@ class LLMResponse:
     # "unknown → assume genuine" so legacy code paths don't suddenly
     # start retrying.
     finish_reason: str | None = None
+    # Fix (investigation): the full provider message object as a dict.
+    # OpenAI/OpenRouter chat-completions ``choices[0].message`` may carry
+    # extra fields beyond ``.content`` — notably DeepSeek's
+    # ``reasoning_content`` (chain-of-thought text), ``tool_calls``,
+    # ``function_call``, ``refusal``, ``annotations`` etc. When
+    # ``.content`` arrives empty with ``finish_reason='length'`` we need
+    # to inspect what the model actually produced. Adapters populate
+    # this with ``message.model_dump()`` (pydantic v2) or an equivalent.
+    # None means the adapter didn't capture it (e.g. FakeAdapter).
+    raw_message: dict | None = None
 
 
 class LLMAdapter(Protocol):

@@ -46,7 +46,27 @@ class OpenAIAdapter:
             temperature=temperature,
             stop=stop,
         )
-        text = resp.choices[0].message.content or ""
+        # See OpenRouterAdapter._raw_call for the rationale: capture the
+        # full message dict (reasoning_content / tool_calls / etc.)
+        # before extracting .content, defensively.
+        msg_obj = resp.choices[0].message
+        msg_dict: dict | None
+        try:
+            msg_dict = msg_obj.model_dump()
+        except Exception:  # noqa: BLE001
+            try:
+                msg_dict = dict(msg_obj)
+            except Exception:  # noqa: BLE001
+                try:
+                    msg_dict = {
+                        k: getattr(msg_obj, k, None)
+                        for k in ("role", "content", "reasoning_content",
+                                  "tool_calls", "function_call",
+                                  "refusal", "annotations")
+                    }
+                except Exception:  # noqa: BLE001
+                    msg_dict = None
+        text = (msg_dict.get("content") if isinstance(msg_dict, dict) else None) or ""
         # See OpenRouterAdapter for why we propagate finish_reason; the
         # OpenAI Chat Completions SDK exposes the same field shape.
         finish_reason = getattr(resp.choices[0], "finish_reason", None)
@@ -57,7 +77,8 @@ class OpenAIAdapter:
             "cache_create_tokens": 0,
         }
         return LLMResponse(text=text, usage=usage, raw={"id": resp.id},
-                           finish_reason=finish_reason)
+                           finish_reason=finish_reason,
+                           raw_message=msg_dict)
 
     def generate(
         self,

@@ -87,7 +87,29 @@ class OpenRouterAdapter:
             temperature=temperature,
             stop=stop,
         )
-        text = resp.choices[0].message.content or ""
+        # Investigation: capture the full message dict BEFORE extracting
+        # .content. DeepSeek's chat-completions response often carries
+        # ``reasoning_content`` (separate from ``content``) — if we only
+        # read .content we miss the model's actual thinking. Capture via
+        # pydantic v2 ``model_dump`` with defensive fallbacks; never crash.
+        msg_obj = resp.choices[0].message
+        msg_dict: dict | None
+        try:
+            msg_dict = msg_obj.model_dump()
+        except Exception:  # noqa: BLE001 — best-effort capture
+            try:
+                msg_dict = dict(msg_obj)
+            except Exception:  # noqa: BLE001
+                try:
+                    msg_dict = {
+                        k: getattr(msg_obj, k, None)
+                        for k in ("role", "content", "reasoning_content",
+                                  "tool_calls", "function_call",
+                                  "refusal", "annotations")
+                    }
+                except Exception:  # noqa: BLE001
+                    msg_dict = None
+        text = (msg_dict.get("content") if isinstance(msg_dict, dict) else None) or ""
         # finish_reason is how OpenAI/OpenRouter signal *why* the call ended.
         # "stop" / "stop_sequence" = the model emitted an end-of-turn (legit
         # silence if text is also empty). "length" = max_tokens cap hit
@@ -105,7 +127,8 @@ class OpenRouterAdapter:
             "cache_create_tokens": 0,
         }
         return LLMResponse(text=text, usage=usage, raw={"id": resp.id},
-                           finish_reason=finish_reason)
+                           finish_reason=finish_reason,
+                           raw_message=msg_dict)
 
     def generate(
         self,

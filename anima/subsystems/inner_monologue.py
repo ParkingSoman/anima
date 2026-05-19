@@ -160,13 +160,18 @@ class InnerMonologueSubsystem:
         if ablate:
             min_s, max_s = 2, 6
             directive = self._UNIFORM_DIRECTIVE
-            # Param-independent token budget for the uniform fallback:
-            # 6 sentences * 90 tokens/sentence = 540.
-            max_tokens = 540
+            # Param-independent token budget for the uniform fallback.
+            # Bumped from 540 → 4000 as a safety cap; the prompt-side
+            # directive still asks for ~6 sentences.
+            max_tokens = 4000
         else:
             min_s, max_s, directive = _length_directive(cfg)
-            # Sentence budget scales the token budget for this call
-            max_tokens = max(60, min(360, 90 * max_s))
+            # Sentence budget scales the token budget for this call.
+            # Ceiling raised from 360 → 4000 so DeepSeek-flash's
+            # reasoning_content path has room to breathe before .content
+            # is emitted. Floor (60) and persona-scaled prompt-side
+            # directive are unchanged.
+            max_tokens = max(60, min(4000, 90 * max_s))
         instr = _INSTR_TMPL.format(length_directive=directive)
 
         system = (

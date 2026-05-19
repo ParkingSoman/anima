@@ -293,6 +293,11 @@ class Anima:
                     error_type=type(exc).__name__,
                     message=str(exc)[:500],
                     attempts=int(getattr(exc, "attempts", 0) or 0),
+                    # Investigation: propagate the raw_message from the
+                    # last empty attempt so the transcript can show what
+                    # the model actually produced (reasoning_content,
+                    # tool_calls, etc.) when .content arrived empty.
+                    raw_message=getattr(exc, "last_raw_message", None),
                 ))
                 return fallback
             except Exception as exc:  # noqa: BLE001 — last-line defense per spec
@@ -466,6 +471,10 @@ class Anima:
                 error_type=type(exc).__name__,
                 message=str(exc)[:500],
                 attempts=attempts_n,
+                # Investigation: same as in _safe — surface the raw
+                # provider message dict if the failure was an
+                # EmptyResponseAfterRetries that carried one.
+                raw_message=getattr(exc, "last_raw_message", None),
             ))
 
         if response_exc is not None:

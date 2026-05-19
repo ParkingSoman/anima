@@ -67,6 +67,107 @@ def _delta_table(before: dict[str, Any], after: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _format_raw_message_md(raw: dict | None) -> list[str]:
+    """Render a raw model-output block under an EmptyResponseAfterRetries entry.
+
+    Investigation aid: when DeepSeek-flash (or any provider) returns
+    .content="" + finish_reason="length", we want to see what the model
+    ACTUALLY produced — the answer is almost always "reasoning_content
+    overflowed and content stayed empty", but it could also be
+    tool_calls, refusal text, or genuinely empty all the way down.
+
+    The full untruncated raw_message dict is preserved in the JSON
+    transcript; here we render a compact, operator-readable summary
+    with reasoning_content truncated to ~400 chars.
+    """
+    if not isinstance(raw, dict):
+        return ["    - **raw model output (last attempt):** _(not captured)_"]
+
+    lines: list[str] = ["    - **raw model output (last attempt):**"]
+
+    # Anthropic-shape: content_blocks list rather than scalar content.
+    if "content_blocks" in raw:
+        blocks = raw.get("content_blocks") or []
+        if not blocks:
+            lines.append("        - content_blocks: `(none)`")
+        else:
+            for i, b in enumerate(blocks):
+                btype = b.get("type") if isinstance(b, dict) else None
+                btext = b.get("text") if isinstance(b, dict) else None
+                btext_s = (btext or "").strip()
+                if btext_s and len(btext_s) > 400:
+                    btext_s = btext_s[:400] + "... [truncated, full content in JSON parallel]"
+                lines.append(
+                    f"        - block[{i}] type=`{btype}` text=`{btext_s or '(empty)'}`"
+                )
+        sr = raw.get("stop_reason")
+        lines.append(f"        - role: `{raw.get('role', '?')}`")
+        if sr is not None:
+            lines.append(f"        - stop_reason: `{sr}`")
+        return lines
+
+    # OpenAI/OpenRouter-shape. NOTE: OpenRouter returns DeepSeek's
+    # reasoning under the ``reasoning`` field (not ``reasoning_content``
+    # — that was an early-spec name). We check BOTH so this code works
+    # against any OpenAI-compat provider that exposes either spelling.
+    rc = raw.get("reasoning_content") or raw.get("reasoning")
+    rc_field_name = "reasoning_content" if raw.get("reasoning_content") else "reasoning"
+    if isinstance(rc, str) and rc.strip():
+        n = len(rc)
+        rc_show = rc.strip()
+        if len(rc_show) > 400:
+            rc_show = rc_show[:400] + "... [truncated, full content in JSON parallel]"
+        # Escape backticks in the rendered content so the inline code
+        # span doesn't get broken; replace with a similar glyph.
+        rc_show = rc_show.replace("`", "ʼ")
+        lines.append(f"        - {rc_field_name} ({n} chars): `{rc_show}`")
+    else:
+        lines.append("        - reasoning: `(none)`")
+
+    content = raw.get("content")
+    if isinstance(content, str) and content.strip():
+        c_show = content.strip()
+        if len(c_show) > 400:
+            c_show = c_show[:400] + "... [truncated, full content in JSON parallel]"
+        c_show = c_show.replace("`", "ʼ")
+        lines.append(f"        - content: `{c_show}`")
+    else:
+        lines.append("        - content: `(empty)`")
+
+    tc = raw.get("tool_calls")
+    if tc:
+        lines.append(f"        - tool_calls: `{tc}`")
+    else:
+        lines.append("        - tool_calls: `None`")
+
+    fc = raw.get("function_call")
+    if fc:
+        lines.append(f"        - function_call: `{fc}`")
+
+    refusal = raw.get("refusal")
+    if refusal:
+        lines.append(f"        - refusal: `{refusal}`")
+
+    annotations = raw.get("annotations")
+    if annotations:
+        lines.append(f"        - annotations: `{annotations}`")
+
+    lines.append(f"        - role: `{raw.get('role', '?')}`")
+
+    # If everything substantive was empty, say so explicitly. ``rc``
+    # collapses both spellings (reasoning_content / reasoning) so the
+    # check is single-line.
+    has_any = bool(
+        (isinstance(rc, str) and rc.strip())
+        or (isinstance(content, str) and content.strip())
+        or tc or fc or refusal
+    )
+    if not has_any:
+        lines.append("        - (model produced nothing in any inspected field)")
+
+    return lines
+
+
 def _format_subsystem_errors_md(errors: list[dict]) -> str:
     """Render a per-turn generation-errors block.
 
@@ -82,6 +183,11 @@ def _format_subsystem_errors_md(errors: list[dict]) -> str:
     nothing despite retries" from "the call raised an exception". Format
     chosen to mirror the spec exactly so transcripts are grep-able for
     the EmptyResponseAfterRetries signature.
+
+    Investigation: for EmptyResponseAfterRetries entries that carry a
+    ``raw_message`` dict, render a compact summary of what the model
+    actually produced (reasoning_content / tool_calls / etc.). Full
+    untruncated raw_message is in the JSON sidecar.
     """
     if not errors:
         return ""
@@ -100,6 +206,8 @@ def _format_subsystem_errors_md(errors: list[dict]) -> str:
         lines.append(f"    - error type: `{et}`")
         lines.append(f"    - error message: {msg}")
         lines.append(f"    - attempts: {attempts}")
+        if et == "EmptyResponseAfterRetries":
+            lines.extend(_format_raw_message_md(e.get("raw_message")))
     lines.append("")
     return "\n".join(lines)
 

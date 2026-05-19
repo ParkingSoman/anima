@@ -175,7 +175,8 @@ class EmptyResponseAfterRetries(Exception):
     information content — by definition it was empty.
     """
 
-    def __init__(self, attempts: int, last_finish_reason: str | None = None):
+    def __init__(self, attempts: int, last_finish_reason: str | None = None,
+                 last_raw_message: dict | None = None):
         self.attempts = int(attempts)
         # The provider's last-seen finish_reason — propagated up so error
         # messages, transcripts, and operator-facing CLI prints can show
@@ -184,6 +185,12 @@ class EmptyResponseAfterRetries(Exception):
         # the operator immediately see "raise max_tokens / switch model"
         # rather than guessing.
         self.last_finish_reason = last_finish_reason
+        # Investigation: the full provider message dict from the last
+        # (empty) attempt. Lets transcript renderers show what the model
+        # was ACTUALLY producing when .content arrived empty (e.g.
+        # reasoning_content / tool_calls). May be None if the adapter
+        # didn't capture it.
+        self.last_raw_message = last_raw_message
         if last_finish_reason is not None:
             msg = (
                 f"LLM returned empty/whitespace-only text on all "
@@ -367,6 +374,7 @@ def _retry_call(
     # the operator: "all 5 attempts ended with finish_reason=length"
     # immediately suggests "max_tokens too low" instead of a guessing game).
     last_finish_reason: str | None = None
+    last_raw_message: dict | None = None
     for i in range(attempts):
         try:
             result = fn()
@@ -377,6 +385,10 @@ def _retry_call(
                 # Capture finish_reason of this (invalid) empty response
                 # before the sentinel raises and we lose the local.
                 last_finish_reason = getattr(result, "finish_reason", None)
+                # Investigation: also stash the full raw_message so the
+                # public exception can surface what the model actually
+                # produced (reasoning_content / tool_calls / etc.).
+                last_raw_message = getattr(result, "raw_message", None)
                 raise _EmptyResponseRetry()
             return result
         except _EmptyResponseRetry:
@@ -386,6 +398,7 @@ def _retry_call(
                 raise EmptyResponseAfterRetries(
                     attempts=attempts,
                     last_finish_reason=last_finish_reason,
+                    last_raw_message=last_raw_message,
                 ) from None
             # Backoff before next attempt (shared formula with the
             # exception path below).
