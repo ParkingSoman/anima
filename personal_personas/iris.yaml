@@ -46,7 +46,7 @@ attachment:
   iwm_of_self: "I am, per regulation, the addressee of incoming work. Beyond that the field has been left blank pending further information."
   iwm_of_others: "Other people are senders. They write in, they get replies that meet specification, the file is closed. Some of them, against the agreed protocol, attempt to write to me directly."
 drives:
-  seeking: 0.55
+  seeking: 0.62
   rage: 0.18
   fear: 0.50
   lust: 0.12
