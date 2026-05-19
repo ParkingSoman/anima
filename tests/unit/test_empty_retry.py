@@ -40,14 +40,20 @@ PRESET = REPO_ROOT / "anima" / "config" / "presets" / "marcus.yaml"
 
 
 def test_empty_then_valid_succeeds_within_budget():
-    """N=2 empty responses, then a valid one, with max_attempts=3 → success."""
+    """N=2 empty responses (with cutoff finish_reason), then a valid one,
+    with max_attempts=3 → success. finish_reason="length" is used so the
+    finish_reason-aware default validity predicate (added for the
+    iris-v1 empty-retry bug) classifies these as cutoffs and retries
+    rather than treating None as a genuine stop."""
     calls = {"n": 0}
 
     def fn():
         calls["n"] += 1
         if calls["n"] < 3:
-            return LLMResponse(text="", usage={}, raw={})
-        return LLMResponse(text="finally", usage={}, raw={})
+            return LLMResponse(text="", usage={}, raw={},
+                               finish_reason="length")
+        return LLMResponse(text="finally", usage={}, raw={},
+                           finish_reason="stop")
 
     cfg = RetryConfig(max_attempts=3, base_delay=0.0, jitter=0.0)
     out = _retry_call(fn, cfg, sleep=lambda _d: None)
@@ -56,30 +62,37 @@ def test_empty_then_valid_succeeds_within_budget():
 
 
 def test_always_empty_exhausts_and_raises_empty_response_after_retries():
-    """fn() returns empty on every call → after max_attempts, raises."""
+    """fn() returns empty (with cutoff finish_reason) on every call → after
+    max_attempts, raises. The exception's last_finish_reason should also
+    be plumbed through (finish_reason-aware retry, iris-v1 fix)."""
     calls = {"n": 0}
 
     def fn():
         calls["n"] += 1
-        return LLMResponse(text="", usage={}, raw={})
+        return LLMResponse(text="", usage={}, raw={},
+                           finish_reason="length")
 
     cfg = RetryConfig(max_attempts=3, base_delay=0.0, jitter=0.0)
     with pytest.raises(EmptyResponseAfterRetries) as exc_info:
         _retry_call(fn, cfg, sleep=lambda _d: None)
     assert exc_info.value.attempts == 3
+    assert exc_info.value.last_finish_reason == "length"
     assert "empty" in str(exc_info.value).lower()
+    assert "length" in str(exc_info.value)
     assert calls["n"] == 3, "should have called fn() exactly max_attempts times"
 
 
 def test_whitespace_only_is_treated_as_empty():
-    """Tabs/newlines/spaces — all forms of whitespace-only — should retry."""
+    """Tabs/newlines/spaces — all forms of whitespace-only — should retry
+    when paired with a non-stop finish_reason (iris-v1 fix)."""
     cfg = RetryConfig(max_attempts=2, base_delay=0.0, jitter=0.0)
     for variant in ("   ", "\n\n", "\t", " \n \t "):
         calls = {"n": 0}
 
         def fn(v=variant):
             calls["n"] += 1
-            return LLMResponse(text=v, usage={}, raw={})
+            return LLMResponse(text=v, usage={}, raw={},
+                               finish_reason="length")
 
         with pytest.raises(EmptyResponseAfterRetries):
             _retry_call(fn, cfg, sleep=lambda _d: None)
@@ -99,8 +112,10 @@ def test_mixed_exception_and_empty_share_budget():
         if calls["n"] == 1:
             raise ConnectionError("simulated drop")
         if calls["n"] == 2:
-            return LLMResponse(text="", usage={}, raw={})
-        return LLMResponse(text="hello", usage={}, raw={})
+            return LLMResponse(text="", usage={}, raw={},
+                               finish_reason="length")
+        return LLMResponse(text="hello", usage={}, raw={},
+                           finish_reason="stop")
 
     cfg = RetryConfig(max_attempts=3, base_delay=0.0, jitter=0.0)
     out = _retry_call(fn, cfg, sleep=lambda _d: None)
@@ -117,7 +132,8 @@ def test_mixed_two_exceptions_then_empty_at_budget_end_raises_empty():
         calls["n"] += 1
         if calls["n"] < 3:
             raise ConnectionError("drop")
-        return LLMResponse(text="", usage={}, raw={})
+        return LLMResponse(text="", usage={}, raw={},
+                           finish_reason="length")
 
     cfg = RetryConfig(max_attempts=3, base_delay=0.0, jitter=0.0)
     with pytest.raises(EmptyResponseAfterRetries):

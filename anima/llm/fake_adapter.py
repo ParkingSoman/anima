@@ -198,15 +198,25 @@ class EmptyTextFakeAdapter(FakeAdapter):
         *,
         empty_first_n: int = 0,
         empty_text: str = "",
+        empty_finish_reason: str = "length",
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self.empty_first_n = int(empty_first_n)
         self._empties_emitted = 0
         self.empty_text = empty_text
+        # Default to "length" (a non-stop finish_reason) so the empty
+        # responses this fixture emits are classified by the retry layer as
+        # a *cutoff*, not a genuine model-chose-silence. That preserves the
+        # original intent of these tests under the finish_reason-aware
+        # validity rule introduced for the iris-v1 empty-retry bug. Tests
+        # that want to emulate "model said nothing on purpose" can pass
+        # ``empty_finish_reason="stop"`` instead.
+        self.empty_finish_reason = empty_finish_reason
 
     def _canned(self, *, tier, system, messages):
         if self._empties_emitted < self.empty_first_n:
             self._empties_emitted += 1
-            return LLMResponse(text=self.empty_text, usage={}, raw={})
+            return LLMResponse(text=self.empty_text, usage={}, raw={},
+                               finish_reason=self.empty_finish_reason)
         return super()._canned(tier=tier, system=system, messages=messages)

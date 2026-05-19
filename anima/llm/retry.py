@@ -175,11 +175,27 @@ class EmptyResponseAfterRetries(Exception):
     information content — by definition it was empty.
     """
 
-    def __init__(self, attempts: int):
+    def __init__(self, attempts: int, last_finish_reason: str | None = None):
         self.attempts = int(attempts)
-        super().__init__(
-            "LLM returned empty/whitespace-only text on all retry attempts"
-        )
+        # The provider's last-seen finish_reason — propagated up so error
+        # messages, transcripts, and operator-facing CLI prints can show
+        # *why* the model kept returning empty. ``length`` is the common
+        # one for DeepSeek-flash on long persona prompts; surfacing it lets
+        # the operator immediately see "raise max_tokens / switch model"
+        # rather than guessing.
+        self.last_finish_reason = last_finish_reason
+        if last_finish_reason is not None:
+            msg = (
+                f"LLM returned empty/whitespace-only text on all "
+                f"{int(attempts)} retry attempts "
+                f"(last finish_reason={last_finish_reason!r})"
+            )
+        else:
+            msg = (
+                f"LLM returned empty/whitespace-only text on all "
+                f"{int(attempts)} retry attempts"
+            )
+        super().__init__(msg)
 
 
 # Internal sentinel — never escapes the module. Used to bounce control back
@@ -193,20 +209,51 @@ class _EmptyResponseRetry(Exception):
 _NO_TEXT_ATTR = object()
 
 
+# OpenAI/OpenRouter and Anthropic finish_reason values that mean "the
+# model emitted an end-of-turn deliberately". When .text is empty AND
+# finish_reason is in this set, we trust the model: it chose to be
+# silent, and a retry would just spam the provider with no upside.
+#
+# Why include None: many code paths (older adapters, synthetic test
+# fixtures, providers that don't expose the field) leave finish_reason
+# unset. Treating None as "non-stop" would retry every empty response
+# from those paths and re-introduce the iris-v1 bug we're fixing. The
+# safer default is "unknown → assume genuine"; explicit non-stop reasons
+# (length / content_filter / error / etc.) are the only triggers.
+_STOP_FINISH_REASONS = frozenset({
+    "stop",            # OpenAI / OpenRouter
+    "end_turn",        # Anthropic
+    "stop_sequence",   # OpenAI alt / Anthropic alt
+    None,              # unknown / unset → treat as genuine
+})
+
+
 def _default_is_valid(result: Any) -> bool:
     """Default validity predicate for LLM responses.
 
-    Considers a result valid when it has a ``text`` attribute that is a
-    non-empty, non-whitespace string.
+    Returns True when the result represents a legitimate model output
+    that the retry layer should accept (and the caller can consume).
 
-    Test-friendly fallback: when the result does NOT have a ``text``
-    attribute at all (e.g. a plain string returned by a synthetic
-    ``fn()`` in a retry unit test), we pass it through — the empty-retry
-    layer is for LLMResponse-shaped outputs, not generic call returns.
-    Using a unique sentinel here (rather than checking ``getattr(...,
-    "")``) is necessary because ``LLMResponse(text="")`` is a real
-    LLMResponse with an empty string attribute, and we DO want to flag
-    that case as invalid.
+    Decision matrix:
+        * No ``text`` attribute → pass through (this predicate is for
+          LLMResponse-shaped outputs; generic callables in unit tests
+          shouldn't trip the empty-content check).
+        * ``text`` is non-empty after strip → valid, regardless of
+          finish_reason.
+        * ``text`` is empty/whitespace AND finish_reason is in
+          ``_STOP_FINISH_REASONS`` → valid (model genuinely chose
+          silence; do NOT retry).
+        * ``text`` is empty/whitespace AND finish_reason is any
+          explicit non-stop value (``length``, ``content_filter``,
+          ``error``, ``tool_calls``, etc.) → invalid (cutoff / refusal
+          / error; retry).
+        * ``text`` is non-string (None, bytes, etc.) → invalid; the
+          retry layer or caller will see it as a malformed result.
+
+    The asymmetry on None for finish_reason is deliberate: many
+    LLMResponse construction sites in the codebase predate the field
+    and don't populate it. We do NOT want those paths to start retrying
+    silence; only EXPLICIT non-stop reasons trigger retry.
     """
     text = getattr(result, "text", _NO_TEXT_ATTR)
     if text is _NO_TEXT_ATTR:
@@ -215,7 +262,11 @@ def _default_is_valid(result: Any) -> bool:
         # Defensive: if some provider returns text=None or a bytes blob,
         # treat anything non-string as invalid.
         return False
-    return bool(text.strip())
+    if text.strip():
+        return True
+    # text is empty/whitespace — decide based on finish_reason.
+    finish_reason = getattr(result, "finish_reason", None)
+    return finish_reason in _STOP_FINISH_REASONS
 
 
 def _is_retryable(exc: BaseException) -> bool:
@@ -311,6 +362,11 @@ def _retry_call(
     attempts = max(1, int(cfg.max_attempts))
     last_exc: BaseException | None = None
     empty_attempts = 0
+    # Tracks the most recent finish_reason we observed on an empty
+    # result, so EmptyResponseAfterRetries can surface it (helpful for
+    # the operator: "all 5 attempts ended with finish_reason=length"
+    # immediately suggests "max_tokens too low" instead of a guessing game).
+    last_finish_reason: str | None = None
     for i in range(attempts):
         try:
             result = fn()
@@ -318,13 +374,19 @@ def _retry_call(
             if effective_is_valid is not None and not effective_is_valid(result):
                 # Bounce to the retry loop via the internal sentinel.
                 empty_attempts += 1
+                # Capture finish_reason of this (invalid) empty response
+                # before the sentinel raises and we lose the local.
+                last_finish_reason = getattr(result, "finish_reason", None)
                 raise _EmptyResponseRetry()
             return result
         except _EmptyResponseRetry:
             # Empty-response path. If this was the last attempt, escalate
             # to the public exception. Otherwise fall through to backoff.
             if i == attempts - 1:
-                raise EmptyResponseAfterRetries(attempts=attempts) from None
+                raise EmptyResponseAfterRetries(
+                    attempts=attempts,
+                    last_finish_reason=last_finish_reason,
+                ) from None
             # Backoff before next attempt (shared formula with the
             # exception path below).
             band = cfg.base_delay * (2 ** i)

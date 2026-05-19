@@ -13,6 +13,17 @@ class LLMResponse:
     text: str
     usage: dict = field(default_factory=dict)
     raw: dict = field(default_factory=dict)
+    # Why the call ended, as reported by the provider. Mirrors
+    # OpenAI/OpenRouter ``choices[0].finish_reason`` and Anthropic
+    # ``stop_reason``. Used by the retry layer (anima.llm.retry) to
+    # decide whether an empty .text was a genuine "model chose to say
+    # nothing" (e.g. ``stop``/``end_turn``) — which should NOT retry —
+    # versus a cutoff/error (``length``/``content_filter``/``error``/etc.)
+    # — which SHOULD retry. Defaults to None so adapters that don't yet
+    # populate it pass type-checks; the retry layer treats None as
+    # "unknown → assume genuine" so legacy code paths don't suddenly
+    # start retrying.
+    finish_reason: str | None = None
 
 
 class LLMAdapter(Protocol):

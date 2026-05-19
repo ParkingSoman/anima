@@ -88,13 +88,24 @@ class OpenRouterAdapter:
             stop=stop,
         )
         text = resp.choices[0].message.content or ""
+        # finish_reason is how OpenAI/OpenRouter signal *why* the call ended.
+        # "stop" / "stop_sequence" = the model emitted an end-of-turn (legit
+        # silence if text is also empty). "length" = max_tokens cap hit
+        # mid-stream. "content_filter" = the safety layer redacted. "error"
+        # = upstream blew up but the SDK still returned a (likely-empty)
+        # message. The retry layer reads this off LLMResponse to decide
+        # whether empty .text deserves a retry. Some provider responses may
+        # omit it; we default to None and the retry layer treats that as
+        # "unknown → assume genuine" so we don't over-retry.
+        finish_reason = getattr(resp.choices[0], "finish_reason", None)
         usage = {
             "input_tokens": resp.usage.prompt_tokens,
             "output_tokens": resp.usage.completion_tokens,
             "cache_read_tokens": 0,
             "cache_create_tokens": 0,
         }
-        return LLMResponse(text=text, usage=usage, raw={"id": resp.id})
+        return LLMResponse(text=text, usage=usage, raw={"id": resp.id},
+                           finish_reason=finish_reason)
 
     def generate(
         self,

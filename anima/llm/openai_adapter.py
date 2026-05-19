@@ -47,13 +47,17 @@ class OpenAIAdapter:
             stop=stop,
         )
         text = resp.choices[0].message.content or ""
+        # See OpenRouterAdapter for why we propagate finish_reason; the
+        # OpenAI Chat Completions SDK exposes the same field shape.
+        finish_reason = getattr(resp.choices[0], "finish_reason", None)
         usage = {
             "input_tokens": resp.usage.prompt_tokens,
             "output_tokens": resp.usage.completion_tokens,
             "cache_read_tokens": 0,
             "cache_create_tokens": 0,
         }
-        return LLMResponse(text=text, usage=usage, raw={"id": resp.id})
+        return LLMResponse(text=text, usage=usage, raw={"id": resp.id},
+                           finish_reason=finish_reason)
 
     def generate(
         self,

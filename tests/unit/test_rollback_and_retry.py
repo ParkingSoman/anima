@@ -21,7 +21,8 @@ import pytest
 from anima.config import load_config
 from anima.core import Anima, TurnTrace
 from anima.llm import make_adapter
-from anima.llm.fake_adapter import FakeAdapter
+from anima.llm.fake_adapter import EmptyTextFakeAdapter, FakeAdapter
+from anima.llm.retry import RetryConfig
 from anima.subsystems.errors import ResponseGenerationFailed
 from anima.transcript import (
     TranscriptWriter,
@@ -330,33 +331,40 @@ def test_silence_user_prediction_trivial_output(monkeypatch):
 
 
 def test_silence_response_generator_empty_reply():
-    """Fix 1 changed the contract for the response_generator's empty reply.
+    """Fix 1 (and iris-v1 follow-up) changed the contract for the
+    response_generator's empty reply.
 
     Before Fix 1: an empty reply from a successful API call would pass
     through and surface as a ``silence`` (no retry).
 
     After Fix 1: the retry layer treats empty/whitespace-only text as a
     retryable failure. The response_generator uses
-    ``RetryConfig(max_attempts=5)``, so 5 consecutive empties exhaust
-    the budget and the call raises ``EmptyResponseAfterRetries`` —
-    which Anima.respond escalates to ``ResponseGenerationFailed``. The
-    transcript captures the failure via the ``subsystem_errors`` block
-    with ``error_type='EmptyResponseAfterRetries'`` (see Fix 1).
+    ``RetryConfig(max_attempts=5)``.
 
-    To exercise the original "empty reply leaks through as silence" path
-    explicitly, a caller would have to wire ``retry_on_empty=False`` on
-    the response_generator's per-call retry config — which we do NOT
-    do, because the whole point of Fix 1 is that empty responses from
-    DeepSeek were leaking biography content through the response
-    generator. The new behavior raises loudly instead.
+    After the iris-v1 follow-up: the retry layer is now finish_reason
+    aware. An empty response with finish_reason in {stop, end_turn,
+    stop_sequence, None} is treated as a *genuine model silence* and
+    NOT retried. Only empty responses with a non-stop finish_reason
+    (length, content_filter, error, etc.) trigger retry. We use
+    ``EmptyTextFakeAdapter`` here, which defaults the empty responses
+    to ``finish_reason="length"`` — i.e. the cutoff path that SHOULD
+    exhaust the budget and raise ``EmptyResponseAfterRetries``, which
+    ``Anima.respond`` escalates to ``ResponseGenerationFailed``.
     """
-    adapter = FakeAdapter(strong_text="")
+    adapter = EmptyTextFakeAdapter(
+        empty_first_n=100,  # effectively always-empty
+        empty_finish_reason="length",
+        retry_cfg=RetryConfig(max_attempts=5, base_delay=0.0, jitter=0.0),
+        strong_text="",
+    )
     anima = Anima(load_config(PRESET), llm=adapter)
     with pytest.raises(ResponseGenerationFailed) as exc_info:
         anima.respond("hi")
     # The wrapped exception is EmptyResponseAfterRetries; the partial trace
     # appended before the raise records the error with the right type.
     assert type(exc_info.value.last_error).__name__ == "EmptyResponseAfterRetries"
+    # The finish_reason should be plumbed all the way out (iris-v1 fix).
+    assert getattr(exc_info.value.last_error, "last_finish_reason", None) == "length"
     partial = anima.traces[-1]
     err_types = [e["error_type"] for e in partial.subsystem_errors]
     assert "EmptyResponseAfterRetries" in err_types

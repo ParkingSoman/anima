@@ -14,6 +14,7 @@ from rich.panel import Panel
 
 from anima.core import Anima
 from anima.llm import make_adapter
+from anima.llm.retry import EmptyResponseAfterRetries
 from anima.persistence.store import AnimaStore
 from anima.subsystems.errors import ResponseGenerationFailed
 from anima.transcript import TranscriptWriter
@@ -267,6 +268,34 @@ def cmd_chat(args: argparse.Namespace) -> int:
                 snippet = msg if len(msg) <= 60 else msg[:60] + "…"
                 console.print(
                     f"[dim]type /retry to re-send {snippet!r} or type a new message[/dim]"
+                )
+                continue
+            except EmptyResponseAfterRetries as exc:
+                # v1 (the frozen Phase-1 Anima) does NOT wrap
+                # EmptyResponseAfterRetries in ResponseGenerationFailed the
+                # way head does, so the exception arrives here unwrapped
+                # when running ``--version v1``. Without this clause it
+                # falls through to the generic "unexpected error:" catch,
+                # which hides the actionable signal (finish_reason=length
+                # → probably max_tokens too small / prompt too long). We
+                # special-case it so the operator sees a clear diagnosis
+                # and a concrete next step.
+                turn_idx += 1
+                try:
+                    transcript.write_failed_turn(turn_idx, msg, exc)
+                except Exception as t_exc:  # pragma: no cover — defensive nested
+                    console.print(f"[red]transcript write failed:[/red] {t_exc!r}")
+                last_failed_msg = msg
+                name = anima.cfg.biography.name
+                console.print(
+                    f"[red]{name} produced no reply this turn — {exc}[/red]"
+                )
+                console.print(
+                    "[dim]The model returned empty text on every retry. "
+                    "This usually means the prompt is too long for "
+                    "deepseek-flash, or the provider hit an issue. "
+                    "Try a shorter input, or switch to a stronger model "
+                    "with --strong-model.[/dim]"
                 )
                 continue
             except Exception as exc:  # noqa: BLE001 — last-resort: never crash the REPL

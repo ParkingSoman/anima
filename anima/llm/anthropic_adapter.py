@@ -56,7 +56,16 @@ class AnthropicAdapter:
             "cache_read_tokens": getattr(resp.usage, "cache_read_input_tokens", 0) or 0,
             "cache_create_tokens": getattr(resp.usage, "cache_creation_input_tokens", 0) or 0,
         }
-        return LLMResponse(text=text, usage=usage, raw={"id": resp.id, "stop_reason": resp.stop_reason})
+        # Anthropic's analogue of OpenAI's finish_reason is `stop_reason`
+        # (values: "end_turn", "stop_sequence", "max_tokens", "tool_use",
+        # "pause_turn", "refusal"). We surface it on the cross-provider
+        # LLMResponse.finish_reason so the retry layer can use one rule for
+        # both providers. The original verbatim value is also kept in
+        # ``raw["stop_reason"]`` for debugging.
+        stop_reason = getattr(resp, "stop_reason", None)
+        return LLMResponse(text=text, usage=usage,
+                           raw={"id": resp.id, "stop_reason": stop_reason},
+                           finish_reason=stop_reason)
 
     def generate(
         self,
