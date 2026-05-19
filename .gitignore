@@ -38,6 +38,11 @@ htmlcov/
 # Runtime per-Anima state (regenerated; not source-of-truth)
 anima_store/
 
+# Per-session transcripts written by --blind chat mode (and regular chat).
+# These contain the user's actual conversation and the Anima's inner thoughts —
+# user-specific, not source-of-truth, and often sensitive.
+transcripts/
+
 # In-progress partial dumps from long runs (the verdicts + final reports stay)
 verification/reports/**/*_partial_*.json
 /tmp/

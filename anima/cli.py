@@ -15,6 +15,7 @@ from rich.panel import Panel
 from anima.core import Anima
 from anima.llm import make_adapter
 from anima.persistence.store import AnimaStore
+from anima.transcript import TranscriptWriter
 from verification.baseline import BaselineAnima
 
 
@@ -71,15 +72,42 @@ def cmd_chat(args: argparse.Namespace) -> int:
     anima = AnimaCls(cfg, llm=llm, store=store, autosave_every=3)
     anima.set_session_id(session_id)
 
+    # E7: per-session transcript writer. Always on (the spec asks for the
+    # transcript regardless of mode); --blind only changes what the operator
+    # is allowed to *see* live.
+    transcript = TranscriptWriter(
+        persona_name=persona,
+        session_id=session_id,
+        config_path=Path(args.config),
+        provider=args.provider,
+        output_dir=Path(args.transcript_dir),
+    )
+    transcript.write_header(anima)
+
+    blind = bool(getattr(args, "blind", False))
+    hidden_notice = (
+        f"[dim](hidden in blind mode; see transcript at "
+        f"{transcript.md_path} when the session ends)[/dim]"
+    )
+
+    intro_extra = ""
+    if blind:
+        intro_extra = (
+            "\n[bold yellow]blind mode[/bold yellow] — inner trace is not shown "
+            "during the session; full transcript will be written to disk at the end."
+        )
     console.print(Panel.fit(
         f"[bold]Talking to {anima.cfg.biography.name}[/bold]\n"
         f"{anima.cfg.biography.one_line}\n\n"
         f"[dim]session id: [bold]{session_id}[/bold] "
         f"(resume: --session-id {session_id})\n"
         f"persistence root: {store.dir}\n"
+        f"transcript: {transcript.md_path}\n"
         f"Type a message and press enter. Ctrl-D / 'quit' to exit. "
-        f"'/trace' shows the most recent inner trace. '/state' prints internal state.[/dim]",
+        f"'/trace' shows the most recent inner trace. '/state' prints internal state.[/dim]"
+        f"{intro_extra}",
         title="anima"))
+    turn_idx = 0
     try:
         while True:
             try:
@@ -92,6 +120,9 @@ def cmd_chat(args: argparse.Namespace) -> int:
             if msg in {"quit", "exit", "/quit"}:
                 break
             if msg == "/trace":
+                if blind:
+                    console.print(hidden_notice)
+                    continue
                 if not anima.traces:
                     console.print("[dim]no turns yet[/dim]")
                     continue
@@ -131,11 +162,19 @@ def cmd_chat(args: argparse.Namespace) -> int:
                     ))
                 continue
             if msg == "/state":
+                if blind:
+                    console.print(hidden_notice)
+                    continue
                 console.print_json(json.dumps(anima.observe()))
                 continue
             reply, trace = anima.respond(msg)
+            turn_idx += 1
+            transcript.write_turn(turn_idx, msg, reply, trace)
             console.print(f"[bold green]{anima.cfg.biography.name} >[/bold green] {reply}")
-            if args.show_trace:
+            # --show-trace is silently overridden in blind mode; the operator
+            # opted into not seeing the trace, so we honor that even if the
+            # flag is also set.
+            if args.show_trace and not blind:
                 console.print(Panel(trace.monologue, title="(inner)", border_style="magenta"))
     finally:
         # Always flush state to disk at session end so partial transcripts
@@ -144,6 +183,10 @@ def cmd_chat(args: argparse.Namespace) -> int:
             anima.save()
         except Exception as exc:  # pragma: no cover — defensive
             console.print(f"[red]save failed:[/red] {exc!r}")
+        try:
+            transcript.finalize(anima)
+        except Exception as exc:  # pragma: no cover — defensive
+            console.print(f"[red]transcript finalize failed:[/red] {exc!r}")
     return 0
 
 
@@ -230,6 +273,18 @@ def main(argv: list[str] | None = None) -> int:
         default="head",
         choices=["head", "v1"],
         help="which Anima implementation to load: 'head' (current) or 'v1' (frozen Phase-1 snapshot)",
+    )
+    p_chat.add_argument(
+        "--blind",
+        action="store_true",
+        help="hide /trace, /state, and the inline (--show-trace) panel during the session; "
+             "the full transcript (including inner thoughts + state trajectory) is still written "
+             "to disk and available after the session ends",
+    )
+    p_chat.add_argument(
+        "--transcript-dir",
+        default="transcripts",
+        help="directory to write per-session transcript files into (default: ./transcripts; gitignored)",
     )
     p_chat.set_defaults(func=cmd_chat)
 
