@@ -327,18 +327,124 @@ class TranscriptWriter:
         if silence_block:
             md_lines.append(silence_block)
         monologue = getattr(trace, "monologue", "") or ""
+
+        # Fix 1 (user-requested expansion): render the FULL output of every
+        # subsystem, not just a one-line appraisal summary. We pull from the
+        # raw trace dicts so v1 (smaller Appraisal/Perception) and head both
+        # work — missing fields are silently skipped via dict.get with None
+        # defaults, not rendered as None/0.0.
+        perception_dict = getattr(trace, "perception", {}) or {}
+
+        def _fmt_float(v: Any) -> str:
+            try:
+                return f"{float(v):+.2f}" if isinstance(v, (int, float)) else str(v)
+            except Exception:
+                return str(v)
+
+        # PERCEPTION block — built from the full perception dict.
+        perception_lines: list[str] = []
+        if perception_dict:
+            literal = perception_dict.get("literal_content")
+            intent = perception_dict.get("perceived_intent")
+            valence = perception_dict.get("perceived_valence")
+            demands = perception_dict.get("perceived_demands")
+            salient = perception_dict.get("salient_features")
+            if literal is not None:
+                perception_lines.append(f"- literal_content: {literal}")
+            if intent is not None:
+                perception_lines.append(f"- perceived_intent: {intent}")
+            if isinstance(valence, (int, float)):
+                perception_lines.append(f"- perceived_valence: {float(valence):+.2f}")
+            if demands is not None:
+                demands_str = "; ".join(demands) if demands else "—"
+                perception_lines.append(f"- perceived_demands: {demands_str}")
+            if salient is not None:
+                salient_str = "; ".join(salient) if salient else "—"
+                perception_lines.append(f"- salient_features: {salient_str}")
+
+        # APPRAISAL block — full field expansion. Numeric fields are rendered
+        # with sign; string scalars verbatim. Missing fields are silently
+        # skipped so v1's smaller Appraisal dataclass still renders cleanly.
+        appraisal_lines: list[str] = []
+        appraisal_scalar_keys = [
+            ("appraisal_scene_tag", "appraisal_scene_tag", str),
+            ("primary_emotion", "primary_emotion", str),
+            ("relevance", "relevance", float),
+            ("goal_congruence", "goal_congruence", float),
+            ("ego_relevance", "ego_relevance", float),
+            ("coping_potential", "coping_potential", float),
+            ("future_expectancy", "future_expectancy", float),
+        ]
+        for label, key, kind in appraisal_scalar_keys:
+            v = appraisal.get(key)
+            if v is None:
+                continue
+            if kind is float and isinstance(v, (int, float)):
+                appraisal_lines.append(f"- {label}: {float(v):+.2f}")
+            else:
+                appraisal_lines.append(f"- {label}: `{v}`")
+        # Appraisal also carries mood/drive perturbation deltas. Render the
+        # scalar mood deltas inline, plus the discrete-emotion and drive-delta
+        # dicts as small tables when non-empty.
+        mood_dv = appraisal.get("mood_dv")
+        mood_da = appraisal.get("mood_da")
+        mood_dd = appraisal.get("mood_dd")
+        if any(isinstance(v, (int, float)) for v in (mood_dv, mood_da, mood_dd)):
+            parts = []
+            if isinstance(mood_dv, (int, float)):
+                parts.append(f"Δv={float(mood_dv):+.2f}")
+            if isinstance(mood_da, (int, float)):
+                parts.append(f"Δa={float(mood_da):+.2f}")
+            if isinstance(mood_dd, (int, float)):
+                parts.append(f"Δd={float(mood_dd):+.2f}")
+            appraisal_lines.append("- mood perturbation: " + ", ".join(parts))
+        discrete_deltas = appraisal.get("discrete_deltas") or {}
+        if isinstance(discrete_deltas, dict) and discrete_deltas:
+            appraisal_lines.append("- discrete emotion deltas:")
+            for k, v in discrete_deltas.items():
+                vfmt = f"{float(v):+.2f}" if isinstance(v, (int, float)) else str(v)
+                appraisal_lines.append(f"    - {k}: {vfmt}")
+        drive_deltas_a = appraisal.get("drive_deltas") or {}
+        if isinstance(drive_deltas_a, dict) and drive_deltas_a:
+            appraisal_lines.append("- drive deltas:")
+            for k, v in drive_deltas_a.items():
+                vfmt = f"{float(v):+.2f}" if isinstance(v, (int, float)) else str(v)
+                appraisal_lines.append(f"    - {k}: {vfmt}")
+
+        # SELF-MONITOR block — Phase 2+ encoding writes an EpisodicEvent at the
+        # end of each turn. The TurnTrace today doesn't expose those encoded
+        # fields directly, so we look for any of a few plausible attribute
+        # names and render whatever's present. If the trace carries nothing,
+        # we leave a small placeholder note so it's clear this section is
+        # intentional and just empty for this architecture/turn.
+        self_monitor_lines: list[str] = []
+        for attr in ("self_monitor", "self_monitor_deltas", "encoding", "encoded_event"):
+            sm = getattr(trace, attr, None)
+            if sm:
+                if isinstance(sm, dict):
+                    for k, v in sm.items():
+                        self_monitor_lines.append(f"- {k}: {v}")
+                else:
+                    self_monitor_lines.append(f"- {attr}: {sm}")
+                break
+
         md_lines += [
             "<details><summary>inner trace</summary>",
             "",
-            "**Inner monologue:**",
-            "",
-            "```",
-            monologue,
-            "```",
-            "",
-            f"**Appraisal:** scene-tag = `{scene_tag}` · primary emotion = `{primary_emotion}`",
-            "",
         ]
+        # Stable order: perception → appraisal → memory → prediction → surprise
+        # → mood/drives → monologue → response.
+        if perception_lines:
+            md_lines += ["**Perception:**", ""] + perception_lines + [""]
+        if appraisal_lines:
+            md_lines += ["**Appraisal:**", ""] + appraisal_lines + [""]
+        else:
+            # Backwards-compatible one-liner when the trace carries no
+            # appraisal at all (shouldn't happen in practice).
+            md_lines += [
+                f"**Appraisal:** scene-tag = `{scene_tag}` · primary emotion = `{primary_emotion}`",
+                "",
+            ]
         if has_retrieved_section:
             md_lines += [
                 "**Retrieved memories:**",
@@ -363,6 +469,21 @@ class TranscriptWriter:
             "**Drives Δ:**",
             "",
             drives_tbl,
+            "",
+        ]
+        if self_monitor_lines:
+            md_lines += ["**Self-monitor:**", ""] + self_monitor_lines + [""]
+        else:
+            md_lines += [
+                "**Self-monitor:** _(no self-monitor fields on this trace)_",
+                "",
+            ]
+        md_lines += [
+            "**Inner monologue:**",
+            "",
+            "```",
+            monologue,
+            "```",
             "",
             "</details>",
             "",

@@ -144,6 +144,6 @@ class ResponseGeneratorSubsystem:
         # Last few turns of conversation history for short-term context
         history = conversation_history[-6:] + [{"role": "user", "content": user_msg}]
         resp = self.llm.generate(tier="strong", system=system, messages=history,
-                                 max_tokens=400, temperature=0.8,
+                                 max_tokens=4000, temperature=0.8,
                                  retry_cfg=retry_cfg)
         return GeneratedResponse(text=resp.text.strip(), metadata={"usage": resp.usage})

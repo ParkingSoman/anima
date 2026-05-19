@@ -143,7 +143,7 @@ class AppraisalSubsystem:
         msgs = [{"role": "user",
                  "content": "Appraise the situation. Return only the JSON object."}]
         resp = self.llm.generate(tier="fast", system=system, messages=msgs,
-                                 max_tokens=500, temperature=0.4)
+                                 max_tokens=4000, temperature=0.4)
         data = extract_json(resp.text) or {}
         return Appraisal(
             relevance=float(data.get("relevance", 0.5)),
