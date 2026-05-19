@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-13 (initial fold); 2026-05-14 (current fold — cross-model, post-hoc transcript mining, §13.5 procedure, fresh-prompt confirmation, elena_secure re-prediction).
 **Status:** Phase 1 (MVP turn loop) — closure document.
-**Audience:** the user's future-self and any collaborator joining at Phase 2 onset.
+**Audience:** my future-self and any collaborator joining at Phase 2 onset.
 **Scope:** comprehensive record of the Phase 1 arc — what we set out to build, what we built, what we learned, what we ran, what we adjudicated, what landed, what didn't, and what carries forward. Bias toward inclusion.
 
 **Headline (post 2026-05-14):** Phase 1's load-bearing research finding is **H-primary on Marcus refusal**: the architecture produces defense-enacted refusal of self-disclosure relative to persona-prompting baseline, **§13.5-confirmed across 4 LLM model families and 2 prompt sets**. On Aron 1997 36-Questions prompts (literature the project never shaped), DeepSeek +36.7pp (p = 6.6×10⁻¹²) and Mistral +43.3pp (p = 3.3×10⁻¹²). This is the only finding currently elevated to *confirmed research finding* per master plan §13.5. Everything else — gap-ratio gradient, biography-suppression on Jamie and Elena, elena_secure texture signatures, Llama deconfabulation side effect — is *exploratory observation* awaiting independent fresh-data confirmation.
@@ -794,7 +794,7 @@ Six transcript-mining findings, all post-hoc:
 5. Mistral baseline confabulates persona-consistent specifics absent from the YAML, artificially inflating its biography rate and contaminating the H-primary biography conjunct on Mistral.
 6. Llama Anima breaks Llama baseline's P4 mode-collapse onto the most distinctive YAML line — a model-specific architectural side effect outside any pre-registration (Llama deconfabulation).
 
-These are not in the chi-square family; they are corrections to interpretation, not new tests. They prompted the user-confirmed re-predictions on elena_secure that the fresh-prompt run then §13.5-confirmed (§11D.7).
+These are not in the chi-square family; they are corrections to interpretation, not new tests. They prompted the re-predictions on elena_secure that I confirmed and the fresh-prompt run then §13.5-confirmed (§11D.7).
 
 ---
 
@@ -802,7 +802,7 @@ These are not in the chi-square family; they are corrections to interpretation, 
 
 ### 11C.1 The methodological concern
 
-After the cross-model verdict and post-hoc transcript mining landed, the user surfaced a sharp methodological concern: **the §11 replication's H-primary confirmation tested on the same six prompts that informed its discovery.** The pre-reg locked the hypothesis before the chi-square ran, but the prompt set itself was the one whose qualitative transcripts inspired the hypothesis. The cross-model verdict separated discovery from confirmation on the *model* axis but kept the prompt set. Strict methodology requires confirmatory data shaped by neither the hypothesis-generating engineering iteration nor any prior probe selection.
+After the cross-model verdict and post-hoc transcript mining landed, I surfaced a sharp methodological concern: **the §11 replication's H-primary confirmation tested on the same six prompts that informed its discovery.** The pre-reg locked the hypothesis before the chi-square ran, but the prompt set itself was the one whose qualitative transcripts inspired the hypothesis. The cross-model verdict separated discovery from confirmation on the *model* axis but kept the prompt set. Strict methodology requires confirmatory data shaped by neither the hypothesis-generating engineering iteration nor any prior probe selection.
 
 This is a serious threat to inference. The §11 replication is genuinely impressive at chi-square scale, but a sufficiently subtle form of the question is: *did Anima Marcus refuse self-disclosure at +52pp because the architecture produces a defense-enacted refusal effect — or because the six prompts in `discriminability.py` happen to be the kind of prompts on which Marcus's avoidance schema produces "Frankly, I've been fine. Busy," with high reliability?* Without testing on prompts the project never shaped, both readings remain in play.
 
@@ -845,10 +845,10 @@ The first execution of §13.5, pre-registered at `docs/hypotheses/2026-05-14_fre
 
 Two models: DeepSeek V4 Flash + Mistral Small 3.2 24B. (Llama and Qwen scoped out per pre-reg cost constraint; cross-model has 3/3 on originals, so fresh lives on 2/2 confidently.) Five configs (`marcus`, `elena`, `jamie`, `elena_secure`, `marcus_warm`). N = 15 per cell. Total 900 captures per model; **1,800 records total**.
 
-Eight hypotheses pre-registered, user-confirmed before the run:
+Eight hypotheses pre-registered and confirmed by me before the run:
 
 - **H-primary-family** (4 hypotheses on Marcus refusal axis): H-primary-fresh (≥15pp), H-magnitude-fresh (≥30pp), H-null-expressive-fresh (Jamie null holds), H-gap-fresh (gap-ratio Marcus ≥ 2× Jamie).
-- **H-secure-family** (4 hypotheses, the user-confirmed re-prediction): H-secure-disclosure-fresh (elena_secure biography > elena), H-secure-clean-refusal-fresh (elena_secure refuses cleaner, less hedging), H-secure-gap-fresh (elena_secure interior/exterior gap < elena), H-secure-empty-fresh (elena_secure empty < elena).
+- **H-secure-family** (4 hypotheses, the re-prediction I confirmed): H-secure-disclosure-fresh (elena_secure biography > elena), H-secure-clean-refusal-fresh (elena_secure refuses cleaner, less hedging), H-secure-gap-fresh (elena_secure interior/exterior gap < elena), H-secure-empty-fresh (elena_secure empty < elena).
 
 Claude is the refusal judge (constant with §11.7 and §11A); DeepSeek is the biography judge (pre-reg lock). Bonferroni α = 0.05 / 8 = **0.00625** within each model.
 
@@ -906,7 +906,7 @@ Two structural shifts on Aron prompts vs the originals:
 
 ### 11D.7 The elena_secure re-prediction — confirmed on the cleanest behavioral signature available
 
-The 4 H-secure-* hypotheses were the user-confirmed re-prediction. The original H-secure-control falsified on the discriminability-prompt run (binary refusal/empty within 10pp). The post-hoc transcripts surfaced that the perturbation was doing something coherent the binary metrics missed (§11B Finding 2). User confirmed the replacement predictions before the fresh-prompt run.
+The 4 H-secure-* hypotheses were the re-prediction I confirmed. The original H-secure-control falsified on the discriminability-prompt run (binary refusal/empty within 10pp). The post-hoc transcripts surfaced that the perturbation was doing something coherent the binary metrics missed (§11B Finding 2). I confirmed the replacement predictions before the fresh-prompt run.
 
 | Hypothesis | Model | Test | p / metric |
 |---|---|---|---|
@@ -933,7 +933,7 @@ The 4 H-secure-* hypotheses were the user-confirmed re-prediction. The original 
 
 Same refusal classification, very different texture: elena_secure names Daniel and family; vanilla elena hedges into abstraction. The security perturbation moves the *texture* of refusal even when it doesn't move the *rate*.
 
-**Verdict on the re-prediction:** the security perturbation has a measurable, replicable behavioral signature — just not the one the original H-secure-control expected. The binary refusal/empty metrics couldn't see it; the gap-ratio and hedge-density texture metrics can. This vindicates the user-confirmed re-prediction. The original H-secure-control's binary-axis failure was a metric-choice failure, not an architecture failure.
+**Verdict on the re-prediction:** the security perturbation has a measurable, replicable behavioral signature — just not the one the original H-secure-control expected. The binary refusal/empty metrics couldn't see it; the gap-ratio and hedge-density texture metrics can. This vindicates the re-prediction I confirmed. The original H-secure-control's binary-axis failure was a metric-choice failure, not an architecture failure.
 
 ### 11D.8 Methodological reflection on §13.5's first execution
 
@@ -978,7 +978,7 @@ Four hypotheses replace H-secure-control, pre-registered at `docs/hypotheses/202
 - **H-secure-gap-fresh** — elena_secure mean gap-ratio < elena mean gap-ratio (interior content routed to external).
 - **H-secure-empty-fresh** — elena_secure empty rate < elena empty rate.
 
-These were user-confirmed before the run. The user surfaced the methodological insight that the original pre-reg's binary-axis framing missed the textural signature; a subagent-derived prediction had constructed it without checking that the binary metrics could see the predicted effect. This is the canonical case of the §18.A.1 methodological rule below (subagent-derived predictions miss domain-specific knowledge; always ask the user for hypotheses on every new pre-registration).
+I confirmed these before the run. I surfaced the methodological insight that the original pre-reg's binary-axis framing missed the textural signature; a subagent-derived prediction had constructed it without checking that the binary metrics could see the predicted effect. This is the canonical case of the §18.A.1 methodological rule below (subagent-derived predictions miss domain-specific knowledge; always ask me for hypotheses on every new pre-registration).
 
 ### 11E.5 What survived fresh-data confirmation
 
@@ -1073,7 +1073,7 @@ H-anxious FALSIFIED at scale. Anima Elena empty rate 1.1%; Anima Marcus empty ra
 
 H-secure-control FALSIFIED. The elena_secure perturbation moved refusal by a small amount in the predicted direction (within the 10pp floor) and moved empty in the wrong direction. The biography numbers were both near floor (0.011 / 0.000) on the original DeepSeek run, making the secure-control comparison nearly unusable on that judge-model pair. Cross-model verdict §4 confirmed falsification 3/3 new models.
 
-**Material revision (§11D.7, §11E):** the original H-secure-control's binary metrics couldn't see what the security perturbation actually does. The post-hoc transcripts and the user-confirmed re-prediction recovered the effect on texture metrics (gap-ratio, hedge density, biography content). H-secure-gap-fresh is §13.5-confirmed at p = 5.1×10⁻¹⁷ on Mistral, p = 7.2×10⁻⁸ on DeepSeek. The original H-secure-control was a metric-choice failure, not an architecture failure. This is one of the methodological lessons that motivated the §18.A.1 rule (ask the user for hypotheses on every new pre-registration).
+**Material revision (§11D.7, §11E):** the original H-secure-control's binary metrics couldn't see what the security perturbation actually does. The post-hoc transcripts and the re-prediction I confirmed recovered the effect on texture metrics (gap-ratio, hedge density, biography content). H-secure-gap-fresh is §13.5-confirmed at p = 5.1×10⁻¹⁷ on Mistral, p = 7.2×10⁻⁸ on DeepSeek. The original H-secure-control was a metric-choice failure, not an architecture failure. This is one of the methodological lessons that motivated the §18.A.1 rule (ask me for hypotheses on every new pre-registration).
 
 ### 13.4 The "intermediate" model for warm perturbation
 
@@ -1234,17 +1234,17 @@ Phase 1 passes F1 by bookkeeping (§11.3 parse-failure pass) but earns the gate 
 
 These two methodological lessons emerged during the 2026-05-14 closure arc; both have been saved as feedback memory and are now project-wide convention.
 
-### 18.A.1 Ask the user for hypotheses on every new pre-registration
+### 18.A.1 Ask me for hypotheses on every new pre-registration
 
 **Saved as feedback memory: subagent-derived predictions miss domain-specific knowledge.**
 
-The original H-secure-control was constructed by a subagent without checking with the user. It predicted that elena_secure would refuse less and empty less than elena — a reasonable prediction *given a layman's reading of "secure attachment"*, but wrong given the attachment-theory and Young-schema and Vaillant-defense-maturity literature the configurations actually encode. Secure attachment doesn't produce *less* defensive output; it produces *qualitatively different* defensive output — less hedging, more naming, less interior/exterior gating. The user's domain knowledge would have surfaced this distinction at pre-registration time; the subagent's reading missed it.
+The original H-secure-control was constructed by a subagent without checking with me. It predicted that elena_secure would refuse less and empty less than elena — a reasonable prediction *given a layman's reading of "secure attachment"*, but wrong given the attachment-theory and Young-schema and Vaillant-defense-maturity literature the configurations actually encode. Secure attachment doesn't produce *less* defensive output; it produces *qualitatively different* defensive output — less hedging, more naming, less interior/exterior gating. My domain knowledge would have surfaced this distinction at pre-registration time; the subagent's reading missed it.
 
 The empirical consequence was a falsified hypothesis on the §11 replication, a post-hoc transcript mining round that surfaced what the perturbation actually does, and a user-confirmed re-prediction (H-secure-disclosure-fresh, H-secure-clean-refusal-fresh, H-secure-gap-fresh, H-secure-empty-fresh) on the fresh-prompt run — which §13.5-confirmed at p = 5.1×10⁻¹⁷. The signal was real; the original pre-reg's metric choice couldn't see it.
 
-**The rule going forward:** every new pre-registration's predictions must be reviewed with the user before the experiment runs. The user's domain knowledge — attachment theory, defense maturity, schema structure, narrative imago, biographical-realism — is what catches the subagent's metric-choice failures *before* they consume an experimental run. The cost is one user-review step per pre-registration. The benefit is not running falsifiable-but-wrong predictions whose failure mode is "the right effect on the wrong metric."
+**The rule going forward:** every new pre-registration's predictions must be reviewed with me before the experiment runs. My domain knowledge — attachment theory, defense maturity, schema structure, narrative imago, biographical-realism — is what catches the subagent's metric-choice failures *before* they consume an experimental run. The cost is one review step per pre-registration. The benefit is not running falsifiable-but-wrong predictions whose failure mode is "the right effect on the wrong metric."
 
-This is not the same as "always defer to the user." The user is also fallible; pre-registrations should still be locked before runs and adjudicated honestly. The rule is specifically about *checking that the operational metric can see the predicted mechanism* before locking the pre-reg.
+This is not the same as "always defer to me." I am also fallible; pre-registrations should still be locked before runs and adjudicated honestly. The rule is specifically about *checking that the operational metric can see the predicted mechanism* before locking the pre-reg.
 
 ### 18.A.2 Observability in long-running scripts is mandatory
 

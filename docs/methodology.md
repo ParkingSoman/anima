@@ -8,9 +8,9 @@ Definitions for jargon used here are in [glossary.md](glossary.md).
 
 ## <a id="elicit-first"></a>1. Hypothesis elicitation precedes pre-registration
 
-For every research cycle: the user is asked for their predictions **before** any pre-registration is authored. The user has domain knowledge (attachment theory, defenses, schemas) that subagents miss; eliciting first prevents pre-regs being shaped by what the model thinks will happen. The H-secure-control pre-reg got direction backwards in Phase 1 partly because elicitation was skipped — secure attachment in this implementation looks like "confident regulation" rather than "less defensive activity." That correction is now baked into protocol.
+For every research cycle: I supply my predictions **before** any pre-registration is authored. I bring domain knowledge (attachment theory, defenses, schemas) that subagents miss; eliciting my predictions first prevents pre-regs being shaped by what the model thinks will happen. The H-secure-control pre-reg got direction backwards in Phase 1 partly because elicitation was skipped — secure attachment in this implementation looks like "confident regulation" rather than "less defensive activity." That correction is now baked into protocol.
 
-Concretely: when starting an experiment, gather the user's predictions in writing → draft the pre-reg → user reviews → commit → run.
+Concretely: when starting an experiment, gather my predictions in writing → draft the pre-reg → I review it → commit → run.
 
 ---
 

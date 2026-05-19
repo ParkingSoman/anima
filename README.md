@@ -149,14 +149,14 @@ Each persona is one YAML file. 10 are bundled:
 - `jamie.yaml` — expressive, low-defense, stand-up comic
 - `marcus_warm.yaml`, `elena_secure.yaml` — perturbation variants
 
-**Phase 2 fresh configs (E0)** — authored without preview interaction, spanning psychological territory the user has never chatted with. Used for R1–R4 research:
+**Phase 2 fresh configs (E0)** — authored without preview interaction, spanning psychological territory I have never chatted with. Used for R1–R4 research:
 - `tomas.yaml` — fearful attachment + immature defenses (splitting, projection)
 - `priya.yaml` — dismissive-avoidant fragile-narcissistic + idealization/devaluation
 - `wolfgang.yaml` — high-openness dismissive intellectualizer + isolation_of_affect
 - `aiyana.yaml` — earned-secure + mature defenses (sublimation, humor)
 - `meilin.yaml` — anxious-preoccupied + reaction-formation + self_sacrifice schema stack
 
-Each config's `notes:` field names the predicted Phase 2 behavioral signature for theory-of-mind, retrieval, and retention. Predictions are derivable from the framework alone; the user has never chatted with these personas.
+Each config's `notes:` field names the predicted Phase 2 behavioral signature for theory-of-mind, retrieval, and retention. Predictions are derivable from the framework alone; I have never chatted with these personas.
 
 ## Project structure
 
@@ -200,7 +200,7 @@ docs/
   analyses/             # verdicts + post-hoc analyses
   testing.md
 
-personal_personas/      # user's personal trait-extreme demos (not for research)
+personal_personas/      # my personal trait-extreme demos (not for research)
 tests/                  # unit + integration (197+ passing)
 
 STATE.md                # cold-resume artifact — read this first in a fresh session
@@ -231,4 +231,4 @@ Then: `docs/phase2_writeup.md` + snapshot to `anima_v2/` + STATE.md to CLOSED.
 
 ## License
 
-No license assigned yet. Until a `LICENSE` file is added, all rights are reserved by the author. This is research code shared for transparency; please do not redistribute or build on it without first opening an issue.
+No license assigned yet. Until a `LICENSE` file is added, all rights are reserved by me. This is research code shared for transparency; please do not redistribute or build on it without first opening an issue.

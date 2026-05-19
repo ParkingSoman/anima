@@ -31,15 +31,15 @@
 
 Engineering is iteration-first per §13.5 rule 5. No pre-registration required for E0–E6. Each task runs via SDD: implementer → spec-compliance reviewer → code-quality reviewer.
 
-### E0 — Five new Phase 2 configs (user-requested)
+### E0 — Five new Phase 2 configs (I requested these)
 
-**Motivation:** Phase 1's 5 configs (marcus, elena, jamie, marcus_warm, elena_secure) are "discovery-iteration-shaped" — the user has read Phase 1 transcripts of each. Hypotheses formed for R1/R2/R4 on those configs would be colored by remembered Phase 1 behavior, not by framework reasoning. Per §13.5 #3 ("configs authored by someone not involved in the discovery iteration" is a preferred fresh-data source), Phase 2 research uses **five new configs the user has never interacted with**.
+**Motivation:** Phase 1's 5 configs (marcus, elena, jamie, marcus_warm, elena_secure) are "discovery-iteration-shaped" — I've read Phase 1 transcripts of each. Hypotheses I form for R1/R2/R4 on those configs would be colored by remembered Phase 1 behavior, not by framework reasoning. Per §13.5 #3 ("configs authored by someone not involved in the discovery iteration" is a preferred fresh-data source), Phase 2 research uses **five new configs I have never interacted with**.
 
 **Constraints:**
 
 - Span psychologically distinct territory: different attachment styles, defense maturities, schema profiles, Big5 patterns.
 - Zero overlap with the existing 5 Phase 1 personalities (no avoidant-engineer recapitulation, no anxious-teacher recapitulation).
-- Each config must be **predictable from framework** — once the user reads the high-level psychological summary, they can form a prediction from attachment theory + defense theory + schema theory without needing to have chatted with the Anima.
+- Each config must be **predictable from framework** — once I read the high-level psychological summary, I should be able to form a prediction from attachment theory + defense theory + schema theory without needing to have chatted with the Anima.
 - Full preset YAMLs under `anima/config/presets/` so they're runnable from day 1 with `--persona <name>`.
 
 **Engineering separation:** Smoke tests for E5/E6 (cross-session recall) use **existing Marcus** so engineering verification doesn't contaminate the new configs with iteration history. The new configs only see the world during R1/R2/R4 research runs.
@@ -164,7 +164,7 @@ Phase 1's confirmed finding was on a stateless architecture. Does adding cross-t
 
 - **Fresh-data confirmation** required for R1, R2, R4 (the master-plan §12 exit-gate criteria) and R3.
 - At least one dimension (prompts, configs, model, scenario) must NOT be shaped by Phase 2 engineering iteration.
-- Preferred fresh sources: Aron 1997 prompts (literature), held-out model, configs authored by the user.
+- Preferred fresh sources: Aron 1997 prompts (literature), held-out model, configs authored by me.
 - Engineering claims (E1–E6) do not need fresh-data confirmation.
 
 ---
@@ -266,13 +266,13 @@ Per §13.5 rule 5, every claim in Phase 2 writeups carries one of three epistemi
 
 **Repo:** PUBLIC at https://github.com/ParkingSoman/anima.
 
-**Research: NOT STARTED.** R1–R4 each require user-supplied predictions BEFORE pre-reg authoring per the standing protocol. Specifically the next user-facing decision when Phase 2 resumes:
+**Research: NOT STARTED.** R1–R4 each require my predictions BEFORE pre-reg authoring per the standing protocol. Specifically the next decision waiting on me when Phase 2 resumes:
 
-> For R1 (affect-congruent retrieval): for each of the 5 new configs (Tomás / Priya / Wolfgang / Aiyana / Mei-Lin), what direction does the user predict for the mean affect-tag of top-3 retrieved memories under (negative / positive / neutral) mood, vs uniform random?
+> For R1 (affect-congruent retrieval): for each of the 5 new configs (Tomás / Priya / Wolfgang / Aiyana / Mei-Lin), what direction do I predict for the mean affect-tag of top-3 retrieved memories under (negative / positive / neutral) mood, vs uniform random?
 
 **Phase 2 closure remaining:**
 
-1. R1–R4 research cycles (each: elicit user hypothesis → pre-reg → fresh-data run → verdict)
+1. R1–R4 research cycles (each: elicit my hypothesis → pre-reg → fresh-data run → verdict)
 2. `docs/phase2_writeup.md` (mirrors phase1_writeup structure)
 3. `cp -R anima/ anima_v2/` + `cp -R verification/ verification_v2/`
 4. STATE.md flip to Phase 2 CLOSED

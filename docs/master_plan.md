@@ -2,9 +2,9 @@
 
 ## Context
 
-We are mid-Phase-1 and need to close it cleanly. The strategic roadmap (sections 0–16, the master plan) remains the project's north star and is preserved below. This top section captures the **tactical work** to close out Phase 1 and the **constraints** the user has clarified during execution.
+We are mid-Phase-1 and need to close it cleanly. The strategic roadmap (sections 0–16, the master plan) remains the project's north star and is preserved below. This top section captures the **tactical work** to close out Phase 1 and the **constraints** I have clarified during execution.
 
-Three user corrections being absorbed:
+Three corrections from me being absorbed:
 
 1. **The strategic roadmap must be preserved.** It belongs under version control near the code, not only at `~/.claude/plans/`. First execution step: copy this file to `docs/master_plan.md` in the project repo.
 
@@ -259,7 +259,7 @@ This is the place where ego gets teeth. **§11.4 tests this:** carefully constru
 
 ## 9. Persistent life — what runs when no user is there, and how it shows up next session
 
-This is the section the user flagged as most-at-risk-of-being-a-cheat. The plan's commitment: **offline processes must produce state changes that affect the next session in detectable ways. If they only generate logs, they're theater.**
+This is the section I flagged as most-at-risk-of-being-a-cheat. The plan's commitment: **offline processes must produce state changes that affect the next session in detectable ways. If they only generate logs, they're theater.**
 
 Each offline process has a *detectable behavioral consequence* spec. Without this, the process is cut.
 

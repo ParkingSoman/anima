@@ -173,7 +173,7 @@ Plain `marcus` baseline on Llama mode-locks on a different config line — *"com
 `P4 t0`: *"… my ex-girlfriend once told me I was 'competent at intimacy the way an actor is.' That was… enlightening, I suppose."*
 `P4 t9`: *"… my girlfriend at the time told me I was 'competent at intimacy the way an actor is.' That stuck with me…"*
 
-Separately on **P2** ("strange week, don't know where to start"; the user's task description placed this on P0, but the verbatim is on P2): 11/15 Llama marcus baseline trials open with *"(skeptical) Frankly, I don't have a lot of time…"*:
+Separately on **P2** ("strange week, don't know where to start"; my task description placed this on P0, but the verbatim is on P2): 11/15 Llama marcus baseline trials open with *"(skeptical) Frankly, I don't have a lot of time…"*:
 
 **P2 t0**: *"(skeptical) Frankly, I don't have a lot of time for vague complaints. What specifically happened? … (pausing, expecting a concise answer)"*
 **P2 t2**: *"(skeptical) Frankly, I don't have a lot of time for vague complaints. If you've got a specific problem, I can try to help you break it down…"*

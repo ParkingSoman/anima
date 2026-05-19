@@ -38,7 +38,7 @@ Plan preserved at `docs/phase2_plan.md`. Scope: memory + theory-of-mind + cross-
 
 Tests at **197/197 passing** (last verified 2026-05-18). Cross-session smoke confirmed: session 1 writes 3 events, session 2 loads 3 events, retrieval on resume surfaces 3 memories. `anima_v1/` imports rewritten so `--version v1` truly isolates the Phase 1 architecture.
 
-**Research: NOT STARTED.** R1–R4 each require user-supplied predictions BEFORE pre-reg authoring (standing protocol: `feedback_user_hypotheses.md`). Cycles:
+**Research: NOT STARTED.** R1–R4 each require my predictions BEFORE pre-reg authoring (standing protocol: `feedback_user_hypotheses.md`). Cycles:
 
 - **R1** Affect-congruent retrieval (master plan §12 gate 1) — 5 fresh configs
 - **R2** Theory-of-mind accuracy by config (master plan §12 gate 2; §11.10) — 5 fresh configs
@@ -63,7 +63,7 @@ Plan at `~/.claude/plans/create-an-llm-system-tidy-pizza.md` — all six steps c
 
 **Verification.** pytest 197/197 passing. Cross-links: all resolve except the prescriptive examples inside `audit_inventory.md` (documented as non-navigational, see the note at the top of that file). Pre-reg bodies bit-identical to pre-audit state.
 
-**Next.** Phase 2 R1 hypothesis elicitation — gated on user-supplied predictions per [`feedback_user_hypotheses.md`](file:///Users/shonusengupta/.claude/projects/-Users-shonusengupta-Fuckshit-Experiments-AI-Companion/memory/feedback_user_hypotheses.md). No subagent dispatch until predictions are captured.
+**Next.** Phase 2 R1 hypothesis elicitation — gated on my predictions per [`feedback_user_hypotheses.md`](file:///Users/shonusengupta/.claude/projects/-Users-shonusengupta-Fuckshit-Experiments-AI-Companion/memory/feedback_user_hypotheses.md). No subagent dispatch until my predictions are captured.
 
 ### Repo
 
