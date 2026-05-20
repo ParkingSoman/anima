@@ -70,61 +70,13 @@ length budget for THIS person.
 """
 
 
-def _length_directive(cfg) -> tuple[int, int, str]:
-    """Compute (min_sentences, max_sentences, directive_text) from config.
-
-    Psych grounding:
-      - High N + introversion + analytic → ruminative; longer monologue.
-      - High E + low NFC + intuitive → external processor; shorter, snappier.
-      - Anxious attachment amplifies internal anticipation; longer.
-      - Avoidant attachment suppresses internal affect; shorter.
-    """
-    b5 = cfg.big5
-    cs = cfg.cognitive_style
-    att = cfg.attachment
-
-    score = 0.0
-    # introversion increases monologue
-    score += (0.5 - b5.extraversion) * 2.0
-    # neuroticism increases monologue
-    score += (b5.neuroticism - 0.5) * 2.0
-    # analytic style increases monologue
-    score += (0.5 - cs.intuitive_vs_analytic) * 1.5
-    # high NFC increases (wants to resolve internally before speaking)
-    score += (cs.need_for_closure - 0.5) * 1.0
-    # anxious attachment amplifies
-    score += att.anxiety * 0.8
-    # avoidant attachment suppresses
-    score -= att.avoidance * 1.0
-
-    # Map score (roughly [-4, +5]) to a target band
-    if score <= -1.5:
-        return 1, 2, ("This person processes EXTERNALLY. Their inner monologue is "
-                       "very short — sometimes a single sentence, sometimes just a flash "
-                       "of reaction before they're already responding. 1–2 sentences max.")
-    if score <= -0.5:
-        return 1, 3, ("This person leans toward acting rather than ruminating. Their "
-                       "inner voice is brief — a beat of registering what's happening "
-                       "and a quick move toward what they want to do. 1–3 sentences.")
-    if score <= 0.5:
-        return 2, 4, ("This person has a moderate inner life. They notice things, they "
-                       "consider, but they don't agonize. 2–4 sentences.")
-    if score <= 1.5:
-        return 3, 5, ("This person tends to think things through internally. Their "
-                       "monologue can include hesitations, associations, things they "
-                       "almost-say-but-don't. 3–5 sentences.")
-    return 4, 6, ("This person is highly ruminative. Their inner voice is dense — "
-                   "associations cascade, things get revisited, the same thought returns "
-                   "from a new angle. 4–6 sentences.")
-
-
 class InnerMonologueSubsystem:
     def __init__(self, llm: LLMAdapter):
         self.llm = llm
 
-    # Uniform iter-1 directive used when the parameter-aware monologue length
-    # computation is ablated. Matches the original hard-coded 2–6 sentence
-    # behavior that existed before `_length_directive` was introduced.
+    # Uniform monologue directive applied to every persona. Length-of-output
+    # emerges from the persona's structural config (Big5, schemas, defenses), not
+    # from prompt-side length prescription.
     _UNIFORM_DIRECTIVE = (
         "Length: 2–6 sentences. Stream-of-thought, not essay. Allow "
         "fragments. Allow contradictions. Allow self-interruption."
@@ -146,30 +98,27 @@ class InnerMonologueSubsystem:
     ) -> Monologue:
         """Run the inner monologue.
 
-        If ``ablate`` is True, bypass the parameter-aware
-        :func:`_length_directive` and revert to the iter-1 uniform 2–6
-        sentence directive (and a fixed 540-token budget). Used by research
-        ablation experiments isolating the contribution of the
-        parameter-aware monologue length. When False (default), behavior is
-        unchanged.
+        The directive is the same for every persona (a uniform 2–6 sentence
+        instruction). Length-of-output emerges from the persona's structural
+        config (Big5, schemas, defenses) reacting to the situation, not from
+        prompt-side length prescription. The ``ablate`` kwarg is retained
+        for API compatibility but is now a no-op.
         """
         from anima_v1.subsystems.appraisal import _config_appraisal_block
 
-        if ablate:
-            min_s, max_s = 2, 6
-            directive = self._UNIFORM_DIRECTIVE
-            # Param-independent token budget for the uniform fallback.
-            # Bumped from 540 → 8000 as a safety cap; the prompt-side
-            # directive still asks for ~6 sentences.
-            max_tokens = 8000
-        else:
-            min_s, max_s, directive = _length_directive(cfg)
-            # Sentence budget scales the token budget for this call.
-            # Ceiling raised from 360 → 8000 so DeepSeek-flash's
-            # reasoning_content path has room to breathe before .content
-            # is emitted. Floor (60) and persona-scaled prompt-side
-            # directive are unchanged.
-            max_tokens = max(60, min(8000, 90 * max_s))
+        # Single uniform monologue directive — same for every persona. The
+        # prior persona-scaled length directive (introvert+analytic → longer;
+        # extravert+intuitive → shorter) was removed: it conflated *instructed
+        # sentence count* with *token budget* and produced mid-sentence cutoffs
+        # for ruminative personas like Iris on DeepSeek-flash (where the
+        # reasoning channel eats budget before .content emits). Length-of-
+        # output now emerges from the structural config (Big5, schemas,
+        # defenses) acting on a fixed directive, not from prompt-side
+        # length prescription. The ``ablate`` parameter is retained as a no-op
+        # for API compatibility with Anima.__init__'s ablate_monologue_length
+        # plumbing; both branches now take the same path.
+        directive = self._UNIFORM_DIRECTIVE
+        max_tokens = 8000
         instr = _INSTR_TMPL.format(length_directive=directive)
 
         system = (

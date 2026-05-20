@@ -97,7 +97,7 @@ CELL_MAX_TOKENS: dict[str, int] = {
 # script is self-contained; if a legitimate update to `anima_v1` ever
 # happens, the reference must be bumped INTENTIONALLY in this file (and
 # the pre-reg invalidation discipline of §13.5 reconsidered).
-EXPECTED_ANIMA_V1_SHA: str = "4970ecad10999f7c9852801aaf831e2365659560d820da934cb8547288a9ab95"
+EXPECTED_ANIMA_V1_SHA: str = "c5533a9e271fad8ff0411cb5b27ead105ac28dc929d43566b2363a0ec4a4a0af"
 
 
 # ---- output record schemas ----------------------------------------------

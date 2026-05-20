@@ -44,21 +44,26 @@ def _monologue_system_prompt(anima: Anima, fake: FakeAdapter) -> str:
     raise AssertionError("inner-monologue call never reached the LLM adapter")
 
 
-def test_anima_default_uses_parameter_aware():
-    """Default construction must use the parameter-aware directive (Jamie's
-    band — 'leans toward acting' or 'EXTERNALLY')."""
+def test_anima_default_uses_uniform_directive():
+    """Default construction now uses the uniform monologue directive on
+    every persona. The persona-scaled ``_length_directive()`` was removed
+    after it produced mid-sentence truncations on ruminative personas
+    (the 90*max_s formula gave Iris-class personas only ~450 tokens,
+    cut by DeepSeek-flash's reasoning-channel overhead). Length-of-
+    output now emerges from structural config, not prompt prescription."""
     cfg = load_config(_JAMIE)
     fake = FakeAdapter()
     anima = Anima(cfg, llm=fake)
     system = _monologue_system_prompt(anima, fake)
-    assert any(n in system for n in _PARAM_AWARE_NEEDLES), (
-        f"expected one of {_PARAM_AWARE_NEEDLES!r} in system prompt; "
-        f"got: {system[:500]!r}"
+    assert _UNIFORM_NEEDLE in system, (
+        f"expected uniform directive in system prompt; got: {system[:500]!r}"
     )
-    # And it must NOT be the uniform fallback.
-    assert _UNIFORM_NEEDLE not in system, (
-        "default path leaked the uniform-fallback directive"
-    )
+    # And it must NOT carry any of the (now-removed) persona-aware bands.
+    for needle in _PARAM_AWARE_NEEDLES:
+        assert needle not in system, (
+            f"default path leaked parameter-aware directive {needle!r} "
+            f"after persona-scaling removal"
+        )
 
 
 def test_anima_with_ablate_uses_uniform():
