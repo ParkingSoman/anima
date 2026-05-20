@@ -1,7 +1,7 @@
 """Anima — the top-level orchestrator.
 
 Phase 1 MVP turn loop:
-    perception → appraisal → inner_monologue → response_generator
+    perception → appraisal → inner_monologue → response_planner → response_generator
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from anima_v1.state.self_model import SelfModel
 from anima_v1.subsystems.appraisal import AppraisalSubsystem
 from anima_v1.subsystems.inner_monologue import InnerMonologueSubsystem
 from anima_v1.subsystems.perception import PerceptionSubsystem
+from anima_v1.subsystems.response_planner import ResponsePlannerSubsystem
 from anima_v1.subsystems.response_generator import ResponseGeneratorSubsystem
 
 # Feature plumbing: capture every LLM call's full output (including DeepSeek
@@ -85,6 +86,12 @@ class TurnTrace:
     # carries ``text`` / ``usage`` / ``finish_reason`` / ``raw_message``).
     # The ``raw_message`` is where DeepSeek's chain-of-thought lives.
     llm_calls: list[dict] = field(default_factory=list)
+    # The structured ResponsePlan produced by ResponsePlannerSubsystem this
+    # turn. Stored as the to_jsonable() dict form so traces serialize cleanly.
+    # Defaults to {} so old code paths constructing TurnTrace without a plan
+    # (or tests that don't expect the field) keep working — the field is
+    # purely additive.
+    response_plan: dict = field(default_factory=dict)
 
 
 class Anima:
@@ -128,6 +135,7 @@ class Anima:
         self._perception = PerceptionSubsystem(self.llm)
         self._appraisal = AppraisalSubsystem(self.llm)
         self._monologue = InnerMonologueSubsystem(self.llm)
+        self._planner = ResponsePlannerSubsystem(self.llm)
         self._response = ResponseGeneratorSubsystem(self.llm)
 
         self.traces: list[TurnTrace] = []
@@ -180,9 +188,30 @@ class Anima:
         )
         monologue_view = self._monologue.render(monologue)
 
-        # 9. response
+        # 7. response planner — mechanical regulation between interior
+        # monologue and external speech. Produces a structured ResponsePlan
+        # the generator renders in voice. Splits the six-jobs-in-one-prompt
+        # of the old response_generator into: planner (decides WHAT to say,
+        # what to withhold, which defenses fire, register modifiers) and
+        # generator (renders the plan in the persona's voice).
+        plan = self._planner.run(
+            cfg=self.cfg,
+            self_model=self.self_model,
+            mood_view=post_mood_view,
+            drive_view=post_drive_view,
+            perception_view=perception_view,
+            appraisal=appraisal,
+            appraisal_view=appraisal_view,
+            monologue_view=monologue_view,
+            drives_activations=dict(self.drives.activations),
+            user_msg=user_msg,
+        )
+
+        # 9. response — render the plan in the persona's voice.
         response = self._response.run(
-            cfg=self.cfg, self_model=self.self_model, mood_view=post_mood_view,
+            cfg=self.cfg, self_model=self.self_model,
+            plan=plan,
+            mood_view=post_mood_view,
             perception_view=perception_view, appraisal_view=appraisal_view,
             monologue_view=monologue_view, user_msg=user_msg,
             conversation_history=self.conversation_history,
@@ -210,6 +239,7 @@ class Anima:
             response=response.text,
             usage=response.metadata.get("usage", {}),
             llm_calls=_snapshot_llm_calls(self._llm_capture),
+            response_plan=plan.to_jsonable(),
         )
         self.traces.append(trace)
         return response.text, trace

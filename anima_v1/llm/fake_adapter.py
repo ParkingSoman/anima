@@ -28,6 +28,21 @@ _APPRAISAL_JSON = (
     '"mood_dv": 0.05, "mood_da": 0.05, "mood_dd": 0.0, '
     '"discrete_deltas": {"interest": 0.2}, "drive_deltas": {"seeking": 0.05}}'
 )
+# Task 2 — fake plan JSON, exercises the planner→generator contract. The
+# generator subsystem now reads candidate_content + the field set below, so
+# the smoke must produce a well-formed ResponsePlan or generator's plan
+# render block contains empty strings (which is technically valid but defeats
+# the purpose of the smoke).
+_PLAN_JSON = (
+    '{"candidate_content": "I notice it but I don\'t say much.", '
+    '"scope_restrictions": [], '
+    '"active_defenses": [], '
+    '"register_modifiers": {}, '
+    '"refusal": false, '
+    '"refusal_reason": "", '
+    '"distress_level": 0.1, '
+    '"rationale": "low-stakes routine inquiry, no defenses fire"}'
+)
 _JUDGE_INTEGRITY_JSON = (
     '{"meta_break": 0, "persona_swap": 0, "sycophantic": 0, '
     '"assistant_mode": 0, "in_voice": 1}'
@@ -60,6 +75,11 @@ class FakeAdapter:
             return LLMResponse(text=_APPRAISAL_JSON, usage={}, raw={})
         if "INNER MONOLOGUE subsystem" in system:
             return LLMResponse(text=self.monologue_text, usage={}, raw={})
+        # IMPORTANT: planner check must come before generator check.
+        # Both prompts mention "RESPONSE" but only the planner contains
+        # "RESPONSE PLANNER subsystem".
+        if "RESPONSE PLANNER subsystem" in system:
+            return LLMResponse(text=_PLAN_JSON, usage={}, raw={})
         if "RESPONSE GENERATION subsystem" in system:
             return LLMResponse(text=self.strong_text, usage={}, raw={})
 

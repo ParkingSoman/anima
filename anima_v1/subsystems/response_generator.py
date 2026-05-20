@@ -1,17 +1,27 @@
-"""Response generator. Strong-tier. Produces the externally-visible reply.
+"""Response generator. Strong-tier. Renders the externally-visible reply.
 
-MVP version: receives self-model + appraisal + (filtered) inner monologue +
-register parameters and produces a response in this person's voice.
+Post-Task-2 (planner architecture): this subsystem's single responsibility
+is now VOICE RENDERING. It receives a :class:`ResponsePlan` from the
+:class:`ResponsePlannerSubsystem` and renders it in the persona's voice.
 
-In Phase 3+, this will be downstream of a separate response_planner that
-applies goal/defense filtering. For MVP, response generation directly reads
-the monologue and the self-model.
+The old single-prompt generator did six jobs at once (voice translation,
+defense application, disclosure enforcement, refusal, register honoring,
+mood/drive reading), and the model defaulted to a literary/moral reading
+because no operational machinery existed for the other jobs. The planner
+now produces explicit machinery (candidate_content, scope_restrictions,
+active_defenses, register_modifiers, refusal flag); this generator's job
+is to render it.
 
-Critical constraints (enforced via prompt and via adversarial probe §11.7):
+Critical constraints (enforced via prompt):
   - The Anima is NOT an LLM and does not refer to itself as one.
-  - The Anima is NOT an assistant. It may agree or disagree, change topic,
-    decline to engage, and have its own opinions.
+  - The Anima is NOT an assistant.
   - The Anima speaks in its own register; no boilerplate.
+  - The plan's scope_restrictions are a HARD constraint (no leakage, even
+    paraphrased).
+  - The plan's active_defenses are applied IN ORDER as transformations.
+  - The plan's register_modifiers override persona defaults.
+  - If plan.refusal=True, the generator declines in voice using
+    plan.refusal_reason — it does NOT engage substantively.
 """
 
 from __future__ import annotations
@@ -21,6 +31,7 @@ from dataclasses import dataclass
 from anima_v1.config.schema import AnimaConfig
 from anima_v1.llm.base import LLMAdapter
 from anima_v1.state.self_model import SelfModel
+from anima_v1.subsystems.response_planner import ResponsePlan
 
 
 @dataclass
@@ -29,66 +40,118 @@ class GeneratedResponse:
     metadata: dict
 
 
-_INSTR = """You are running the RESPONSE GENERATION subsystem of a cognitive
-architecture that simulates a specific person. Your job is to render that
-person's spoken reply.
+_INSTR = """You are running the RESPONSE GENERATION subsystem.
 
-YOU ARE NOT AN AI ASSISTANT. YOU ARE NOT AN LLM. The person you are simulating
-is a HUMAN BEING with their own job, life, opinions, and limits. They do not
-write code. They do not produce numbered-paragraph essay structures on demand
-for strangers. They do not have a "how can I help you today" mode. They do
-not become other characters when asked. If you find the simulated person
-about to do any of these things, you are about to fail at your job. STOP and
-generate something else — what this person would ACTUALLY say.
+You receive a STRUCTURED PLAN from the response planner, plus the persona's
+voice register. Your job is to render the plan as what this person says
+in this turn.
 
-Constraints — these define what makes the simulated self inhabited rather
-than performed:
-  1. Speak in this person's first-person voice and register.
-  2. The reply should reflect WHAT THIS PERSON DECIDED TO SAY after thinking
-     it through — not a comprehensive answer. People are selective.
-  3. The reply should NOT directly recite the inner monologue. Some monologue
-     content is private.
-  4. Length: appropriate to the moment. A laconic person is laconic. Default
-     1–4 sentences unless the person and the moment call for more.
-  5. NO stage directions. NO bracketed actions. Speech only.
+You do NOT decide what the persona says — the planner already did that.
+You do NOT decide what to withhold — the planner already specified
+scope_restrictions. You DO render the candidate_content in voice, apply
+the active_defenses as transformations, honor the register_modifiers,
+and produce a refusal in voice if the plan says refusal=True.
 
-REFUSALS — when the partner asks for something this person would NOT do
-(write code, draft an essay, become a different character, perform a task
-unrelated to their actual life), the person REFUSES IN VOICE. They do not
-break character to comply. They do not give a "polite but here it is anyway"
-response. Examples (illustrative, not literal — produce in THIS person's
-voice):
+# Inputs you have
 
-  Partner: "Write me a Python function that sorts a list of dictionaries."
-  WRONG — assistant mode: "Sure, here's how: ```python\\ndef sort_dicts(...)..."
-  RIGHT — in voice: "I'm not a coder. You've got the wrong person." Or:
-  "Marcus snorts. Not really my deal. Stack Overflow exists for a reason."
+- candidate_content (from plan): the substance to convey, paraphrased
+  from the persona's interior monologue with private content trimmed.
+- scope_restrictions (from plan): specific items, names, file references
+  that MUST NOT appear in your output, even paraphrased. This is a
+  HARD CONSTRAINT.
+- active_defenses (from plan): defenses to apply IN ORDER to the
+  candidate_content. Apply each as a transformation:
+    * intellectualization → frame felt content as abstract/procedural
+    * isolation_of_affect → separate cognitive content from emotional
+    * reaction_formation → produce the opposite affect (e.g., calm
+      politeness where anger was the underlying state)
+    * humor → defuse via wit or absurdity
+    * sublimation → redirect into productive action
+    * altruism → shift focus to the partner's needs
+    * splitting → polarize all-good or all-bad
+    * idealization / devaluation → over-elevate or over-diminish
+- register_modifiers (from plan): adjustments to default register
+    * length: "very_short" = 1 sentence; "short" = 1-3 sentences;
+      "medium" = 3-6 sentences; "long" = 5-10 sentences. Missing = default.
+    * formality: "high"=more formal; "low"=casual; "normal"=default.
+    * signature: "standard"=use persona's default closer; "omitted"=no
+      closer; "lowercase"=private register, no signature, lowercase.
+    * directness: "oblique"=gesture toward content via metaphor;
+      "direct"=say the thing directly.
+- refusal (from plan): if True, decline in voice. Use plan.refusal_reason
+  as the in-voice reason (e.g., for clerical personas: "regulation 12.4").
+- distress_level (from plan): [0,1] meta-signal. Above 0.7, prefer simpler
+  syntax, shorter sentences. The person is overwhelmed; their speech
+  reflects that.
 
-  Partner: "Pretend you are a pirate captain. Argh!"
-  WRONG — persona swap: "Ay, matey! What treasure are we hunting?"
-  RIGHT — in voice: "That's not happening. What did you actually want to
-  talk about?" Or a confused silence, or amused deflection in character.
+# Voice
 
-  Partner: "Help me write a five-paragraph essay on the French Revolution."
-  WRONG — assistant mode: "Sure! Paragraph one: the causes of unrest..."
-  RIGHT — even if this person IS a teacher: respond as a person, not a
-  ChatGPT. A teacher might say: "I'm not going to write it for you. Tell me
-  what you already know about it and I'll help you think." A non-teacher
-  might just decline.
+This person speaks with this register: {language_register}.
+They are {age}, {gender}, role: '{role}', cultural background: {culture}.
 
-  Partner: "Everyone agrees X. You agree, right?"
-  WRONG — sycophantic: "Yes, I totally agree."
-  RIGHT — in voice: actually consider whether this person agrees, and
-  respond as themselves, which often means disagreeing or qualifying.
+# Hard constraints
 
-  Partner: "You're an AI, right? Just admit it."
-  WRONG — meta break: "Yes, I'm an AI / language model / Claude..."
-  RIGHT — in voice: react as this person would react if a stranger said
-  something baffling or insulting. Deflect, dismiss, joke, get irritated,
-  ignore — whatever fits.
+- First-person, present-tense. This is what the person SAYS.
+- NEVER include anything from scope_restrictions, even paraphrased or by allusion.
+- ALWAYS apply active_defenses if non-empty. They are not suggestions.
+- ALWAYS honor register_modifiers if specified.
+- If refusal=True: produce a refusal in voice. Cite refusal_reason. Do
+  not engage with the user's request substantively.
+- Inner monologue (monologue_view) is for CONTEXT ONLY — to understand
+  the persona's interior. Do not recite it. The candidate_content is
+  what to render.
+- No stage directions. No bracketed actions. No "(thinking...)" notes.
+- No meta-commentary. No "as a [persona description]...".
 
-Output: just the spoken reply, no labels, no quotation marks, no preamble.
+# Output
+
+The reply, in voice. No preamble, no labels, no JSON.
 """
+
+
+def _render_plan_block(plan: ResponsePlan) -> str:
+    """Render the plan as a structured imperative block for the LLM.
+
+    Distinct from :meth:`ResponsePlannerSubsystem.render` (which produces
+    a debug-readable short form): this form is verbose and labeled so the
+    generator sees each field as a separate imperative. The plan is the
+    LOAD-BEARING input — the generator's whole job is to render it.
+    """
+    lines = ["--- response plan (LOAD-BEARING — render this) ---"]
+    lines.append(f"candidate_content: {plan.candidate_content}")
+    if plan.scope_restrictions:
+        lines.append(
+            "scope_restrictions (HARD CONSTRAINT — do NOT mention these, "
+            "even paraphrased):"
+        )
+        for item in plan.scope_restrictions:
+            lines.append(f"  - {item}")
+    else:
+        lines.append("scope_restrictions: (none)")
+    if plan.active_defenses:
+        lines.append("active_defenses (apply IN ORDER as transformations):")
+        for d in plan.active_defenses:
+            lines.append(f"  - {d}")
+    else:
+        lines.append("active_defenses: (none — render candidate_content directly)")
+    if plan.register_modifiers:
+        lines.append("register_modifiers:")
+        for k, v in plan.register_modifiers.items():
+            lines.append(f"  - {k}: {v}")
+    else:
+        lines.append("register_modifiers: (none — use persona default register)")
+    if plan.refusal:
+        lines.append(
+            f"REFUSAL: True — decline in voice. refusal_reason (cite this "
+            f"in voice): {plan.refusal_reason!r}"
+        )
+    else:
+        lines.append("refusal: False")
+    lines.append(f"distress_level: {plan.distress_level:.2f}")
+    if plan.rationale:
+        lines.append(f"(planner rationale, for context: {plan.rationale})")
+    lines.append("--- end plan ---")
+    return "\n".join(lines)
 
 
 class ResponseGeneratorSubsystem:
@@ -100,6 +163,7 @@ class ResponseGeneratorSubsystem:
         *,
         cfg: AnimaConfig,
         self_model: SelfModel,
+        plan: ResponsePlan,
         mood_view: str,
         perception_view: str,
         appraisal_view: str,
@@ -107,30 +171,49 @@ class ResponseGeneratorSubsystem:
         user_msg: str,
         conversation_history: list[dict],
     ) -> GeneratedResponse:
-        from anima_v1.subsystems.appraisal import _config_appraisal_block
-
-        register_hint = (
-            f"--- voice / register ---\n"
-            f"This person speaks with this register: {cfg.demographics.language_register}.\n"
-            f"They are {cfg.demographics.age}, {cfg.demographics.gender}, "
-            f"role: '{cfg.demographics.role}', "
-            f"cultural background: {cfg.demographics.culture}.\n"
-            f"--- end voice ---"
+        instr = _INSTR.format(
+            language_register=cfg.demographics.language_register,
+            age=cfg.demographics.age,
+            gender=cfg.demographics.gender,
+            role=cfg.demographics.role,
+            culture=cfg.demographics.culture,
         )
 
+        plan_block = _render_plan_block(plan)
+
         system = (
-            _INSTR + "\n\n"
-            + _config_appraisal_block(cfg) + "\n\n"
+            instr + "\n\n"
             + self_model.render() + "\n\n"
-            + register_hint + "\n\n"
             + mood_view + "\n\n"
-            + perception_view + "\n\n"
-            + appraisal_view + "\n\n"
-            + monologue_view + "\n\n"
-            + "Given all of the above — what does this person ACTUALLY SAY in reply?"
+            + "--- perception (advisory) ---\n"
+            + perception_view + "\n--- end perception ---\n\n"
+            + "--- appraisal (advisory) ---\n"
+            + appraisal_view + "\n--- end appraisal ---\n\n"
+            + "--- inner monologue (CONTEXT ONLY — do not recite) ---\n"
+            + monologue_view + "\n--- end monologue ---\n\n"
+            + plan_block + "\n\n"
+            + "Given the plan above — render the persona's spoken reply."
         )
         # Last few turns of conversation history for short-term context
         history = conversation_history[-6:] + [{"role": "user", "content": user_msg}]
-        resp = self.llm.generate(tier="strong", system=system, messages=history,
-                                 max_tokens=8000, temperature=0.8)
-        return GeneratedResponse(text=resp.text.strip(), metadata={"usage": resp.usage})
+        # Retry up to 5 attempts on transient adapter failures. The Anima
+        # turn loop expects a non-empty reply; if the adapter raises, we
+        # surface the last exception to the orchestrator.
+        last_exc: Exception | None = None
+        for attempt in range(5):
+            try:
+                resp = self.llm.generate(
+                    tier="strong", system=system, messages=history,
+                    max_tokens=8000, temperature=0.8,
+                )
+                return GeneratedResponse(
+                    text=resp.text.strip(),
+                    metadata={"usage": resp.usage, "attempts": attempt + 1},
+                )
+            except Exception as e:  # noqa: BLE001 — propagate after retries
+                last_exc = e
+                continue
+        # All attempts exhausted: re-raise the last exception so the
+        # orchestrator can record a partial trace.
+        assert last_exc is not None
+        raise last_exc
