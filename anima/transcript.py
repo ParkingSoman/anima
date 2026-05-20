@@ -943,11 +943,16 @@ class TranscriptWriter:
         # the block become blockquote-empty-lines (``> ``) so the rendered
         # markdown stays one cohesive quote rather than splitting.
         if block:
-            for ln in block:
-                if ln == "":
+            # Each block entry may itself span multiple lines (the inner
+            # monologue regularly does). Markdown ends a blockquote at the
+            # first unprefixed line, so we prefix EVERY line with "> " (or
+            # the empty-line marker ">") rather than just the entry's head.
+            for entry in block:
+                if entry == "":
                     lines.append(">")
                 else:
-                    lines.append(f"> {ln}")
+                    for ln in entry.split("\n"):
+                        lines.append(f"> {ln}" if ln else ">")
             lines.append("")
 
         lines.append("---")
