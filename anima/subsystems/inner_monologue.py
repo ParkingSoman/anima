@@ -38,15 +38,11 @@ saying any of this aloud. They are thinking.
 Constraints:
 - Write in first person ("I", "me", "my"), present tense. No quotation marks
   around the monologue.
-- LENGTH BUDGET FOR THIS PERSON: {length_directive}
-  Different people have different inner lives. Ruminative, neurotic,
-  introverted, analytic people think more internally before acting.
-  Extraverted, low-NFC, intuitive people process externally — their inner
-  voice is often one sentence or a flash, and then they're already speaking.
-  RESPECT THIS BUDGET. It is a feature of who this person is, not a default
-  to be inflated.
 - Stream-of-thought, not essay. Allow fragments. Allow contradictions. Allow
-  self-interruption.
+  self-interruption. Length is whatever this person's interior naturally
+  produces — there is no length prescription. Let how they think, how
+  attached/avoidant they are, what schemas are firing, and what mood they're
+  in determine how much (or how little) inner voice surfaces this turn.
 - The monologue should reflect WHO THIS PERSON IS at a level deeper than
   surface vocabulary. The traits, schemas, attachment style, current mood, and
   preoccupations should leak into what the person ATTENDS to, what associations
@@ -65,22 +61,13 @@ Constraints:
   categorical label. Your job is to produce the actual first-person prose
   interior. Do not echo the tag.
 
-Output format: just the monologue. No preamble, no labels, no JSON. Respect the
-length budget for THIS person.
+Output format: just the monologue. No preamble, no labels, no JSON.
 """
 
 
 class InnerMonologueSubsystem:
     def __init__(self, llm: LLMAdapter):
         self.llm = llm
-
-    # Uniform monologue directive applied to every persona. Length-of-output
-    # emerges from the persona's structural config (Big5, schemas, defenses), not
-    # from prompt-side length prescription.
-    _UNIFORM_DIRECTIVE = (
-        "Length: 2–6 sentences. Stream-of-thought, not essay. Allow "
-        "fragments. Allow contradictions. Allow self-interruption."
-    )
 
     def run(
         self,
@@ -108,20 +95,15 @@ class InnerMonologueSubsystem:
         """
         from anima.subsystems.appraisal import _config_appraisal_block
 
-        # Single uniform monologue directive — same for every persona. The
-        # prior persona-scaled length directive (introvert+analytic → longer;
-        # extravert+intuitive → shorter) was removed: it conflated *instructed
-        # sentence count* with *token budget* and produced mid-sentence cutoffs
-        # for ruminative personas like Iris on DeepSeek-flash (where the
-        # reasoning channel eats budget before .content emits). Length-of-
-        # output now emerges from the structural config (Big5, schemas,
-        # defenses) acting on a fixed directive, not from prompt-side
-        # length prescription. The ``ablate`` parameter is retained as a no-op
-        # for API compatibility with Anima.__init__'s ablate_monologue_length
-        # plumbing; both branches now take the same path.
-        directive = self._UNIFORM_DIRECTIVE
+        # No length prescription at all — the monologue template no longer
+        # contains a length-budget placeholder. Length-of-output emerges
+        # purely from the persona's structural config (Big5, schemas,
+        # defenses, attachment) reacting to the situation. max_tokens is a
+        # safety cap (8000 = DeepSeek-flash's practical ceiling); the model
+        # decides where to stop within it. The ``ablate`` kwarg is retained
+        # for API compatibility but is now a no-op.
         max_tokens = 8000
-        instr = _INSTR_TMPL.format(length_directive=directive)
+        instr = _INSTR_TMPL
 
         system = (
             instr + "\n\n"

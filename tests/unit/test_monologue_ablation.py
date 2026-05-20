@@ -31,7 +31,20 @@ _PARAM_AWARE_NEEDLES = (
     "This person leans toward acting",
     "This person processes EXTERNALLY",
 )
-_UNIFORM_NEEDLE = "Length: 2–6 sentences. Stream-of-thought"
+# Strings that MUST NOT appear in the production monologue system prompt.
+# Length prescription was removed in full: the model decides how much (or how
+# little) inner voice surfaces, based on the persona's structural config.
+_LENGTH_PRESCRIPTION_NEEDLES = (
+    "LENGTH BUDGET",                 # the old length-budget block header
+    "Length: 2–6 sentences",         # the uniform fallback line
+    "Length: 1–2 sentences",         # short-cell directive
+    "Length: 8–12 sentences",        # long-cell directive
+    "Respect the length budget",     # the trailer in the old template
+    "1–3 sentences",                 # parameter-aware bands (now removed)
+    "2–4 sentences",
+    "3–5 sentences",
+    "4–6 sentences",
+)
 
 
 def _monologue_system_prompt(anima: Anima, fake: FakeAdapter) -> str:
@@ -44,41 +57,37 @@ def _monologue_system_prompt(anima: Anima, fake: FakeAdapter) -> str:
     raise AssertionError("inner-monologue call never reached the LLM adapter")
 
 
-def test_anima_default_uses_uniform_directive():
-    """Default construction now uses the uniform monologue directive on
-    every persona. The persona-scaled ``_length_directive()`` was removed
-    after it produced mid-sentence truncations on ruminative personas
-    (the 90*max_s formula gave Iris-class personas only ~450 tokens,
-    cut by DeepSeek-flash's reasoning-channel overhead). Length-of-
-    output now emerges from structural config, not prompt prescription."""
+def test_monologue_prompt_has_no_length_prescription():
+    """Production monologue prompt must contain ZERO length prescription.
+    The persona-scaled directive was removed; the uniform fallback was
+    removed; the model decides how much inner voice surfaces, based on
+    its structural config reacting to the situation. Verifying this
+    invariant directly so any future regression (re-adding a length
+    directive to the template) fails the test loudly."""
     cfg = load_config(_JAMIE)
     fake = FakeAdapter()
     anima = Anima(cfg, llm=fake)
     system = _monologue_system_prompt(anima, fake)
-    assert _UNIFORM_NEEDLE in system, (
-        f"expected uniform directive in system prompt; got: {system[:500]!r}"
-    )
-    # And it must NOT carry any of the (now-removed) persona-aware bands.
-    for needle in _PARAM_AWARE_NEEDLES:
+    for needle in _LENGTH_PRESCRIPTION_NEEDLES + _PARAM_AWARE_NEEDLES:
         assert needle not in system, (
-            f"default path leaked parameter-aware directive {needle!r} "
-            f"after persona-scaling removal"
+            f"monologue prompt leaked length prescription {needle!r}; "
+            f"production should have NO length guidance. got: {system[:500]!r}"
         )
 
 
-def test_anima_with_ablate_uses_uniform():
-    """``ablate_monologue_length=True`` must swap in the uniform iter-1
-    directive, and must NOT include any of the parameter-aware bands."""
+def test_anima_ablate_flag_is_no_op():
+    """``ablate_monologue_length=True`` is retained as a kwarg for API
+    compatibility but is now a no-op: the production prompt has no length
+    prescription regardless of the flag. Same invariant as above; just
+    asserting it also holds on the ablate=True path."""
     cfg = load_config(_JAMIE)
     fake = FakeAdapter()
     anima = Anima(cfg, llm=fake, ablate_monologue_length=True)
     system = _monologue_system_prompt(anima, fake)
-    assert _UNIFORM_NEEDLE in system, (
-        f"expected {_UNIFORM_NEEDLE!r} in system prompt; got: {system[:500]!r}"
-    )
-    for needle in _PARAM_AWARE_NEEDLES:
+    for needle in _LENGTH_PRESCRIPTION_NEEDLES + _PARAM_AWARE_NEEDLES:
         assert needle not in system, (
-            f"ablated path leaked parameter-aware directive {needle!r}"
+            f"ablate=True path leaked length prescription {needle!r}; "
+            f"the flag is now a no-op. got: {system[:500]!r}"
         )
 
 

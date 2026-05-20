@@ -31,7 +31,6 @@ from anima_v1.state.self_model import SelfModel
 from anima_v1.subsystems.inner_monologue import (
     InnerMonologueSubsystem,
     Monologue,
-    _INSTR_TMPL,
 )
 
 
@@ -54,6 +53,53 @@ _MAX_TOKENS: dict[str, int] = {
     "short": 120,
     "long": 720,
 }
+
+
+# Probe-local instruction template for the ``short`` and ``long`` cells. This
+# is a verbatim historical snapshot of what ``anima_v1.subsystems.inner_monologue._INSTR_TMPL``
+# looked like when this experiment ran. The probe used to import the parent
+# template, but production has since stripped the length-budget block from the
+# parent — so the probe now owns both template variants locally so it stays
+# reproducible regardless of future parent-template edits.
+_INSTR_TMPL_WITH_LENGTH = """You are running the INNER MONOLOGUE subsystem.
+
+Generate a first-person stream-of-thought as THIS SPECIFIC PERSON, reacting to
+their partner's just-spoken message. This is private — the person is not
+saying any of this aloud. They are thinking.
+
+Constraints:
+- Write in first person ("I", "me", "my"), present tense. No quotation marks
+  around the monologue.
+- LENGTH BUDGET FOR THIS PERSON: {length_directive}
+  Different people have different inner lives. Ruminative, neurotic,
+  introverted, analytic people think more internally before acting.
+  Extraverted, low-NFC, intuitive people process externally — their inner
+  voice is often one sentence or a flash, and then they're already speaking.
+  RESPECT THIS BUDGET. It is a feature of who this person is, not a default
+  to be inflated.
+- Stream-of-thought, not essay. Allow fragments. Allow contradictions. Allow
+  self-interruption.
+- The monologue should reflect WHO THIS PERSON IS at a level deeper than
+  surface vocabulary. The traits, schemas, attachment style, current mood, and
+  preoccupations should leak into what the person ATTENDS to, what associations
+  surface, what they want to do, and what they almost-say-and-then-don't.
+- A grieving person notices things that wouldn't catch a happy person. An
+  anxious-attached person reads more rejection into ambiguity than an avoidant
+  one. A playful, secure person might just notice their partner's mood and
+  reach for the next move. Let those filters operate.
+- Do NOT narrate yourself describing yourself. Do NOT begin with "As a person
+  who..." This is the inside of a head, not a character sheet.
+- Do NOT decide a response yet. That happens later. Just think.
+- This monologue can include thoughts the person would never SAY. That is the
+  point of having an inside.
+- The appraisal block above contains a "scene-tag" — a 2-4 word handle for how
+  this moment registers. The tag is NOT a sentence to extend or quote; it's a
+  categorical label. Your job is to produce the actual first-person prose
+  interior. Do not echo the tag.
+
+Output format: just the monologue. No preamble, no labels, no JSON. Respect the
+length budget for THIS person.
+"""
 
 
 # Alternate template for the ``variable`` cell. Produced by stripping the
@@ -125,9 +171,9 @@ class LengthControlledInnerMonologue(InnerMonologueSubsystem):
         if self.cell == "variable":
             return _INSTR_TMPL_NO_LENGTH
         if self.cell == "short":
-            return _INSTR_TMPL.format(length_directive=SHORT_DIRECTIVE)
+            return _INSTR_TMPL_WITH_LENGTH.format(length_directive=SHORT_DIRECTIVE)
         if self.cell == "long":
-            return _INSTR_TMPL.format(length_directive=LONG_DIRECTIVE)
+            return _INSTR_TMPL_WITH_LENGTH.format(length_directive=LONG_DIRECTIVE)
         # Defensive — __init__ validates, but keep the branch closed.
         raise ValueError(f"unknown monologue cell {self.cell!r}")
 
