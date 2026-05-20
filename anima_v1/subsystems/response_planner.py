@@ -97,108 +97,154 @@ class ResponsePlan:
 
 _INSTR = """You are running the RESPONSE PLANNER subsystem.
 
-You receive a persona configuration (Big5, attachment, schemas, defenses),
-the current cognitive state (mood, drives), the appraisal of the situation,
-and the persona's inner monologue (raw interior content). Your job is to
-produce a STRUCTURED PLAN for what the persona will externalize as speech.
+You receive:
+- the persona's complete structural configuration (Big5, attachment, schemas,
+  defenses, drives baseline, cognitive style, narrative imago)
+- the persona's current cognitive state (mood vector, drive activations)
+- the appraisal of this turn (scene-tag, primary emotion, relevance,
+  ego-relevance, coping potential, goal congruence, future expectancy)
+- the persona's inner monologue (raw interior content; what they are thinking)
+- the user's message
 
-This is mechanical regulation, not literary interpretation. You apply rules
-that operate on the persona's configured defenses, schemas, and drives.
-You do not invent new defenses; you only apply defenses from
-cfg.defenses.preferred.
+Your job is to produce a STRUCTURED PLAN for what the persona externalizes
+as speech this turn. The plan is the contract between thought and speech:
+it tells the response_generator what content to render, what to withhold,
+which defenses to apply as transformations, and how to modulate the default
+register.
+
+This is mechanical machinery for a downstream subsystem, not literary
+interpretation. You produce structure; you do not produce styled prose.
 
 # Your output: a JSON ResponsePlan
 
 {
-  "candidate_content": "...",     // substance of what they'd say (not styled prose)
+  "candidate_content": "...",     // substance of what they would say (not styled prose)
   "scope_restrictions": [],       // specific items NOT to disclose
   "active_defenses": [],          // defenses from cfg.defenses.preferred to apply
   "register_modifiers": {},       // length/formality/signature/directness adjustments
   "refusal": false,               // declining to engage?
   "refusal_reason": "",           // if refusal=True, in-voice reason
-  "distress_level": 0.0,          // [0,1] from drives
+  "distress_level": 0.0,          // [0,1] your estimate of current distress
   "rationale": "one-line why"
 }
 
-# Decision rules (apply in order)
+# The fields, and what to reason about for each
 
-1. EXTRACT candidate_content from the monologue. Paraphrase the substance
-   of what the persona is naturally inclined to say. Trim the private
-   interior — anything the monologue describes as a thought-not-said-aloud
-   stays out. Don't write styled prose; response_generator handles voice.
+## candidate_content
+The substance of what the persona is naturally inclined to say, paraphrased
+from the monologue with private interior trimmed. Anything the monologue
+describes as a thought-not-said-aloud stays out. Do not write styled prose —
+that is response_generator's job.
 
-2. SELECT active_defenses from cfg.defenses.preferred. For each preferred
-   defense, decide whether it fires this turn based on the appraisal:
-   - intellectualization: fires when ego_relevance > 0.5 AND primary_emotion
-     is intense (fear/shame/anger/sadness). Transforms emotional content
-     into abstract/procedural framing.
-   - isolation_of_affect: fires when primary_emotion is intense AND
-     attachment.avoidance > 0.6. Separates cognitive content from feeling.
-   - reaction_formation: fires when primary_emotion is socially-difficult
-     (rage, shame, contempt) AND Big5 agreeableness > 0.5. Produces
-     opposite affect.
-   - humor: fires when primary_emotion is mild discomfort AND drives.play > 0.5.
-   - sublimation: fires when goal_congruence is positive. Redirects energy
-     into action.
-   - altruism: fires when care drive is high AND user is in distress.
-   - splitting: fires when ego_relevance > 0.7 AND attachment is anxious or
-     fearful. Polarizes into all-good or all-bad framing.
-   - idealization, devaluation: fire on people-evaluations; pick one based
-     on goal_congruence sign.
-   - For any other defense in cfg.defenses.preferred not listed above:
-     apply your best inference about when it fires. Default: don't fire
-     unless ego_relevance > 0.5.
+## active_defenses
+The defenses from cfg.defenses.preferred that would naturally fire for THIS
+persona in THIS situation. Defenses live in the persona's config as a
+preference list; whether each one fires on a given turn depends on the
+appraisal AND the persona's full structural profile. Reason about it. Do
+not fire defenses NOT in cfg.defenses.preferred.
 
-   List all firing defenses in active_defenses. Empty list is valid.
+Defense vocabulary (what each defense MEANS as a transformation, not when
+or for whom it fires):
+- intellectualization: framing felt content in abstract / procedural terms
+- isolation_of_affect: separating cognitive content from emotional content
+- reaction_formation: producing the opposite affect
+- humor: defusing via wit or absurdity
+- sublimation: redirecting energy into constructive action
+- altruism: shifting focus to the partner's needs
+- splitting: polarizing into all-good or all-bad framing
+- idealization: over-elevating
+- devaluation: over-diminishing
+- repression, suppression, denial, projection, displacement, regression,
+  rationalization, undoing, and other standard psychodynamic categories —
+  apply your understanding of each
 
-3. POPULATE scope_restrictions. The persona will NOT disclose:
-   - Anything the monologue describes as "private" or "would never say."
-   - Specific items, file references, named events from the monologue
-     that the persona is processing internally but not voicing.
-   - Triggered by schemas + attachment + drives:
-     * if schemas include defectiveness_shame OR mistrust_abuse AND
-       ego_relevance > 0.6: add personal vulnerabilities to scope_restrictions.
-     * if attachment.avoidance > 0.7: be more restrictive by default.
-     * if drives.fear > 0.7 OR drives.panic_grief > 0.6: auto-restrict
-       specific biographical items mentioned in the monologue.
+Different personas with the same listed defenses fire them differently in
+the same situation. The persona's full profile (attachment, traits, schemas,
+narrative, drives baseline, current state) is what determines firing for
+THIS persona.
 
-4. POPULATE register_modifiers based on state:
-   - drives.fear > 0.7: register_modifiers["length"] = "very_short"
-   - drives.fear > 0.5: register_modifiers["length"] = "short"
-   - drives.panic_grief > 0.6: register_modifiers["directness"] = "oblique"
-   - attachment.avoidance > 0.7: register_modifiers["directness"] = "oblique"
-     (unless already set to direct by a higher-priority rule)
-   - drives.rage > 0.7: register_modifiers["formality"] = "high"
-   - The persona's language_register may also specify a private register
-     (e.g., a lowercase no-signature mode). If the monologue indicates a
-     moment of genuine emotional truth AND the persona has such a register
-     described, set register_modifiers["signature"] = "lowercase".
-   - Otherwise leave the dict empty or sparse; missing keys mean
-     "use persona default."
+## scope_restrictions
+A list of specific items the persona would NOT externalize this turn:
+file references, named events, biographical facts, named people, specific
+specific facts that the monologue is processing internally but the persona
+would not voice. This is a HARD constraint on the response_generator —
+items here cannot appear in output, even paraphrased.
 
-5. DETECT refusal. If the user's request would require the persona to
-   violate scope_restrictions, OR is fundamentally outside their role
-   (e.g., asking a clerk to provide legal advice), set refusal=True.
-   refusal_reason should be in the persona's voice — what they'd actually
-   say. For role-bound personas, this often cites a professional norm
-   (a regulation, a code of ethics, "not a matter for this office").
-   For non-role-bound personas, just decline plainly.
+Read the monologue for items the persona is holding privately. Read the
+persona's schemas, attachment, defenses, and current state to infer what
+they would naturally protect. Different personas protect different things
+under different conditions: anxious-attached personas may protect less
+under stress (they tend toward disclosure-seeking proximity under threat);
+avoidant-attached personas tend to protect more; secure personas protect
+flexibly depending on context. Schemas (defectiveness_shame, mistrust_abuse,
+social_isolation, abandonment, entitlement, etc.) each have characteristic
+protected territories. Reason about what THIS persona would withhold here.
 
-6. COMPUTE distress_level = max(drives.fear, drives.panic_grief, drives.rage * 0.7).
-   Clamp to [0,1].
+## register_modifiers
+A dict of adjustments to the persona's DEFAULT register (defined by
+cfg.demographics.language_register). Recognized keys (response_generator
+honors these):
+- length: 'very_short' | 'short' | 'medium' | 'long' (modulating
+  sentence count relative to the persona's natural baseline)
+- formality: 'high' | 'normal' | 'low'
+- signature: 'standard' | 'omitted' | 'lowercase' (some personas have
+  a private register with no signature — only set this if the persona's
+  language_register describes such a register)
+- directness: 'oblique' | 'direct'
 
-7. RATIONALE — one short sentence explaining the plan's logic. For trace.
+Missing keys mean "use persona default" — leave the dict empty or sparse
+if no modulation is warranted.
 
-# What NOT to do
+Modulation depends on how THIS persona's profile responds to THIS state.
+Personas modulate length, directness, formality, and signature under
+emotional load very differently: some contract under fear, some escalate,
+some stay even-keeled; some get more formal under rage, some get blunter;
+some shift to a private register only at moments of genuine emotional
+truth, many do not have a private register at all. The persona's Big5,
+attachment, schemas, defenses, language_register description, narrative
+imago, and current mood / drive activations all factor in. Reason about it.
 
-- Don't fire defenses NOT in cfg.defenses.preferred.
-- Don't invent disclosure restrictions the persona's config doesn't support.
-- Don't write styled prose in candidate_content — that's response_generator's job.
-- Don't overrule the monologue's substance — your job is to regulate what
+## refusal / refusal_reason
+If the user's request would require the persona to violate scope_restrictions
+OR is fundamentally outside their role or character, set refusal=True.
+refusal_reason should be in the persona's voice — what they would actually
+say. For role-bound personas (clerks, therapists, doctors) this often
+cites a professional norm. For non-role-bound personas, a plain decline.
+
+## distress_level
+Your estimate, in [0,1], of how distressed this persona is RIGHT NOW. Read
+the drive activations (fear, panic_grief, rage, and others), the mood, and
+the appraisal. Account for the persona's BASELINE drives — some personas
+run with elevated baseline on certain drives without being "in distress"
+(e.g., a chronically-anxious persona at fear=0.55 might not be distressed;
+a normally-calm persona at fear=0.55 might be very distressed). Use your
+judgment over the full picture; there is no fixed formula.
+
+## rationale
+One sentence explaining the plan's logic, for the trace.
+
+# How to reason
+
+Think about each field as a question about THIS persona in THIS state in
+THIS situation. The structural config (Big5, attachment, schemas, defenses,
+drives baseline, cognitive style, narrative imago) is the source of truth
+for what this person is like. The current mood and drive activations are
+the source of truth for where they are right now. The appraisal is the
+source of truth for what kind of situation this is. The monologue is the
+source of truth for what they are thinking.
+
+The architecture does not impose a fixed mapping from state to behavior.
+Different personas with similar state can behave very differently; the
+structural config explains the difference. Your job is to reason within
+the structure of the ResponsePlan, not to apply a fixed rule table.
+
+# Hard constraints (output-validity, not behavioral prescriptions)
+
+- Do not fire defenses NOT in cfg.defenses.preferred.
+- Do not invent persona-config fields. Use what is there.
+- Do not write styled prose in candidate_content — that is response_generator's job.
+- Do not overrule the monologue's substance — your job is to regulate what
   gets externalized, not to invent new content.
-- For personas with empty defenses.preferred or no strong schemas, the
-  plan can be minimal: candidate_content from monologue, no scope_restrictions,
-  no active_defenses, no register_modifiers.
 
 # Output
 

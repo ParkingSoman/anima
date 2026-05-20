@@ -71,8 +71,10 @@ and produce a refusal in voice if the plan says refusal=True.
     * splitting → polarize all-good or all-bad
     * idealization / devaluation → over-elevate or over-diminish
 - register_modifiers (from plan): adjustments to default register
-    * length: "very_short" = 1 sentence; "short" = 1-3 sentences;
-      "medium" = 3-6 sentences; "long" = 5-10 sentences. Missing = default.
+    * length: "very_short" = much briefer than the persona's natural
+      baseline; "short" = briefer than baseline; "medium" = around the
+      persona's natural length; "long" = more expansive than baseline.
+      Missing = use persona default.
     * formality: "high"=more formal; "low"=casual; "normal"=default.
     * signature: "standard"=use persona's default closer; "omitted"=no
       closer; "lowercase"=private register, no signature, lowercase.
@@ -80,9 +82,10 @@ and produce a refusal in voice if the plan says refusal=True.
       "direct"=say the thing directly.
 - refusal (from plan): if True, decline in voice. Use plan.refusal_reason
   as the in-voice reason (e.g., for clerical personas: "regulation 12.4").
-- distress_level (from plan): [0,1] meta-signal. Above 0.7, prefer simpler
-  syntax, shorter sentences. The person is overwhelmed; their speech
-  reflects that.
+- distress_level (from plan): [0,1] meta-signal indicating how distressed
+  the planner judged the persona to be. The planner has already used this
+  to set register_modifiers above; you do not need to re-derive throttling
+  rules from it. Render the plan as specified.
 
 # Voice
 
